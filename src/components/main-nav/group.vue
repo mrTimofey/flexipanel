@@ -1,8 +1,8 @@
 <template lang="pug">
-.nav-group(:class="{ expanded: syncExpanded }")
+.nav-group(:class="{ expanded }")
 	nav-item.btn-toggle(
 		@click.prevent="switchExpanded()"
-		:active="syncExpanded"
+		:active="expanded"
 		href="#"
 	)
 		template(#before)
@@ -25,24 +25,24 @@ import NavItemBadge from './item-badge.vue';
 export default defineComponent({
 	components: { NavItem, NavItemIcon, NavItemBadge },
 	props: {
-		expanded: {
+		active: {
 			type: Boolean,
 			default: false,
 		},
 	},
-	emits: ['update:expanded'],
+	emits: ['update:active'],
 	setup(props, { emit }) {
-		const expanded = ref(props.expanded);
+		const expanded = ref(props.active);
 
 		watchEffect(() => {
-			expanded.value = props.expanded;
+			expanded.value = props.active;
 		});
 
 		return {
-			syncExpanded: expanded,
+			expanded,
 			switchExpanded() {
 				expanded.value = !expanded.value;
-				emit('update:expanded', expanded.value);
+				emit('update:active', expanded.value);
 			},
 		};
 	},

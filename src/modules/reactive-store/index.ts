@@ -7,10 +7,10 @@ export default abstract class ReactiveStore<T extends object> {
 	protected abstract getInitialState(): T;
 
 	resetState(state?: T): void {
-		this.state = reactive(state || this.getInitialState()) as T;
+		Object.assign(this.state, state || this.getInitialState());
 	}
 
 	constructor(state?: T) {
-		this.resetState(state);
+		this.state = reactive(state || this.getInitialState()) as T;
 	}
 }

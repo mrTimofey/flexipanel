@@ -14,3 +14,7 @@ export function getContainer(): Container {
 export function get<T>(what: AnyClass<T>): T {
 	return getContainer().get(what);
 }
+
+export function create<T>(what: AnyClass<T>): T {
+	return getContainer().create(what);
+}

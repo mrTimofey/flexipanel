@@ -13,7 +13,7 @@ component.nav-item(
 <script lang="ts">
 import type { PropType } from 'vue';
 import { defineComponent } from 'vue';
-import type { RouteLocationRaw } from 'vue-router';
+import type { RouteLocationRaw, RouterLinkProps } from 'vue-router';
 import { RouterLink } from 'vue-router';
 
 export default defineComponent({
@@ -44,7 +44,9 @@ export default defineComponent({
 			}
 			return {
 				to: this.to,
-			};
+				exactActiveClass: '',
+				activeClass: '',
+			} as RouterLinkProps;
 		},
 	},
 });
@@ -65,7 +67,7 @@ export default defineComponent({
 		background-color var(--bs-gray-200)
 	&:active
 		background-color var(--bs-gray-300)
-	&.active, &.router-link-exact-active
+	&.active
 		background-color unquote('rgba(var(--bs-primary-rgb), 0.25)')
 .nav-item-title
 	flex 1 1 auto

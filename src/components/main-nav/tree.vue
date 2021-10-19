@@ -5,6 +5,7 @@
 		:is="item.children && item.children.length ? 'nav-group' : 'nav-item'"
 		:to="item.to"
 		:href="item.href"
+		:active="isActive(item)"
 	)
 		template(#default) {{ item.title }}
 		template(#before v-if="item.iconClass")
@@ -24,6 +25,7 @@
 <script lang="ts">
 import type { PropType } from 'vue';
 import { defineComponent } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 
 import NavGroup from './group.vue';
 import NavItem from './item.vue';
@@ -40,6 +42,16 @@ export default defineComponent({
 			type: Array as PropType<INavItem[]>,
 			required: true,
 		},
+	},
+	setup() {
+		const router = useRouter();
+		const route = useRoute();
+
+		return {
+			isActive(item: INavItem) {
+				return item.to ? router.resolve(item.to).path === route.path : route.path === item.href;
+			},
+		};
 	},
 });
 </script>

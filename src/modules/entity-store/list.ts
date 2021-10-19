@@ -9,6 +9,7 @@ export interface IState<ListItem = Record<string, unknown>> {
 	total: number;
 	perPage: number;
 	offset: number;
+	page: number;
 }
 
 export interface IApiOptions {
@@ -25,6 +26,7 @@ export default class EntityListStore<ListItem = unknown> extends ReactiveStore<I
 			total: -1,
 			perPage: -1,
 			offset: 0,
+			page: 1,
 		};
 	}
 
@@ -37,15 +39,14 @@ export default class EntityListStore<ListItem = unknown> extends ReactiveStore<I
 			return;
 		}
 		this.state.loading = true;
-		await new Promise<void>((resolve) => {
-			setTimeout(() => resolve(), 500);
-		});
+		this.state.page = page;
 		try {
 			const { data, per_page: perPage, page: currentPage, total } = await this.httpClient.get(`${this.entity.api.path}?page=${page}`);
 			this.state.total = total;
 			this.state.list = data;
 			this.state.perPage = perPage;
-			this.currentPage = currentPage;
+			this.state.page = currentPage;
+			this.state.offset = perPage * (currentPage - 1);
 		} finally {
 			this.state.loading = false;
 		}
@@ -71,12 +72,8 @@ export default class EntityListStore<ListItem = unknown> extends ReactiveStore<I
 		return this.state.list;
 	}
 
-	get currentPage(): number {
-		return Math.floor(this.state.offset / this.state.perPage) + 1;
-	}
-
-	set currentPage(page: number) {
-		this.state.offset = this.state.perPage * (page - 1);
+	get page(): number {
+		return this.state.page;
 	}
 
 	get lastPage(): number {
