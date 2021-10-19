@@ -32,7 +32,7 @@ nav.pagination-wrapper.my-3(:class="{ loading }" v-if="lastPage > 1 || total")
 					li.page-item(v-for="i in leftWindow" :class="{ active: modelValue === i }")
 						+currentPageLink
 					li.page-item.disabled: span.page-link ...
-				li(v-for="i in currentWindow" :class="{ active: modelValue === i }")
+				li.page-item(v-for="i in currentWindow" :class="{ active: modelValue === i }")
 					+currentPageLink
 				template(v-if="rightWindow")
 					li.page-item.disabled: span.page-link ...
@@ -49,7 +49,7 @@ nav.pagination-wrapper.my-3(:class="{ loading }" v-if="lastPage > 1 || total")
 	.bg-primary.text-light.px-2.rounded(v-if="limit > 0 && total > 0")
 		| {{ trans('itemsOnPage') }}
 		!=': '
-		span(v-if="lastPage > 1") {{ limit * (modelValue - 1) + 1 }}-{{ modelValue === lastPage ? total : (limit * modelValue) }} / {{ total }}
+		span(v-if="lastPage > 1") {{ firstItemNum === lastItemNum ? firstItemNum : `${firstItemNum}-${lastItemNum}` }} / {{ total }}
 		span(v-else) {{ total }}
 </template>
 
@@ -133,6 +133,8 @@ export default defineComponent({
 				}
 			},
 			trans: (key: string) => trans.get(key),
+			firstItemNum: computed(() => props.limit * (props.modelValue - 1) + 1),
+			lastItemNum: computed(() => (props.modelValue === props.lastPage ? props.total : props.limit * props.modelValue)),
 		};
 	},
 });
