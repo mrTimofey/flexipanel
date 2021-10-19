@@ -8,8 +8,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, computed } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { defineComponent } from 'vue';
+import { useRouteQueryParam } from '../vue-composition-utils';
 import EntityView from '../components/entity-view.vue';
 
 export default defineComponent({
@@ -25,24 +25,8 @@ export default defineComponent({
 		},
 	},
 	setup() {
-		const route = useRoute();
-		const router = useRouter();
-		const page = computed({
-			get() {
-				return parseInt(route.query.page?.toString() || '1', 10) || 1;
-			},
-			set(newPage: number) {
-				const query = { ...route.query };
-				if (newPage === 1) {
-					delete query.page;
-				} else {
-					query.page = newPage.toString();
-				}
-				router.replace({ query });
-			},
-		});
 		return {
-			page,
+			page: useRouteQueryParam('page', 1),
 		};
 	},
 });
