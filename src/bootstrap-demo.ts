@@ -43,6 +43,9 @@ export default function bootstrap(container: Container): void {
 		.registerEntity('y', {
 			idKey: 'id',
 			title: 'Entity Y',
+			api: {
+				path: 'https://reqres.in/api/posts',
+			},
 			views: [
 				{
 					type: 'table',
@@ -54,7 +57,7 @@ export default function bootstrap(container: Container): void {
 							},
 							{
 								title: 'Title Y',
-								key: 'title',
+								key: 'name',
 							},
 						],
 					},
