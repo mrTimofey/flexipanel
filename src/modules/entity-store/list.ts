@@ -1,5 +1,5 @@
 import { inject } from 'mini-ioc';
-import type { IEntity } from '../entity-manager';
+import type { IEntityMeta } from '../entity-manager';
 import HttpClient from '../http/http-client';
 import ReactiveStore from '../reactive-store';
 
@@ -17,17 +17,15 @@ export interface IApiOptions {
 	perPage?: number;
 }
 
-const DEFAULT_PER_PAGE = 25;
-
 export default class EntityListStore<ListItem = unknown> extends ReactiveStore<IState<ListItem>> {
-	protected entity: IEntity | null = null;
+	protected entity: IEntityMeta | null = null;
 
 	protected getInitialState(): IState<ListItem> {
 		return {
 			loading: false,
 			list: [],
 			total: -1,
-			perPage: DEFAULT_PER_PAGE,
+			perPage: 0,
 			offset: 0,
 			page: 1,
 		};
@@ -37,26 +35,29 @@ export default class EntityListStore<ListItem = unknown> extends ReactiveStore<I
 		super();
 	}
 
-	public async reload({ page = 1, perPage = DEFAULT_PER_PAGE }: IApiOptions = {}): Promise<void> {
-		if (!this.entity?.api?.path) {
+	public async reload({ page = 1, perPage }: IApiOptions = {}): Promise<void> {
+		if (!this.entity?.apiEndpoint) {
 			return;
 		}
 		this.state.loading = true;
 		this.state.page = page;
-		this.state.perPage = perPage;
+		if (perPage) {
+			this.state.perPage = perPage;
+		}
 		try {
-			const { data, per_page: apiPerPage, page: currentPage, total } = await this.httpClient.get(`${this.entity.api.path}?page=${page}&per_page=${perPage}`);
+			// TODO other providers (only rest is supported now)
+			const { data, per_page: apiPerPage, page: currentPage, total } = await this.httpClient.get(`${this.entity.apiEndpoint}?page=${page}&per_page=${perPage}`);
 			this.state.total = total;
 			this.state.list = data;
 			this.state.perPage = apiPerPage;
 			this.state.page = currentPage;
-			this.state.offset = perPage * (currentPage - 1);
+			this.state.offset = apiPerPage * (currentPage - 1);
 		} finally {
 			this.state.loading = false;
 		}
 	}
 
-	public setEntity(entity: IEntity | null): void {
+	public setEntity(entity: IEntityMeta | null): void {
 		if (this.entity === entity) {
 			return;
 		}

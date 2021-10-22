@@ -7,12 +7,10 @@ export default function bootstrap(container: Container): void {
 		.get(EntityManager)
 		.registerEntity('x', {
 			idKey: 'id',
-			title: 'Entity {{=it.api.path}}',
-			api: {
-				path: 'https://reqres.in/api/users',
-			},
-			views: [
-				{
+			title: 'Entity {{=it.apiEndpoint}}',
+			apiEndpoint: 'https://reqres.in/api/users',
+			views: {
+				default: {
 					type: 'table',
 					props: {
 						columns: [
@@ -31,23 +29,30 @@ export default function bootstrap(container: Container): void {
 						],
 					},
 				},
-				{
+				list: {
 					type: 'list',
 					props: {
 						displayType: 'template',
 						displayTemplate: '<b>#{{=it.id}}</b> {{=it.email}}',
 					},
 				},
-			],
+				list2: {
+					type: 'list',
+					props: {
+						displayType: 'template',
+						displayTemplate: '<b>#{{=it.id}}</b> {{=it.email}}',
+					},
+					perPageOptions: [1, 2, 3],
+					perPage: 2,
+				},
+			},
 		})
 		.registerEntity('y', {
 			idKey: 'id',
 			title: 'Entity Y',
-			api: {
-				path: 'https://reqres.in/api/posts',
-			},
-			views: [
-				{
+			apiEndpoint: 'https://reqres.in/api/posts',
+			views: {
+				default: {
 					type: 'table',
 					props: {
 						columns: [
@@ -62,7 +67,7 @@ export default function bootstrap(container: Container): void {
 						],
 					},
 				},
-			],
+			},
 		});
 
 	container.get(AppConfig).setConfig({
@@ -74,6 +79,10 @@ export default function bootstrap(container: Container): void {
 			{
 				title: 'X list',
 				to: { name: 'entityView', params: { entity: 'x', view: 'list' } },
+			},
+			{
+				title: 'X list 2',
+				to: { name: 'entityView', params: { entity: 'x', view: 'list2' } },
 			},
 			{
 				title: 'Y',

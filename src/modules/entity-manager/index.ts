@@ -16,15 +16,17 @@ export interface IField<T = unknown> {
 
 export interface IView<T = unknown> {
 	// view type (table, list, tree...)
-	type: string;
-	// view key, used to identify this view (type is used if not set)
-	key?: string;
+	type?: string;
 	// human readable view title
 	title?: string;
 	// fields used as filters for this view
 	filters?: IField[];
 	// view component properties (based on type)
 	props?: T;
+	// items per page
+	perPage?: number;
+	// per page selector options
+	perPageOptions?: number[];
 }
 
 export interface IForm {
@@ -36,23 +38,28 @@ export interface IForm {
 	layout?: unknown;
 }
 
-export interface IEntity {
+export interface IEntityMeta {
 	// entity object property name, used for entity instance identification and as a URL path segment
 	idKey: string;
 	// human readable entity name
-	title: string;
-	// API config
-	api?: {
-		// rest, graphql, grpc...
-		type?: string;
-		// endpoint
-		path?: string;
-	};
+	title?: string;
+	// API type (rest, graphql, grpc...)
+	apiType?: string;
+	// API endpoint
+	apiEndpoint: string;
 	// how this entity can be viewed (table, list, tree...)
-	views: IView[];
-	// how this entity can be created/updated
-	forms?: IForm[];
+	views: Record<string, IView>;
 }
+
+export const entityMetaDefaults: Partial<IEntityMeta> = {
+	apiType: 'rest',
+};
+
+export const viewDefaults: Partial<IView> = {
+	type: 'table',
+	perPage: 25,
+	perPageOptions: [5, 10, 25, 50, 100],
+};
 
 export interface IViewType {
 	component: PossiblyAsyncComponent;
@@ -66,19 +73,26 @@ export interface IFieldType {
 	component: PossiblyAsyncComponent;
 }
 
+type RegisteredEntity = Required<IEntityMeta> & { views: Record<string, Required<IView>> };
+
 export default class EntityManager {
-	protected entities: Record<string, IEntity> = {};
+	protected entities: Record<string, RegisteredEntity> = {};
 	protected viewTypes: Record<string, IViewType> = {};
 	protected displayTypes: Record<string, IDisplayType> = {};
 	protected fieldTypes: Record<string, IFieldType> = {};
-	protected defaultViewType = '';
 
-	public registerEntity(slug: string, entity: IEntity): this {
-		this.entities[slug] = entity;
+	public registerEntity(slug: string, entity: IEntityMeta): this {
+		const entityWithDefaults = { ...entityMetaDefaults, ...entity };
+		const views = { ...entityWithDefaults.views };
+		Object.entries(entityWithDefaults.views).forEach(([key, view]) => {
+			views[key] = { ...viewDefaults, ...view } as Required<IView>;
+		});
+		entityWithDefaults.views = views;
+		this.entities[slug] = entityWithDefaults as RegisteredEntity;
 		return this;
 	}
 
-	public getEntity(key: string): IEntity | null {
+	public getEntity(key: string): RegisteredEntity | null {
 		return this.entities[key] || null;
 	}
 

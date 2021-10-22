@@ -4,11 +4,11 @@ template(v-if="entityMeta && viewType")
 	.d-flex.justify-content-center.py-5(v-if="store.loading && !store.items.length")
 		.spinner.spinner-grow.text-primary
 	template(v-else-if="viewComponent && entityView")
-		.d-flex.align-items-center.my-3
+		.d-flex.align-items-center.my-3(v-if="realPerPageOptions.length")
 			span {{ trans('itemsPerPage') }}:
 			field-select.ms-2(
 				:model-value="store.perPage"
-				:options="perPageOptions"
+				:options="realPerPageOptions"
 				:disabled="store.loading"
 				@update:model-value="updatePerPage($event)"
 			)
@@ -18,7 +18,7 @@ template(v-if="entityMeta && viewType")
 			:items="store.items"
 			:loading="store.loading"
 		)
-		page-nav.flex-grow-1(
+		page-nav.my-3(
 			:model-value="store.page"
 			:last-page="store.lastPage"
 			:loading="store.loading"
@@ -30,7 +30,7 @@ template(v-if="entityMeta && viewType")
 
 <script lang="ts">
 import type { Component, AsyncComponentLoader, PropType } from 'vue';
-import { defineComponent, computed, shallowRef, watch, watchEffect } from 'vue';
+import { defineComponent, computed, shallowRef, watch } from 'vue';
 import EntityManager from '../modules/entity-manager';
 import TemplateEngine from '../modules/template';
 import { EntityListStore } from '../modules/entity-store';
@@ -59,8 +59,8 @@ export default defineComponent({
 			default: 0,
 		},
 		perPageOptions: {
-			type: Array as PropType<number[]>,
-			default: () => [5, 10, 25, 100],
+			type: Array as PropType<number[] | null>,
+			default: null,
 		},
 	},
 	emits: ['update:page', 'update:perPage'],
@@ -71,37 +71,46 @@ export default defineComponent({
 		const translator = get(Translator);
 		const entityMeta = computed(() => entityManager.getEntity(props.entity));
 		const entityView = computed(() => {
-			if (!entityMeta.value?.views.length) {
+			if (!entityMeta.value) {
 				return null;
 			}
 			const { views } = entityMeta.value;
-			if (props.view) {
-				return views.find((view) => props.view === view.key) || views.find((view) => props.view === view.type);
-			}
-			return views[0];
+			return props.view ? views[props.view] : views[Object.keys(views)[0]];
 		});
 		const viewType = computed(() => entityView.value && entityManager.getViewType(entityView.value.type));
-		// TODO: skeleton and not found state
 		const viewComponent = shallowRef<Component | null>(null);
-		watchEffect(async () => {
-			if (typeof viewType.value?.component === 'function') {
-				const loader = viewType.value.component as AsyncComponentLoader;
-				viewComponent.value = (await loader()).default || null;
-			} else {
-				viewComponent.value = viewType.value?.component || null;
+		const realPerPageOptions = computed(() => props.perPageOptions || entityView.value?.perPageOptions || []);
+
+		function reloadInitialState() {
+			if (store.loading || !entityView.value) {
+				return;
 			}
-		});
+			store.setEntity(entityMeta.value);
+			store.reload({
+				page: props.page > 1 ? props.page : store.page,
+				perPage: props.perPage || entityView.value.perPage || 0,
+			});
+		}
+		// TODO skeleton and not found state
 		watch(
-			entityMeta,
-			() => {
-				store.setEntity(entityMeta.value);
-				store.reload({
-					page: props.page > 1 ? props.page : store.page,
-					perPage: props.perPage > 0 ? props.perPage : store.perPage,
-				});
+			viewType,
+			async () => {
+				viewComponent.value = null;
+				if (typeof viewType.value?.component === 'function') {
+					const loader = viewType.value.component as AsyncComponentLoader;
+					viewComponent.value = (await loader()).default || null;
+				} else {
+					viewComponent.value = viewType.value?.component || null;
+				}
 			},
 			{ immediate: true },
 		);
+		watch(entityMeta, () => reloadInitialState());
+		watch(entityView, () => {
+			if (store.perPage !== entityView.value?.perPage && !(entityView.value?.perPageOptions || props.perPageOptions)?.includes(store.perPage)) {
+				reloadInitialState();
+			}
+		});
 		watch(
 			() => props.page,
 			(page) => {
@@ -118,12 +127,14 @@ export default defineComponent({
 				}
 			},
 		);
+		reloadInitialState();
 		return {
 			entityMeta,
 			viewType,
 			viewComponent,
 			entityView,
 			store,
+			realPerPageOptions,
 			tmpl: (src: string, data: unknown) => tmpl.exec(src, data),
 			trans: (key: string) => translator.get(key),
 			updatePage(page: number) {
