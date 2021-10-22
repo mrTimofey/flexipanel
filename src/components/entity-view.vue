@@ -10,6 +10,12 @@ template(v-if="entityMeta && viewType")
 			:items="store.items"
 			:loading="store.loading"
 		)
+		field-select(
+			:model-value="store.perPage"
+			:options="[5, 10, 25, 100]"
+			:disabled="store.loading"
+			@update:model-value="updatePerPage($event)"
+		)
 		page-nav(
 			:model-value="store.page"
 			:last-page="store.lastPage"
@@ -24,13 +30,14 @@ template(v-if="entityMeta && viewType")
 import type { Component, AsyncComponentLoader } from 'vue';
 import { defineComponent, computed, shallowRef, watch, watchEffect } from 'vue';
 import EntityManager from '../modules/entity-manager';
+import TemplateEngine from '../modules/template';
 import { EntityListStore } from '../modules/entity-store';
 import { get, create } from '../vue-composition-utils';
 import PageNav from './pagination.vue';
-import TemplateEngine from '../modules/template';
+import FieldSelect from './fields/select.vue';
 
 export default defineComponent({
-	components: { PageNav },
+	components: { PageNav, FieldSelect },
 	props: {
 		entity: {
 			type: String,
@@ -44,8 +51,12 @@ export default defineComponent({
 			type: Number,
 			default: 0,
 		},
+		perPage: {
+			type: Number,
+			default: 0,
+		},
 	},
-	emits: ['update:page'],
+	emits: ['update:page', 'update:perPage'],
 	setup(props, { emit }) {
 		const store = create(EntityListStore);
 		const entityManager = get(EntityManager);
@@ -76,15 +87,27 @@ export default defineComponent({
 			entityMeta,
 			() => {
 				store.setEntity(entityMeta.value);
-				store.reload({ page: props.page < 1 ? store.page : props.page });
+				store.reload({
+					page: props.page < 1 ? store.page : props.page,
+					perPage: props.perPage < 1 ? store.perPage : props.perPage,
+				});
 			},
 			{ immediate: true },
 		);
 		watch(
 			() => props.page,
 			(page) => {
+				// TODO triggers twice when perPage select is changed
 				if (page > 0 && store.page !== page) {
-					store.reload({ page });
+					store.reload({ page, perPage: store.perPage });
+				}
+			},
+		);
+		watch(
+			() => props.perPage,
+			(perPage) => {
+				if (perPage > 0 && store.perPage !== perPage) {
+					store.reload({ perPage });
 				}
 			},
 		);
@@ -96,8 +119,12 @@ export default defineComponent({
 			store,
 			tmpl: (src: string, data: unknown) => tmpl.exec(src, data),
 			updatePage(page: number) {
-				store.reload({ page });
+				store.reload({ page, perPage: store.perPage });
 				emit('update:page', page);
+			},
+			updatePerPage(perPage: number) {
+				store.reload({ perPage });
+				emit('update:perPage', perPage);
 			},
 		};
 	},

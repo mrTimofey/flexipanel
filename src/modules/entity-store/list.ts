@@ -17,6 +17,8 @@ export interface IApiOptions {
 	perPage?: number;
 }
 
+const DEFAULT_PER_PAGE = 25;
+
 export default class EntityListStore<ListItem = unknown> extends ReactiveStore<IState<ListItem>> {
 	protected entity: IEntity | null = null;
 
@@ -25,7 +27,7 @@ export default class EntityListStore<ListItem = unknown> extends ReactiveStore<I
 			loading: false,
 			list: [],
 			total: -1,
-			perPage: -1,
+			perPage: DEFAULT_PER_PAGE,
 			offset: 0,
 			page: 1,
 		};
@@ -35,7 +37,7 @@ export default class EntityListStore<ListItem = unknown> extends ReactiveStore<I
 		super();
 	}
 
-	public async reload({ page = 1, perPage = 10 }: IApiOptions = {}): Promise<void> {
+	public async reload({ page = 1, perPage = DEFAULT_PER_PAGE }: IApiOptions = {}): Promise<void> {
 		if (!this.entity?.api?.path) {
 			return;
 		}

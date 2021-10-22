@@ -4,6 +4,7 @@
 		:entity="entity"
 		:view="view"
 		v-model:page="page"
+		v-model:per-page="perPage"
 	)
 </template>
 
@@ -27,6 +28,7 @@ export default defineComponent({
 	setup() {
 		return {
 			page: useRouteQueryParam('page', 1),
+			perPage: useRouteQueryParam('perPage', 25),
 		};
 	},
 });

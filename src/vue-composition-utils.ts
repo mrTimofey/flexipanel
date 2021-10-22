@@ -47,7 +47,7 @@ export function useRouteQueryParam<T>(key: string, defaultValue: T): WritableCom
 			if (value === defaultValue) {
 				delete query[key];
 			} else {
-				query.page = `${value}`;
+				query[key] = `${value}`;
 			}
 			router.replace({ query });
 		},
