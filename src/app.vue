@@ -11,7 +11,7 @@
 
 <script lang="ts">
 import { defineComponent, watchEffect, computed, onBeforeMount } from 'vue';
-import { get } from './vue-composition-utils';
+import { get } from './modules/vue-composition-utils';
 import AppConfig from './modules/app-config';
 import MainNav from './components/main-nav/index.vue';
 import Meta from './modules/meta';

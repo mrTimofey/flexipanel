@@ -9,7 +9,7 @@
 import type { PropType } from 'vue';
 import { defineComponent, computed } from 'vue';
 import EntityManager from '..';
-import { get } from '../../../vue-composition-utils';
+import { get } from '../../vue-composition-utils';
 
 export interface IColumn {
 	title: string;

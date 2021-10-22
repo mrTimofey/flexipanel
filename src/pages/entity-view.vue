@@ -10,7 +10,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { useRouteQueryParam } from '../vue-composition-utils';
+import { useRouteQueryParam } from '../modules/vue-composition-utils';
 import EntityView from '../components/entity-view.vue';
 
 export default defineComponent({

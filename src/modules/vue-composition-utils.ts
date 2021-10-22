@@ -4,7 +4,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { injectKey } from 'mini-ioc-vue';
 import type { AnyClass } from 'mini-ioc';
 import type Container from 'mini-ioc';
-import TemplateEngine from './modules/template';
+import TemplateEngine from './template';
 
 export function getContainer(): Container {
 	const injected = inject(injectKey) as Container;

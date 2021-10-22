@@ -4,7 +4,7 @@ div(v-html="template ? tpl(template, item) : item[prop]")
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { useTemplate } from '../../../vue-composition-utils';
+import { useTemplate } from '../../vue-composition-utils';
 
 export default defineComponent({
 	props: {

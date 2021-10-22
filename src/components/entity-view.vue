@@ -34,7 +34,7 @@ import { defineComponent, computed, watch } from 'vue';
 import EntityManager from '../modules/entity-manager';
 import TemplateEngine from '../modules/template';
 import { EntityListStore } from '../modules/entity-store';
-import { get, create } from '../vue-composition-utils';
+import { get, create } from '../modules/vue-composition-utils';
 import PageNav from './pagination.vue';
 import FieldSelect from './fields/select.vue';
 import Translator from '../modules/i18n';

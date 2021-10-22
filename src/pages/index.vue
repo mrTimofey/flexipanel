@@ -6,7 +6,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import Translator from '../modules/i18n';
-import { get } from '../vue-composition-utils';
+import { get } from '../modules/vue-composition-utils';
 
 export default defineComponent({
 	setup() {
