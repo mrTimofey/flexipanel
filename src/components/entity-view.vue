@@ -87,7 +87,7 @@ export default defineComponent({
 			}
 			store.setEntity(entityMeta.value);
 			store.reload({
-				page: props.page > 1 ? props.page : store.page,
+				page: props.page > 1 ? props.page : 1,
 				perPage: props.perPage || entityView.value.perPage || 0,
 			});
 		}
