@@ -28,7 +28,7 @@ export default defineComponent({
 	setup() {
 		return {
 			page: useRouteQueryParam('page', 1),
-			perPage: useRouteQueryParam('perPage', 25),
+			perPage: useRouteQueryParam('perPage', 0),
 		};
 	},
 });

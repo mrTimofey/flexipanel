@@ -20,7 +20,7 @@ mixin currentPageLink
 		span.page-link-text {{ i }}
 		.spinner.spinner-border.spinner-border-sm
 	a.page-link(v-else @click.prevent="change(i)" :href="makeHref(i)") {{ i }}
-nav.pagination-wrapper.my-3(:class="{ loading }" v-if="lastPage > 1 || total")
+nav.pagination-wrapper(:class="{ loading }" v-if="lastPage > 1 || total")
 	template(v-if="lastPage > 1")
 		.d-none.d-sm-block: ul.pagination.pagination-sm.m-0
 			+prevLink

@@ -1,11 +1,11 @@
 <template lang="pug">
 .select-field
-	select(
+	select.form-select.form-select-sm(
 		:disabled="disabled"
 		:value="modelValue"
-		@change="$emit('update:modelValue', $event.target && $event.target.value)"
+		@change="onChange($event)"
 	)
-		option(v-for="item in normalizedOptions" :value="item.value") {{ item.label }}
+		option(v-for="item in normalizedOptions") {{ item.label }}
 </template>
 
 <script lang="ts">
@@ -48,7 +48,7 @@ export default defineComponent({
 		},
 	},
 	emits: ['update:modelValue'],
-	setup(props) {
+	setup(props, { emit }) {
 		const normalizedOptions = computed<IOption[]>(() => {
 			if (Array.isArray(props.options)) {
 				return props.options
@@ -79,6 +79,10 @@ export default defineComponent({
 		});
 		return {
 			normalizedOptions,
+			onChange(e: Event) {
+				const { selectedIndex } = e.target as HTMLSelectElement;
+				emit('update:modelValue', normalizedOptions.value[selectedIndex].value);
+			},
 		};
 	},
 });
