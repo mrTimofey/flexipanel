@@ -29,8 +29,8 @@ template(v-if="entityMeta && viewType")
 </template>
 
 <script lang="ts">
-import type { Component, AsyncComponentLoader, PropType } from 'vue';
-import { defineComponent, computed, shallowRef, watch } from 'vue';
+import type { PropType } from 'vue';
+import { defineComponent, computed, watch } from 'vue';
 import EntityManager from '../modules/entity-manager';
 import TemplateEngine from '../modules/template';
 import { EntityListStore } from '../modules/entity-store';
@@ -78,7 +78,8 @@ export default defineComponent({
 			return props.view ? views[props.view] : views[Object.keys(views)[0]];
 		});
 		const viewType = computed(() => entityView.value && entityManager.getViewType(entityView.value.type));
-		const viewComponent = shallowRef<Component | null>(null);
+		// TODO skeleton and not found state
+		const viewComponent = computed(() => viewType.value?.component);
 		const realPerPageOptions = computed(() => props.perPageOptions || entityView.value?.perPageOptions || []);
 
 		function reloadInitialState() {
@@ -91,20 +92,6 @@ export default defineComponent({
 				perPage: props.perPage || entityView.value.perPage || 0,
 			});
 		}
-		// TODO skeleton and not found state
-		watch(
-			viewType,
-			async () => {
-				viewComponent.value = null;
-				if (typeof viewType.value?.component === 'function') {
-					const loader = viewType.value.component as AsyncComponentLoader;
-					viewComponent.value = (await loader()).default || null;
-				} else {
-					viewComponent.value = viewType.value?.component || null;
-				}
-			},
-			{ immediate: true },
-		);
 		watch(entityMeta, () => reloadInitialState());
 		watch(entityView, () => {
 			if (store.perPage !== entityView.value?.perPage && !(entityView.value?.perPageOptions || props.perPageOptions)?.includes(store.perPage)) {

@@ -2,14 +2,14 @@
 .content(v-if="items && items.length" :class="{ loading }")
 	ul.list-group
 		li.list-group-item(v-for="item in items")
-			span(v-html="tmpl(item)")
+			component(:is="displayComponent" v-bind="{ ...displayProps, item }")
 </template>
 
 <script lang="ts">
 import type { PropType } from 'vue';
-import { defineComponent } from 'vue';
+import { defineComponent, computed } from 'vue';
+import EntityManager from '..';
 import { get } from '../../../vue-composition-utils';
-import TemplateEngine from '../../template';
 
 export interface IColumn {
 	title: string;
@@ -26,18 +26,19 @@ export default defineComponent({
 			type: Boolean,
 			default: false,
 		},
-		displayTemplate: {
+		displayType: {
 			type: String,
-			default: '{{=it.id}}',
+			default: 'text',
+		},
+		displayProps: {
+			type: Object,
+			default: null,
 		},
 	},
-	emits: ['reload'],
 	setup(props) {
-		const tmpl = get(TemplateEngine);
+		const entityManager = get(EntityManager);
 		return {
-			tmpl(data: unknown): string {
-				return tmpl.exec(props.displayTemplate, data);
-			},
+			displayComponent: computed(() => entityManager.getDisplayType(props.displayType)?.component),
 		};
 	},
 });

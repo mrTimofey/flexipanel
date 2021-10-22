@@ -16,15 +16,16 @@ export default function bootstrap(container: Container): void {
 						columns: [
 							{
 								title: 'ID',
-								key: 'id',
+								prop: 'id',
 							},
 							{
 								title: 'E-mail',
-								key: 'email',
+								prop: 'email',
 							},
 							{
 								title: 'Avatar',
-								key: 'avatar',
+								prop: 'avatar',
+								type: 'image',
 							},
 						],
 					},
@@ -32,15 +33,14 @@ export default function bootstrap(container: Container): void {
 				list: {
 					type: 'list',
 					props: {
-						displayType: 'template',
-						displayTemplate: '<b>#{{=it.id}}</b> {{=it.email}}',
+						displayType: 'html',
+						displayProps: { template: '<b>#{{=it.id}}</b> {{=it.email}}' },
 					},
 				},
 				list2: {
 					type: 'list',
 					props: {
-						displayType: 'template',
-						displayTemplate: '<b>#{{=it.id}}</b> {{=it.email}}',
+						displayProps: { template: '<b>#{{=it.id}}</b> {{=it.email}}' },
 					},
 					perPageOptions: [1, 2, 3],
 					perPage: 2,
@@ -58,11 +58,11 @@ export default function bootstrap(container: Container): void {
 						columns: [
 							{
 								title: 'ID Y',
-								key: 'id',
+								prop: 'id',
 							},
 							{
 								title: 'Title Y',
-								key: 'name',
+								prop: 'name',
 							},
 						],
 					},

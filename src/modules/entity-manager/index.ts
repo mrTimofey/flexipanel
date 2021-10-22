@@ -110,6 +110,10 @@ export default class EntityManager {
 		return this;
 	}
 
+	public getDisplayType(key: string): IDisplayType | null {
+		return this.displayTypes[key] || null;
+	}
+
 	public registerFieldType(key: string, field: IFieldType): this {
 		this.fieldTypes[key] = field;
 		return this;
@@ -121,6 +125,15 @@ export default class EntityManager {
 		});
 		this.registerViewType('list', {
 			component: defineAsyncComponent(() => import('./views/list.vue')),
+		});
+		this.registerDisplayType('text', {
+			component: defineAsyncComponent(() => import('./displays/text.vue')),
+		});
+		this.registerDisplayType('html', {
+			component: defineAsyncComponent(() => import('./displays/html.vue')),
+		});
+		this.registerDisplayType('image', {
+			component: defineAsyncComponent(() => import('./displays/image.vue')),
 		});
 	}
 }

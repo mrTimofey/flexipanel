@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { injectKey } from 'mini-ioc-vue';
 import type { AnyClass } from 'mini-ioc';
 import type Container from 'mini-ioc';
+import TemplateEngine from './modules/template';
 
 export function getContainer(): Container {
 	const injected = inject(injectKey) as Container;
@@ -52,4 +53,11 @@ export function useRouteQueryParam<T>(key: string, defaultValue: T): WritableCom
 			router.replace({ query });
 		},
 	});
+}
+
+export function useTemplate(): { tpl: (tpl: string, data?: unknown) => string } {
+	const engine = get(TemplateEngine);
+	return {
+		tpl: (tpl, data) => engine.exec(tpl, data),
+	};
 }

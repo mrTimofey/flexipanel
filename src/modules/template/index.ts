@@ -4,7 +4,7 @@ import { compile } from 'dot';
 export default class TemplateEngine {
 	private compiled: Record<string, TemplateFunction> = {};
 
-	exec(tmpl: string, data: unknown): string {
+	exec(tmpl: string, data?: unknown): string {
 		if (!this.compiled[tmpl]) {
 			this.compiled[tmpl] = compile(tmpl);
 		}

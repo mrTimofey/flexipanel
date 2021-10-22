@@ -6,24 +6,27 @@
 				th(v-for="{ title } in columns") {{ title }}
 		tbody
 			tr(v-for="item in items")
-				td(v-for="field in columns") {{ item[field.key] }}
+				td(v-for="field in columns")
+					component(
+						:is="resolveDisplay(field.type || defaultDisplayType)"
+						v-bind="displayProps(item, field)"
+					)
 </template>
 
 <script lang="ts">
 import type { PropType } from 'vue';
 import { defineComponent } from 'vue';
+import EntityManager from '..';
+import { get } from '../../../vue-composition-utils';
 
 export interface IColumn {
 	title: string;
-	key: string;
+	type?: string;
+	[displayProp: string]: unknown;
 }
 
 export default defineComponent({
 	props: {
-		columns: {
-			type: Array as PropType<IColumn[]>,
-			required: true,
-		},
 		items: {
 			type: Array as PropType<Record<string, unknown>[]>,
 			required: true,
@@ -32,8 +35,26 @@ export default defineComponent({
 			type: Boolean,
 			default: false,
 		},
+		columns: {
+			type: Array as PropType<IColumn[]>,
+			required: true,
+		},
+		defaultDisplayType: {
+			type: String,
+			default: 'text',
+		},
 	},
-	emits: ['reload'],
+	setup() {
+		const entityManager = get(EntityManager);
+		return {
+			resolveDisplay(displayType: string) {
+				return entityManager.getDisplayType(displayType)?.component;
+			},
+			displayProps(item: Record<string, unknown>, field: IColumn) {
+				return { ...field, item, title: undefined, type: undefined };
+			},
+		};
+	},
 });
 </script>
 
