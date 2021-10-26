@@ -1,8 +1,12 @@
 <template lang="pug">
 .content(v-if="items && items.length" :class="{ loading }")
-	ul.list-group
-		li.list-group-item(v-for="item in items")
-			component(:is="displayComponent" v-bind="{ ...displayProps, item }")
+	ul.list-group.list-group-flush
+		li.list-group-item.list-group-item-action.p-0(v-for="item in items")
+			.d-flex.align-items-center
+				.item-display.flex-grow-1.p-3(@click.prevent="edit(item)")
+					component(:is="displayComponent" v-bind="{ ...displayProps, item }")
+				.pe-2
+					slot(name="actions" :item="item")
 </template>
 
 <script lang="ts">
@@ -35,10 +39,14 @@ export default defineComponent({
 			default: null,
 		},
 	},
-	setup(props) {
+	emits: ['edit'],
+	setup(props, { emit }) {
 		const entityManager = get(EntityManager);
 		return {
 			displayComponent: computed(() => entityManager.getDisplayType(props.displayType)?.component),
+			edit(item: unknown) {
+				emit('edit', item);
+			},
 		};
 	},
 });
@@ -58,4 +66,6 @@ export default defineComponent({
 	opacity 0.8
 	background white
 	z-index 5
+.item-display
+	cursor pointer
 </style>

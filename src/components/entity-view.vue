@@ -1,10 +1,9 @@
 <template lang="pug">
 template(v-if="entityMeta && viewType")
-	h2 {{ tmpl(entityMeta.title, entityMeta) }}
 	.d-flex.justify-content-center.py-5(v-if="store.loading && !store.items.length")
 		.spinner.spinner-grow.text-primary
 	template(v-else-if="viewComponent && entityView")
-		.d-flex.align-items-center.my-3(v-if="realPerPageOptions.length")
+		.d-flex.align-items-center.my-2.px-3(v-if="realPerPageOptions.length")
 			span {{ trans('itemsPerPage') }}:
 			field-select.ms-2(
 				:model-value="store.perPage"
@@ -18,21 +17,28 @@ template(v-if="entityMeta && viewType")
 			:items="store.items"
 			:loading="store.loading"
 		)
-		page-nav.my-3(
-			:model-value="store.page"
-			:last-page="store.lastPage"
-			:loading="store.loading"
-			:total="store.total"
-			:limit="store.perPage"
-			@update:model-value="updatePage($event)"
-		)
+			template(#actions)
+				.d-flex.justify-content-end
+					.btn-group.btn-group-sm
+						button.btn.btn-primary
+							i.fa-solid.fa-pencil
+						button.btn.btn-danger
+							i.fa-solid.fa-trash
+		.p-3
+			page-nav(
+				:model-value="store.page"
+				:last-page="store.lastPage"
+				:loading="store.loading"
+				:total="store.total"
+				:limit="store.perPage"
+				@update:model-value="updatePage($event)"
+			)
 </template>
 
 <script lang="ts">
 import type { PropType } from 'vue';
 import { defineComponent, computed, watch } from 'vue';
 import EntityManager from '../modules/entity-manager';
-import TemplateEngine from '../modules/template';
 import { EntityListStore } from '../modules/entity-store';
 import { get, create } from '../modules/vue-composition-utils';
 import PageNav from './pagination.vue';
@@ -67,7 +73,6 @@ export default defineComponent({
 	setup(props, { emit }) {
 		const store = create(EntityListStore);
 		const entityManager = get(EntityManager);
-		const tmpl = get(TemplateEngine);
 		const translator = get(Translator);
 		const entityMeta = computed(() => entityManager.getEntity(props.entity));
 		const entityView = computed(() => {
@@ -122,7 +127,6 @@ export default defineComponent({
 			entityView,
 			store,
 			realPerPageOptions,
-			tmpl: (src: string, data: unknown) => tmpl.exec(src, data),
 			trans: (key: string) => translator.get(key),
 			updatePage(page: number) {
 				store.reload({ page, perPage: store.perPage });

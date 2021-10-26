@@ -1,11 +1,11 @@
 <template lang="pug">
-.container-fluid
+.container-fluid.bg-light
 	.row
-		aside.col.bg-light
+		aside.col.bg-white.shadow-sm
 			.text-center.fs-5.fw-semibold.p-3.border-bottom
 				router-link.text-decoration-none.link-dark(:to="appHomeLink") {{ appTitle }}
 			main-nav(:items="mainNavItems")
-		main.col.p-4
+		main.col.p-3
 			router-view
 </template>
 
