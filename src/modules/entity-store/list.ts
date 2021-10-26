@@ -1,5 +1,5 @@
 import { inject } from 'mini-ioc';
-import type { IEntityMeta } from '../entity-manager';
+import type { IEntityMeta } from '../entity';
 import HttpClient from '../http/http-client';
 import ReactiveStore from '../reactive-store';
 
@@ -17,7 +17,7 @@ export interface IApiOptions {
 	perPage?: number;
 }
 
-export default class EntityListStore<ListItem = unknown> extends ReactiveStore<IState<ListItem>> {
+export default class EntityListStore<ListItem = Record<string, unknown>> extends ReactiveStore<IState<ListItem>> {
 	protected entity: IEntityMeta | null = null;
 
 	protected getInitialState(): IState<ListItem> {
@@ -52,6 +52,22 @@ export default class EntityListStore<ListItem = unknown> extends ReactiveStore<I
 			this.state.perPage = apiPerPage;
 			this.state.page = currentPage;
 			this.state.offset = apiPerPage * (currentPage - 1);
+		} finally {
+			this.state.loading = false;
+		}
+	}
+
+	public async deleteItem(item: ListItem): Promise<void> {
+		if (!this.entity?.apiEndpoint) {
+			return;
+		}
+		const itemKey = (item as unknown as Record<string, string>)[this.entity.idKey];
+		if (!itemKey) {
+			return;
+		}
+		this.state.loading = true;
+		try {
+			await this.httpClient.delete(`${this.entity.apiEndpoint}/${itemKey}`);
 		} finally {
 			this.state.loading = false;
 		}

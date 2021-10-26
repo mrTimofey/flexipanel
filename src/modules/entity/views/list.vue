@@ -3,7 +3,7 @@
 	ul.list-group.list-group-flush
 		li.list-group-item.list-group-item-action.p-0(v-for="item in items")
 			.d-flex.align-items-center
-				.item-display.flex-grow-1.p-3(@click.prevent="edit(item)")
+				.item-display.flex-grow-1.p-3(@click.prevent="onItemClick(item)")
 					component(:is="displayComponent" v-bind="{ ...displayProps, item }")
 				.pe-2
 					slot(name="actions" :item="item")
@@ -39,13 +39,13 @@ export default defineComponent({
 			default: null,
 		},
 	},
-	emits: ['edit'],
+	emits: ['item-click'],
 	setup(props, { emit }) {
 		const entityManager = get(EntityManager);
 		return {
 			displayComponent: computed(() => entityManager.getDisplayType(props.displayType)?.component),
-			edit(item: unknown) {
-				emit('edit', item);
+			onItemClick(item: unknown) {
+				emit('item-click', item);
 			},
 		};
 	},

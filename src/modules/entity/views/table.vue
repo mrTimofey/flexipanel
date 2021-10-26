@@ -7,7 +7,7 @@
 				th
 		tbody
 			tr(v-for="item in items")
-				td.cell-display(v-for="field in columns" @click.prevent="edit(item)")
+				td.cell-display(v-for="field in columns" @click.prevent="onItemClick(item)")
 					component(
 						:is="resolveDisplay(field.type || defaultDisplayType)"
 						v-bind="displayProps(item, field)"
@@ -47,7 +47,7 @@ export default defineComponent({
 			default: 'text',
 		},
 	},
-	emits: ['edit'],
+	emits: ['item-click'],
 	setup(props, { emit }) {
 		const entityManager = get(EntityManager);
 		return {
@@ -57,8 +57,8 @@ export default defineComponent({
 			displayProps(item: Record<string, unknown>, field: IColumn) {
 				return { ...field, item, title: undefined, type: undefined };
 			},
-			edit(item: unknown) {
-				emit('edit', item);
+			onItemClick(item: unknown) {
+				emit('item-click', item);
 			},
 		};
 	},

@@ -7,6 +7,12 @@ export default class FetchJsonClient extends HttpClient {
 				method,
 				body: body == null ? null : JSON.stringify(body),
 			})
-			.then((res) => res.json());
+			.then((res) => {
+				const contentType = res.headers.get('Content-Type');
+				if (!contentType || !contentType.startsWith('application/json')) {
+					return null;
+				}
+				return res.json();
+			});
 	}
 }

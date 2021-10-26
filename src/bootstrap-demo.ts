@@ -1,5 +1,5 @@
 import type Container from 'mini-ioc';
-import EntityManager from './modules/entity-manager';
+import EntityManager from './modules/entity';
 import AppConfig from './modules/app-config';
 
 export default function bootstrap(container: Container): void {

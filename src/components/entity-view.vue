@@ -1,4 +1,12 @@
 <template lang="pug">
+modal-dialog(
+	v-if="confirmDeleteTarget"
+	@close="confirmDeleteTarget = null"
+	@action-click="onDeleteConfirm($event.index === 0)"
+	size="sm"
+	:title="trans('deleteItem')"
+	:actions="confirmActions"
+) {{ trans('areYouSure') }}?
 template(v-if="entityMeta && viewType")
 	.d-flex.justify-content-center.py-5(v-if="store.loading && !store.items.length")
 		.spinner.spinner-grow.text-primary
@@ -16,13 +24,14 @@ template(v-if="entityMeta && viewType")
 			v-bind="entityView.props"
 			:items="store.items"
 			:loading="store.loading"
+			@item-click="goToEditPage($event)"
 		)
-			template(#actions)
+			template(#actions="{ item }")
 				.d-flex.justify-content-end
 					.btn-group.btn-group-sm
-						button.btn.btn-primary
+						button.btn.btn-primary(@click.prevent="goToEditPage(item)")
 							i.fa-solid.fa-pencil
-						button.btn.btn-danger
+						button.btn.btn-danger(@click.prevent="confirmAndDelete(item)")
 							i.fa-solid.fa-trash
 		.p-3
 			page-nav(
@@ -37,16 +46,18 @@ template(v-if="entityMeta && viewType")
 
 <script lang="ts">
 import type { PropType } from 'vue';
-import { defineComponent, computed, watch } from 'vue';
-import EntityManager from '../modules/entity-manager';
+import { defineComponent, computed, watch, ref } from 'vue';
+import EntityManager from '../modules/entity';
 import { EntityListStore } from '../modules/entity-store';
 import { get, create } from '../modules/vue-composition-utils';
 import PageNav from './pagination.vue';
 import FieldSelect from './fields/select.vue';
 import Translator from '../modules/i18n';
+import type { IModalAction } from './modal.vue';
+import ModalDialog from './modal.vue';
 
 export default defineComponent({
-	components: { PageNav, FieldSelect },
+	components: { PageNav, FieldSelect, ModalDialog },
 	props: {
 		entity: {
 			type: String,
@@ -86,6 +97,7 @@ export default defineComponent({
 		// TODO skeleton and not found state
 		const viewComponent = computed(() => viewType.value?.component);
 		const realPerPageOptions = computed(() => props.perPageOptions || entityView.value?.perPageOptions || []);
+		const confirmDeleteTarget = ref<unknown | null>(null);
 
 		function reloadInitialState() {
 			if (store.loading || !entityView.value) {
@@ -97,6 +109,7 @@ export default defineComponent({
 				perPage: props.perPage || entityView.value.perPage || 0,
 			});
 		}
+
 		watch(entityMeta, () => reloadInitialState());
 		watch(entityView, () => {
 			if (store.perPage !== entityView.value?.perPage && !(entityView.value?.perPageOptions || props.perPageOptions)?.includes(store.perPage)) {
@@ -127,6 +140,7 @@ export default defineComponent({
 			entityView,
 			store,
 			realPerPageOptions,
+			confirmDeleteTarget,
 			trans: (key: string) => translator.get(key),
 			updatePage(page: number) {
 				store.reload({ page, perPage: store.perPage });
@@ -135,6 +149,34 @@ export default defineComponent({
 			updatePerPage(perPage: number) {
 				store.reload({ perPage });
 				emit('update:perPage', perPage);
+			},
+			goToEditPage(item: unknown) {
+				// eslint-disable-next-line no-console
+				console.log('edit', item);
+			},
+			confirmAndDelete(item: unknown) {
+				confirmDeleteTarget.value = item;
+			},
+			confirmActions: computed<IModalAction[]>(() => [
+				{
+					type: 'danger',
+					title: translator.get('yes'),
+				},
+				{
+					type: 'secondary',
+					title: translator.get('no'),
+				},
+			]),
+			onDeleteConfirm(yes: boolean) {
+				if (yes) {
+					store.deleteItem(confirmDeleteTarget.value).then(() =>
+						store.reload({
+							page: store.page,
+							perPage: store.perPage,
+						}),
+					);
+				}
+				confirmDeleteTarget.value = null;
 			},
 		};
 	},

@@ -20,7 +20,7 @@ import { defineComponent, computed } from 'vue';
 import { get, useRouteQueryParam } from '../modules/vue-composition-utils';
 import EntityView from '../components/entity-view.vue';
 import TemplateEngine from '../modules/template';
-import EntityManager from '../modules/entity-manager';
+import EntityManager from '../modules/entity';
 
 export default defineComponent({
 	components: { EntityView },
