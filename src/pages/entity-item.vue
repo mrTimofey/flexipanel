@@ -1,24 +1,21 @@
 <template lang="pug">
-img(:src="item[prop]" alt="")
+.page-entity-item
+	h1 Hello!!!
 </template>
 
 <script lang="ts">
 import { defineComponent } from '@vue/runtime-core';
-import { useTemplate } from '../../vue-composition-utils';
 
 export default defineComponent({
 	props: {
-		item: {
-			type: Object,
+		entity: {
+			type: String,
 			required: true,
 		},
-		prop: {
+		id: {
 			type: String,
 			default: '',
 		},
-	},
-	setup() {
-		return useTemplate();
 	},
 });
 </script>

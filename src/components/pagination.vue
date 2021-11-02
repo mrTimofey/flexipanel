@@ -54,7 +54,7 @@ nav.pagination-wrapper(:class="{ loading }" v-if="lastPage > 1 || total")
 </template>
 
 <script lang="ts">
-import { defineComponent, computed } from 'vue';
+import { defineComponent, computed } from '@vue/runtime-core';
 import { useRoute } from 'vue-router';
 import Translator from '../modules/i18n';
 import { get } from '../modules/vue-composition-utils';

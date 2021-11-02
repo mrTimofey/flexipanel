@@ -4,8 +4,8 @@
 </template>
 
 <script lang="ts">
-import type { PropType } from 'vue';
-import { defineComponent } from 'vue';
+import type { PropType } from '@vue/runtime-core';
+import { defineComponent } from '@vue/runtime-core';
 
 import NavItemList from './tree.vue';
 import type { INavItem } from '../../modules/app-config';

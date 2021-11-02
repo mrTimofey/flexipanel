@@ -1,8 +1,7 @@
-import { createApp } from 'vue';
+import { createApp } from '@vue/runtime-dom';
 import { createRouter, createWebHistory } from 'vue-router';
 import Container from 'mini-ioc';
 import { injectKey } from 'mini-ioc-vue';
-
 import routes from './routes';
 import App from './app.vue';
 import HttpClient from './modules/http/http-client';

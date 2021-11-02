@@ -1,5 +1,5 @@
-import { defineAsyncComponent } from 'vue';
-import type { Component, AsyncComponentLoader } from 'vue';
+import { defineAsyncComponent } from '@vue/runtime-core';
+import type { Component, AsyncComponentLoader } from '@vue/runtime-core';
 
 type PossiblyAsyncComponent = Component | AsyncComponentLoader;
 

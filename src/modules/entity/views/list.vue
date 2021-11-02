@@ -10,8 +10,8 @@
 </template>
 
 <script lang="ts">
-import type { PropType } from 'vue';
-import { defineComponent, computed } from 'vue';
+import type { PropType } from '@vue/runtime-core';
+import { defineComponent, computed } from '@vue/runtime-core';
 import EntityManager from '..';
 import { get } from '../../vue-composition-utils';
 

@@ -10,7 +10,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, watchEffect, computed } from 'vue';
+import { defineComponent, watchEffect, computed } from '@vue/runtime-core';
 import { useRouter } from 'vue-router';
 import { get } from './modules/vue-composition-utils';
 import AppConfig from './modules/app-config';

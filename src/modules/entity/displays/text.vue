@@ -3,7 +3,7 @@ span {{ template ? tpl(template, item) : item[prop] }}
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent } from '@vue/runtime-core';
 import { useTemplate } from '../../vue-composition-utils';
 
 export default defineComponent({

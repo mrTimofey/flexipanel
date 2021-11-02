@@ -19,8 +19,8 @@ teleport(to="body")
 						) {{ action.title }}
 </template>
 <script lang="ts">
-import type { PropType } from 'vue';
-import { defineComponent, onMounted, onBeforeUnmount, ref, watch } from 'vue';
+import type { PropType } from '@vue/runtime-core';
+import { defineComponent, onMounted, onBeforeUnmount, ref, watch } from '@vue/runtime-core';
 
 const clickInside = Symbol('modalClickInsideMarker');
 type MarkedMouseEvent = MouseEvent & { [clickInside]?: true };

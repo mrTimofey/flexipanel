@@ -17,4 +17,9 @@ export default [
 		props: true,
 		component: () => import('./pages/entity-view.vue'),
 	},
+	{
+		name: 'entityItem',
+		path: '/entity/item/:entity/:id?',
+		component: () => import('./pages/entity-item.vue'),
+	},
 ] as RouteRecordRaw[];

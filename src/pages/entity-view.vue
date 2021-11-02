@@ -12,11 +12,13 @@
 			:view="view"
 			v-model:page="page"
 			v-model:per-page="perPage"
+			@edit-click="goToEditPage($event.id)"
 		)
 </template>
 
 <script lang="ts">
-import { defineComponent, computed, watchEffect } from 'vue';
+import { defineComponent, computed, watchEffect } from '@vue/runtime-core';
+import { useRouter } from 'vue-router';
 import { get, useRouteQueryParam } from '../modules/vue-composition-utils';
 import EntityView from '../components/entity-view.vue';
 import TemplateEngine from '../modules/template';
@@ -40,6 +42,7 @@ export default defineComponent({
 		const tmpl = get(TemplateEngine);
 		const pageMeta = get(Meta);
 		const entityMeta = computed(() => entityManager.getEntity(props.entity));
+		const router = useRouter();
 		watchEffect(() => {
 			pageMeta.pageTitle = entityMeta.value?.title || '...';
 		});
@@ -48,6 +51,12 @@ export default defineComponent({
 			page: useRouteQueryParam('page', 1),
 			perPage: useRouteQueryParam('perPage', 0),
 			pageTitle: computed(() => entityMeta.value && tmpl.exec(entityMeta.value.title, entityMeta.value)),
+			goToEditPage(id: string) {
+				router.push({
+					name: 'entityItem',
+					params: { entity: props.entity, id },
+				});
+			},
 		};
 	},
 });

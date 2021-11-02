@@ -26,12 +26,12 @@ template(v-if="entityMeta && viewType")
 			v-bind="entityView.props"
 			:items="store.items"
 			:loading="store.loading"
-			@item-click="goToEditPage($event)"
+			@item-click="onEditClick($event)"
 		)
 			template(#actions="{ item }")
 				.d-flex.justify-content-end
 					.btn-group.btn-group-sm
-						button.btn.btn-primary(@click.prevent="goToEditPage(item)")
+						button.btn.btn-primary(@click.prevent="onEditClick(item)")
 							i.fa-solid.fa-pencil
 						button.btn.btn-danger(@click.prevent="confirmAndDelete(item)")
 							i.fa-solid.fa-trash
@@ -47,8 +47,8 @@ template(v-if="entityMeta && viewType")
 </template>
 
 <script lang="ts">
-import type { PropType } from 'vue';
-import { defineComponent, computed, watch, ref } from 'vue';
+import type { PropType } from '@vue/runtime-core';
+import { defineComponent, computed, watch, ref } from '@vue/runtime-core';
 import EntityManager from '../modules/entity';
 import type { ListItem } from '../modules/entity-store/list';
 import EntityListStore from '../modules/entity-store/list';
@@ -83,7 +83,7 @@ export default defineComponent({
 			default: null,
 		},
 	},
-	emits: ['update:page', 'update:perPage'],
+	emits: ['update:page', 'update:perPage', 'edit-click'],
 	setup(props, { emit }) {
 		const store = create(EntityListStore);
 		const entityManager = get(EntityManager);
@@ -153,9 +153,11 @@ export default defineComponent({
 				store.reload({ perPage });
 				emit('update:perPage', perPage);
 			},
-			goToEditPage(item: ListItem) {
-				// eslint-disable-next-line no-console
-				console.log('edit', item);
+			onEditClick(item: ListItem) {
+				if (!entityMeta.value) {
+					return;
+				}
+				emit('edit-click', { item, id: item[entityMeta.value.idKey] });
 			},
 			confirmAndDelete(item: ListItem) {
 				confirmDeleteTarget.value = item;
