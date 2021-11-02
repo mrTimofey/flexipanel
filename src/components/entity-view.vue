@@ -10,6 +10,8 @@ modal-dialog(
 template(v-if="entityMeta && viewType")
 	.d-flex.justify-content-center.py-5(v-if="store.loading && !store.items.length")
 		.spinner.spinner-grow.text-primary
+	template(v-else-if="store.total === 0")
+		.fs-2.semibold.text-center.text-muted.px-3.py-5 {{ trans('noItems') }}
 	template(v-else-if="viewComponent && entityView")
 		.d-flex.align-items-center.my-2.px-3(v-if="realPerPageOptions.length")
 			span {{ trans('itemsPerPage') }}:
@@ -48,7 +50,8 @@ template(v-if="entityMeta && viewType")
 import type { PropType } from 'vue';
 import { defineComponent, computed, watch, ref } from 'vue';
 import EntityManager from '../modules/entity';
-import { EntityListStore } from '../modules/entity-store';
+import type { ListItem } from '../modules/entity-store/list';
+import EntityListStore from '../modules/entity-store/list';
 import { get, create } from '../modules/vue-composition-utils';
 import PageNav from './pagination.vue';
 import FieldSelect from './fields/select.vue';
@@ -97,7 +100,7 @@ export default defineComponent({
 		// TODO skeleton and not found state
 		const viewComponent = computed(() => viewType.value?.component);
 		const realPerPageOptions = computed(() => props.perPageOptions || entityView.value?.perPageOptions || []);
-		const confirmDeleteTarget = ref<unknown | null>(null);
+		const confirmDeleteTarget = ref<ListItem | null>(null);
 
 		function reloadInitialState() {
 			if (store.loading || !entityView.value) {
@@ -150,11 +153,11 @@ export default defineComponent({
 				store.reload({ perPage });
 				emit('update:perPage', perPage);
 			},
-			goToEditPage(item: unknown) {
+			goToEditPage(item: ListItem) {
 				// eslint-disable-next-line no-console
 				console.log('edit', item);
 			},
-			confirmAndDelete(item: unknown) {
+			confirmAndDelete(item: ListItem) {
 				confirmDeleteTarget.value = item;
 			},
 			confirmActions: computed<IModalAction[]>(() => [
@@ -168,7 +171,7 @@ export default defineComponent({
 				},
 			]),
 			onDeleteConfirm(yes: boolean) {
-				if (yes) {
+				if (yes && confirmDeleteTarget.value) {
 					store.deleteItem(confirmDeleteTarget.value).then(() =>
 						store.reload({
 							page: store.page,

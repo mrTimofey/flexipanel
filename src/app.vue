@@ -10,7 +10,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, watchEffect, computed, onBeforeMount } from 'vue';
+import { defineComponent, watchEffect, computed } from 'vue';
+import { useRouter } from 'vue-router';
 import { get } from './modules/vue-composition-utils';
 import AppConfig from './modules/app-config';
 import MainNav from './components/main-nav/index.vue';
@@ -27,8 +28,9 @@ export default defineComponent({
 		watchEffect(() => {
 			config.applyToDom();
 		});
-		onBeforeMount(() => {
-			meta.pageTitle = config.appTitle;
+		useRouter().beforeEach((to, from, next) => {
+			meta.pageTitle = '';
+			next();
 		});
 		return {
 			appTitle: computed(() => config.appTitle),

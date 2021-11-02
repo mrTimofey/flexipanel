@@ -16,11 +16,12 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, computed } from 'vue';
+import { defineComponent, computed, watchEffect } from 'vue';
 import { get, useRouteQueryParam } from '../modules/vue-composition-utils';
 import EntityView from '../components/entity-view.vue';
 import TemplateEngine from '../modules/template';
 import EntityManager from '../modules/entity';
+import Meta from '../modules/meta';
 
 export default defineComponent({
 	components: { EntityView },
@@ -37,7 +38,11 @@ export default defineComponent({
 	setup(props) {
 		const entityManager = get(EntityManager);
 		const tmpl = get(TemplateEngine);
+		const pageMeta = get(Meta);
 		const entityMeta = computed(() => entityManager.getEntity(props.entity));
+		watchEffect(() => {
+			pageMeta.pageTitle = entityMeta.value?.title || '...';
+		});
 		return {
 			entityMeta,
 			page: useRouteQueryParam('page', 1),
