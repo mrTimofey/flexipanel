@@ -13,13 +13,14 @@ teleport(to="body")
 					.modal-footer(v-if="actions && actions.length")
 						button.btn(
 							v-for="(action, index) in actions"
+							:ref="index === 0 ? 'firstActionButton' : undefined"
 							:class="`btn-${action.type}`"
 							@click.prevent="onActionClick(action, index)"
 						) {{ action.title }}
 </template>
 <script lang="ts">
 import type { PropType } from 'vue';
-import { defineComponent, onMounted, onBeforeUnmount } from 'vue';
+import { defineComponent, onMounted, onBeforeUnmount, ref, watch } from 'vue';
 
 const clickInside = Symbol('modalClickInsideMarker');
 type MarkedMouseEvent = MouseEvent & { [clickInside]?: true };
@@ -48,6 +49,8 @@ export default defineComponent({
 	},
 	emits: ['background-click', 'close-click', 'action-click', 'escape-press', 'close'],
 	setup(props, { emit }) {
+		const firstActionButton = ref<HTMLButtonElement | null>(null);
+
 		function onKeyPress(e: KeyboardEvent) {
 			if (e.key === 'Escape' || e.key === 'Esc') {
 				emit('escape-press');
@@ -60,7 +63,13 @@ export default defineComponent({
 		onBeforeUnmount(() => {
 			window.removeEventListener('keydown', onKeyPress);
 		});
+		// focus first action on modal open
+		const stopWatchFirstActionButton = watch(firstActionButton, () => {
+			firstActionButton.value?.focus();
+			stopWatchFirstActionButton();
+		});
 		return {
+			firstActionButton,
 			markClickAsInside(e: MarkedMouseEvent) {
 				e[clickInside] = true;
 			},
