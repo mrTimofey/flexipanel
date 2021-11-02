@@ -31,7 +31,7 @@ template(v-if="entityMeta && viewType")
 			template(#actions="{ item }")
 				.d-flex.justify-content-end
 					.btn-group.btn-group-sm
-						button.btn.btn-primary(@click.prevent="onEditClick(item)")
+						a.btn.btn-primary(@click.prevent="onEditClick(item)" :href="itemRoute(item)")
 							i.fa-solid.fa-pencil
 						button.btn.btn-danger(@click.prevent="confirmAndDelete(item)")
 							i.fa-solid.fa-trash
@@ -49,6 +49,7 @@ template(v-if="entityMeta && viewType")
 <script lang="ts">
 import type { PropType } from '@vue/runtime-core';
 import { defineComponent, computed, watch, ref } from '@vue/runtime-core';
+import { useRouter } from 'vue-router';
 import EntityManager from '../modules/entity';
 import type { ListItem } from '../modules/entity-store/list';
 import EntityListStore from '../modules/entity-store/list';
@@ -88,6 +89,7 @@ export default defineComponent({
 		const store = create(EntityListStore);
 		const entityManager = get(EntityManager);
 		const translator = get(Translator);
+		const router = useRouter();
 		const entityMeta = computed(() => entityManager.getEntity(props.entity));
 		const entityView = computed(() => {
 			if (!entityMeta.value) {
@@ -144,24 +146,6 @@ export default defineComponent({
 			store,
 			realPerPageOptions,
 			confirmDeleteTarget,
-			trans: (key: string) => translator.get(key),
-			updatePage(page: number) {
-				store.reload({ page, perPage: store.perPage });
-				emit('update:page', page);
-			},
-			updatePerPage(perPage: number) {
-				store.reload({ perPage });
-				emit('update:perPage', perPage);
-			},
-			onEditClick(item: ListItem) {
-				if (!entityMeta.value) {
-					return;
-				}
-				emit('edit-click', { item, id: item[entityMeta.value.idKey] });
-			},
-			confirmAndDelete(item: ListItem) {
-				confirmDeleteTarget.value = item;
-			},
 			confirmActions: computed<IModalAction[]>(() => [
 				{
 					type: 'danger',
@@ -172,7 +156,37 @@ export default defineComponent({
 					title: translator.get('no'),
 				},
 			]),
-			onDeleteConfirm(yes: boolean) {
+			trans: (key: string) => translator.get(key),
+			updatePage(page: number): void {
+				store.reload({ page, perPage: store.perPage });
+				emit('update:page', page);
+			},
+			updatePerPage(perPage: number): void {
+				store.reload({ perPage });
+				emit('update:perPage', perPage);
+			},
+			onEditClick(item: ListItem): void {
+				if (!entityMeta.value) {
+					return;
+				}
+				emit('edit-click', { item, id: `${item[entityMeta.value.idKey]}` });
+			},
+			itemRoute(item: ListItem): string {
+				if (!entityMeta.value) {
+					return '#';
+				}
+				return router.resolve({
+					name: 'entityItem',
+					params: {
+						entity: props.entity,
+						id: `${item[entityMeta.value.idKey]}`,
+					},
+				}).href;
+			},
+			confirmAndDelete(item: ListItem): void {
+				confirmDeleteTarget.value = item;
+			},
+			onDeleteConfirm(yes: boolean): void {
 				if (yes && confirmDeleteTarget.value) {
 					store.deleteItem(confirmDeleteTarget.value).then(() =>
 						store.reload({
