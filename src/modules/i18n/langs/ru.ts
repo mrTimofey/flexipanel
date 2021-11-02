@@ -6,4 +6,5 @@ export default {
 	areYouSure: 'Вы уверены',
 	yes: 'Да',
 	no: 'Нет',
+	noItems: 'Список пуст',
 };

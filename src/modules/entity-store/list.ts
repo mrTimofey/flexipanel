@@ -1,9 +1,12 @@
-import { inject } from 'mini-ioc';
+import Container, { inject } from 'mini-ioc';
 import type { IEntityMeta } from '../entity';
 import HttpClient from '../http/http-client';
 import ReactiveStore from '../reactive-store';
+import adapters from '../entity/adapters';
 
-export interface IState<ListItem = Record<string, unknown>> {
+export type ListItem = Record<string, unknown>;
+
+export interface IState {
 	loading: boolean;
 	list: ListItem[];
 	total: number;
@@ -17,10 +20,10 @@ export interface IApiOptions {
 	perPage?: number;
 }
 
-export default class EntityListStore<ListItem = Record<string, unknown>> extends ReactiveStore<IState<ListItem>> {
+export default class EntityListStore extends ReactiveStore<IState> {
 	protected entity: IEntityMeta | null = null;
 
-	protected getInitialState(): IState<ListItem> {
+	protected getInitialState(): IState {
 		return {
 			loading: false,
 			list: [],
@@ -31,7 +34,7 @@ export default class EntityListStore<ListItem = Record<string, unknown>> extends
 		};
 	}
 
-	constructor(protected httpClient = inject(HttpClient)) {
+	constructor(protected httpClient = inject(HttpClient), protected ioc = inject(Container)) {
 		super();
 	}
 
@@ -45,13 +48,16 @@ export default class EntityListStore<ListItem = Record<string, unknown>> extends
 			this.state.perPage = perPage;
 		}
 		try {
-			// TODO other providers (only rest is supported now)
-			const { data, per_page: apiPerPage, page: currentPage, total } = await this.httpClient.get(`${this.entity.apiEndpoint}?page=${page}&per_page=${perPage}`);
-			this.state.total = total;
-			this.state.list = data;
-			this.state.perPage = apiPerPage;
-			this.state.page = currentPage;
-			this.state.offset = apiPerPage * (currentPage - 1);
+			const adapter = this.ioc.get(await adapters[this.entity.apiType as string]());
+			const res = await adapter.getList(this.entity.apiEndpoint, {
+				offset: perPage ? perPage * (page - 1) : 0,
+				limit: perPage,
+			});
+			this.state.list = res.items;
+			this.state.offset = res.offset;
+			this.state.perPage = res.limit;
+			this.state.page = Math.ceil(this.state.offset / this.state.perPage) + 1;
+			this.state.total = res.total || this.state.list.length;
 		} finally {
 			this.state.loading = false;
 		}
@@ -61,7 +67,7 @@ export default class EntityListStore<ListItem = Record<string, unknown>> extends
 		if (!this.entity?.apiEndpoint) {
 			return;
 		}
-		const itemKey = (item as unknown as Record<string, string>)[this.entity.idKey];
+		const itemKey = (item as unknown as Record<string, string>)[this.entity.idKey as string];
 		if (!itemKey) {
 			return;
 		}
@@ -79,6 +85,9 @@ export default class EntityListStore<ListItem = Record<string, unknown>> extends
 		}
 		this.entity = entity;
 		this.resetState();
+		if (entity) {
+			adapters[entity.apiType as string]();
+		}
 	}
 
 	get loading(): boolean {

@@ -6,4 +6,5 @@ export default {
 	areYouSure: 'Are you sure',
 	yes: 'Yes',
 	no: 'No',
+	noItems: 'No items',
 };

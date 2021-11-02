@@ -40,7 +40,7 @@ export interface IForm {
 
 export interface IEntityMeta {
 	// entity object property name, used for entity instance identification and as a URL path segment
-	idKey: string;
+	idKey?: string;
 	// human readable entity name
 	title?: string;
 	// API type (rest, graphql, grpc...)
@@ -52,7 +52,8 @@ export interface IEntityMeta {
 }
 
 export const entityMetaDefaults: Partial<IEntityMeta> = {
-	apiType: 'rest',
+	idKey: 'id',
+	apiType: 'jsonApi',
 };
 
 export const viewDefaults: Partial<IView> = {
