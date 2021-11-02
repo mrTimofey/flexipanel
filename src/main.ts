@@ -8,12 +8,13 @@ import App from './app.vue';
 import HttpClient from './modules/http/http-client';
 import FetchJsonClient from './modules/http/fetch-json-client';
 
-import bootstrap from './bootstrap-demo';
+import { bootApp } from './app';
 
 const container = new Container();
 container.bind(HttpClient, FetchJsonClient);
+container.registerResolver(Container, () => container);
 
-bootstrap(container);
+bootApp(container);
 
 createApp(App)
 	.use(
