@@ -7,4 +7,10 @@ export default {
 	yes: 'Да',
 	no: 'Нет',
 	noItems: 'Список пуст',
+	login: 'Имя пользователя',
+	loginAction: 'Войти',
+	password: 'Пароль',
+	loginToProceed: 'Войдите, чтобы продолжить',
+	wrongCredentials: 'Неверное имя пользователя или пароль',
+	logout: 'Выйти',
 };

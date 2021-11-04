@@ -1,15 +1,28 @@
+import type { IHttpRequest, IHttpResponse } from './http-client';
 import HttpClient from './http-client';
 
 export default class FetchJsonClient extends HttpClient {
-	fetch<T>(url: string, method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE', body?: unknown): Promise<T> {
+	sendRequest<T>({ url, method, body: reqBody, headers }: IHttpRequest): Promise<IHttpResponse<T>> {
 		return window
 			.fetch(url, {
 				method,
-				body: body == null ? null : JSON.stringify(body),
+				body: reqBody == null ? null : JSON.stringify(reqBody),
+				headers: {
+					'Content-Type': 'application/json',
+					...headers,
+				},
 			})
 			.then((res) => {
 				const contentType = res.headers.get('Content-Type');
-				return contentType && contentType.startsWith('application') && contentType.includes('json') ? res.json() : null;
+				if (contentType && contentType.startsWith('application') && contentType.includes('json')) {
+					return res.json().then((body) => ({
+						headers: res.headers,
+						status: res.status,
+						statusText: res.statusText,
+						body,
+					}));
+				}
+				throw new Error('Response body should be in JSON format');
 			});
 	}
 }

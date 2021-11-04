@@ -6,11 +6,14 @@ import routes from './routes';
 import App from './app.vue';
 import HttpClient from './modules/http/http-client';
 import FetchJsonClient from './modules/http/fetch-json-client';
+import AuthProvider from './modules/auth/provider';
+import PublicAuthProvider from './modules/auth/providers/public';
 
 import { bootApp } from './app';
 
 const container = new Container();
 container.bind(HttpClient, FetchJsonClient);
+container.bind(AuthProvider, PublicAuthProvider);
 container.registerResolver(Container, () => container);
 
 bootApp(container);

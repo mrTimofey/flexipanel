@@ -5,6 +5,7 @@ import { injectKey } from 'mini-ioc-vue';
 import type { AnyClass } from 'mini-ioc';
 import type Container from 'mini-ioc';
 import TemplateEngine from './template';
+import Translator from './i18n';
 
 export function getContainer(): Container {
 	const injected = inject(injectKey) as Container;
@@ -59,5 +60,12 @@ export function useTemplate(): { tpl: (tpl: string, data?: unknown) => string } 
 	const engine = get(TemplateEngine);
 	return {
 		tpl: (tpl, data) => engine.exec(tpl, data),
+	};
+}
+
+export function useTranslator(): { trans: (key: string) => string } {
+	const trans = get(Translator);
+	return {
+		trans: (key) => trans.get(key),
 	};
 }

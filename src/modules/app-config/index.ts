@@ -1,4 +1,6 @@
+import { inject } from 'mini-ioc';
 import type { RouteLocationRaw } from 'vue-router';
+import Translator from '../i18n';
 import ReactiveStore from '../reactive-store';
 
 export interface INavItemBadge {
@@ -23,6 +25,10 @@ export interface IState {
 }
 
 export default class AppConfig extends ReactiveStore<IState> {
+	constructor(protected trans = inject(Translator)) {
+		super();
+	}
+
 	getInitialState(): IState {
 		return {
 			fontFamily: 'Rubik',
@@ -46,8 +52,18 @@ export default class AppConfig extends ReactiveStore<IState> {
 		return this;
 	}
 
-	setConfig(config: Partial<IState>): this {
-		Object.assign(this.state, config);
+	setConfig(config: Partial<IState> & Partial<{ lang: string; fallbackLang: string }>): this {
+		// TODO refactor
+		if (config.lang) {
+			this.trans.lang = config.lang;
+		}
+		if (config.fallbackLang) {
+			this.trans.fallbackLang = config.fallbackLang;
+		}
+		const newState = { ...config };
+		delete config.lang;
+		delete config.fallbackLang;
+		Object.assign(this.state, newState);
 		return this;
 	}
 
@@ -61,5 +77,13 @@ export default class AppConfig extends ReactiveStore<IState> {
 
 	get mainNav(): INavItem[] {
 		return this.state.mainNav;
+	}
+
+	get lang(): string {
+		return this.trans.lang;
+	}
+
+	get fallbackLang(): string {
+		return this.trans.fallbackLang;
 	}
 }

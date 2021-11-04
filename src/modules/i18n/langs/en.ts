@@ -7,4 +7,10 @@ export default {
 	yes: 'Yes',
 	no: 'No',
 	noItems: 'No items',
+	login: 'Login',
+	loginAction: 'Login',
+	password: 'Password',
+	loginToProceed: 'Please, login to proceed',
+	wrongCredentials: 'Wrong credentials',
+	logout: 'Log out',
 };

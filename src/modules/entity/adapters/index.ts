@@ -1,5 +1,5 @@
 import type { RealClass } from 'mini-ioc';
-import type IAdapter from './adapter';
+import type IAdapter from '../adapter';
 
 /**
  * Built-in API adapters map
