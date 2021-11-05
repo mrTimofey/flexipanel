@@ -1,8 +1,6 @@
-import { inject } from 'mini-ioc';
 import AuthProvider, { WrongCredentialsError } from '../provider';
 import type { IAuthenticationResult, ICredentials } from '../provider';
-import type { ErrorHandler, IHttpResponse, RequestInterceptor } from '../../http/http-client';
-import HttpClient from '../../http/http-client';
+import type { IHttpRequest, IHttpResponse } from '../../http/http-client';
 
 interface IHttpBodyKeys {
 	accessToken: string;
@@ -12,11 +10,14 @@ interface IHttpBodyKeys {
 	refreshTokenInRequestBody: string;
 }
 
-export default class HttpTokenAuthProvider extends AuthProvider {
-	private requestInterceptor: RequestInterceptor | null = null;
-	private refreshErrorHandler: ErrorHandler | null = null;
+interface IHttpEndpoints {
+	authenticate: string;
+	refresh: string;
+	logout: string;
+}
 
-	protected static httpBodyKeys: IHttpBodyKeys = {
+export default class HttpTokenAuthProvider extends AuthProvider {
+	protected httpBodyKeys: IHttpBodyKeys = {
 		accessToken: 'token',
 		refreshToken: 'refresh_token',
 		login: 'username',
@@ -25,23 +26,33 @@ export default class HttpTokenAuthProvider extends AuthProvider {
 		refreshTokenInRequestBody: '',
 	};
 
+	protected httpEndpoints: IHttpEndpoints = {
+		authenticate: '/api/auth',
+		refresh: '/api/auth/refresh',
+		logout: '',
+	};
+
 	/**
 	 * Set object keys for request/response body used as user name, password, access token and remember token.
 	 * @param keys key mappings
 	 */
-	static setHttpBodyKeys(keys: Partial<IHttpBodyKeys>): void {
-		Object.assign(HttpTokenAuthProvider.httpBodyKeys, keys);
+	setHttpEndpoints(endpoints: Partial<IHttpEndpoints>): void {
+		Object.assign(this.httpEndpoints, endpoints);
 	}
 
-	constructor(protected http = inject(HttpClient)) {
-		super();
+	/**
+	 * Set object keys for request/response body used as user name, password, access token and remember token.
+	 * @param keys key mappings
+	 */
+	setHttpBodyKeys(keys: Partial<IHttpBodyKeys>): void {
+		Object.assign(this.httpBodyKeys, keys);
 	}
 
 	private authResponse({ status, body }: IHttpResponse<Record<string, string>>): IAuthenticationResult {
 		if (status >= 200 && status < 300) {
 			return {
-				accessToken: `${body[HttpTokenAuthProvider.httpBodyKeys.accessToken] || ''}`,
-				refreshToken: `${body[HttpTokenAuthProvider.httpBodyKeys.refreshToken] || ''}`,
+				accessToken: `${body[this.httpBodyKeys.accessToken] || ''}`,
+				refreshToken: `${body[this.httpBodyKeys.refreshToken] || ''}`,
 			};
 		}
 		throw new WrongCredentialsError();
@@ -50,63 +61,39 @@ export default class HttpTokenAuthProvider extends AuthProvider {
 	async authenticate(credentials: ICredentials): Promise<IAuthenticationResult> {
 		return this.authResponse(
 			// TODO customize endpoint
-			await this.http.post('/api/identity/login', {
-				[HttpTokenAuthProvider.httpBodyKeys.login]: credentials.login,
-				[HttpTokenAuthProvider.httpBodyKeys.password]: credentials.password,
+			await this.http.post(this.httpEndpoints.authenticate, {
+				[this.httpBodyKeys.login]: credentials.login,
+				[this.httpBodyKeys.password]: credentials.password,
 			}),
 		);
 	}
 
-	async refreshAccessToken(refreshToken: string): Promise<IAuthenticationResult> {
+	authorizeRequest(req: IHttpRequest, token: string): void {
+		req.headers.Authorization = `Bearer ${token}`;
+	}
+
+	isRequestRecoverable({ req, res }: { req: IHttpRequest; res: IHttpResponse<unknown> | null }): boolean {
+		return (
+			// recover when response is successfully received
+			!!res &&
+			// recover only after 401 or 403 response
+			[401, 403].includes(res.status) &&
+			// dont recover POST requests to auth endpoints
+			(!Object.values(this.httpEndpoints).includes(req.url) || req.method !== 'POST')
+		);
+	}
+
+	async recoverAccessToken(refreshToken: string): Promise<IAuthenticationResult> {
 		return this.authResponse(
-			await this.http.post('/api/identity/token/refresh', {
-				[HttpTokenAuthProvider.httpBodyKeys.refreshTokenInRequestBody || HttpTokenAuthProvider.httpBodyKeys.refreshToken]: refreshToken,
+			await this.http.post<Record<string, string>>(this.httpEndpoints.refresh, {
+				[this.httpBodyKeys.refreshTokenInRequestBody || this.httpBodyKeys.refreshToken]: refreshToken,
 			}),
 		);
 	}
 
-	// TODO refactor
-	authorizeHttpRequests(token: string | null, refreshToken?: string, onRefresh?: (tokens: IAuthenticationResult) => void): void {
-		if (this.requestInterceptor) {
-			this.http.removeRequestInterceptor(this.requestInterceptor);
-			this.requestInterceptor = null;
+	async logout(): Promise<void> {
+		if (this.httpEndpoints.logout) {
+			await this.http.post(this.httpEndpoints.logout);
 		}
-		if (!token) {
-			return;
-		}
-		this.requestInterceptor = (req) => {
-			req.headers.Authorization = `Bearer ${token}`;
-		};
-		this.http.addRequestInterceptor(this.requestInterceptor);
-
-		if (this.refreshErrorHandler) {
-			this.http.removeErrorHandler(this.refreshErrorHandler);
-			this.refreshErrorHandler = null;
-		}
-		if (!refreshToken) {
-			return;
-		}
-		this.refreshErrorHandler = async (err) => {
-			if (!err.res) {
-				return null;
-			}
-			if (err.req.method === 'POST' && ['/api/identity/login', '/api/identity/token/refresh'].includes(err.req.url)) {
-				return null;
-			}
-			if (err.res.status === 401 || err.res.status === 403) {
-				const newTokens = await this.refreshAccessToken(refreshToken);
-				this.authorizeHttpRequests(newTokens.accessToken, newTokens.refreshToken, onRefresh);
-				if (onRefresh) {
-					onRefresh(newTokens);
-				}
-				return this.http.fetch(err.req.url, err.req.method, err.req.body, err.req.headers);
-			}
-			return null;
-		};
-		this.http.addErrorHandler(this.refreshErrorHandler);
-	}
-
-	logout(): Promise<void> {
-		return Promise.resolve();
 	}
 }
