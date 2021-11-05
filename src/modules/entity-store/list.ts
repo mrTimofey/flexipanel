@@ -1,5 +1,5 @@
 import Container, { inject } from 'mini-ioc';
-import type { IEntityMeta } from '../entity';
+import type { IRegisteredEntity } from '../entity';
 import HttpClient from '../http/http-client';
 import ReactiveStore from '../reactive-store';
 import adapters from '../entity/adapters';
@@ -21,7 +21,7 @@ export interface IApiOptions {
 }
 
 export default class EntityListStore extends ReactiveStore<IState> {
-	protected entity: IEntityMeta | null = null;
+	protected entity: IRegisteredEntity | null = null;
 
 	protected getInitialState(): IState {
 		return {
@@ -39,7 +39,7 @@ export default class EntityListStore extends ReactiveStore<IState> {
 	}
 
 	public async reload({ page = 1, perPage }: IApiOptions = {}): Promise<void> {
-		if (!this.entity?.apiEndpoint) {
+		if (!this.entity) {
 			return;
 		}
 		this.state.loading = true;
@@ -64,10 +64,10 @@ export default class EntityListStore extends ReactiveStore<IState> {
 	}
 
 	public async deleteItem(item: ListItem): Promise<void> {
-		if (!this.entity?.apiEndpoint) {
+		if (!this.entity) {
 			return;
 		}
-		const itemKey = (item as unknown as Record<string, string>)[this.entity.idKey as string];
+		const itemKey = (item as unknown as Record<string, string>)[this.entity.itemUrlKey as string];
 		if (!itemKey) {
 			return;
 		}
@@ -79,7 +79,7 @@ export default class EntityListStore extends ReactiveStore<IState> {
 		}
 	}
 
-	public setEntity(entity: IEntityMeta | null): void {
+	public setEntity(entity: IRegisteredEntity | null): void {
 		if (this.entity === entity) {
 			return;
 		}

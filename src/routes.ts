@@ -20,6 +20,7 @@ export default [
 	{
 		name: 'entityItem',
 		path: '/entity/item/:entity/:id?',
+		props: true,
 		component: () => import('./pages/entity-item.vue'),
 	},
 ] as RouteRecordRaw[];

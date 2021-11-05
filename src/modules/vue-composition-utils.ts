@@ -56,16 +56,16 @@ export function useRouteQueryParam<T>(key: string, defaultValue: T): WritableCom
 	});
 }
 
-export function useTemplate(): { tpl: (tpl: string, data?: unknown) => string } {
-	const engine = get(TemplateEngine);
-	return {
-		tpl: (tpl, data) => engine.exec(tpl, data),
-	};
-}
-
 export function useTranslator(): { trans: (key: string) => string } {
 	const trans = get(Translator);
 	return {
 		trans: (key) => trans.get(key),
+	};
+}
+
+export function useTemplate(): { tpl: (tpl: string, data?: unknown) => string } {
+	const engine = get(TemplateEngine);
+	return {
+		tpl: (tpl, data) => engine.exec(tpl, data),
 	};
 }

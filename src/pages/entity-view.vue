@@ -6,7 +6,9 @@
 				router-link(:to="{ name: 'index' }") AdminPanel
 			li.breadcrumb-item {{ pageTitle }}
 	.bg-white.shadow-sm.rounded
-		h1.px-3.pt-3.mb-3 {{ pageTitle }}
+		.px-3.pt-3.mb-3
+			h1 {{ pageTitle }}
+			button.btn.btn-primary(@click.prevent="goToCreatePage()") {{ entityMeta.createButtonText || trans('createEntityItem') }}
 		entity-view(
 			:entity="entity"
 			:view="view"
@@ -19,7 +21,7 @@
 <script lang="ts">
 import { defineComponent, computed, watchEffect } from '@vue/runtime-core';
 import { useRouter } from 'vue-router';
-import { get, useRouteQueryParam } from '../modules/vue-composition-utils';
+import { get, useRouteQueryParam, useTranslator } from '../modules/vue-composition-utils';
 import EntityView from '../components/entity-view.vue';
 import TemplateEngine from '../modules/template';
 import EntityManager from '../modules/entity';
@@ -47,6 +49,7 @@ export default defineComponent({
 			pageMeta.pageTitle = entityMeta.value?.title || '...';
 		});
 		return {
+			...useTranslator(),
 			entityMeta,
 			page: useRouteQueryParam('page', 1),
 			perPage: useRouteQueryParam('perPage', 0),
@@ -55,6 +58,12 @@ export default defineComponent({
 				router.push({
 					name: 'entityItem',
 					params: { entity: props.entity, id },
+				});
+			},
+			goToCreatePage() {
+				router.push({
+					name: 'entityItem',
+					params: { entity: props.entity },
 				});
 			},
 		};

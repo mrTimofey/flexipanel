@@ -10,6 +10,14 @@ export interface IListData {
 	total?: number;
 }
 
+export interface IItemParams {
+	id: string;
+}
+
+export interface IItemData {
+	item: Record<string, unknown>;
+}
+
 export default interface IAdapter {
 	getList(endpoint: string, params: IListParams): Promise<IListData>;
 }

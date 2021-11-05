@@ -13,4 +13,7 @@ export default {
 	loginToProceed: 'Please, login to proceed',
 	wrongCredentials: 'Wrong credentials',
 	logout: 'Log out',
+	createEntityItem: 'Create entity item',
+	newItem: 'New item',
+	item: 'Item',
 };

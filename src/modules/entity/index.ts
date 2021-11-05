@@ -40,7 +40,7 @@ export interface IForm {
 
 export interface IEntityMeta {
 	// entity object property name, used for entity instance identification and as a URL path segment
-	idKey?: string;
+	itemUrlKey?: string;
 	// human readable entity name
 	title?: string;
 	// API type (rest, graphql, grpc...)
@@ -49,11 +49,16 @@ export interface IEntityMeta {
 	apiEndpoint: string;
 	// how this entity can be viewed (table, list, tree...)
 	views: Record<string, IView>;
+	createButtonText?: string;
+	createPageTitle?: string;
+	editPageTitle?: string;
 }
 
 export const entityMetaDefaults: Partial<IEntityMeta> = {
-	idKey: 'id',
+	itemUrlKey: 'id',
 	apiType: 'jsonApi',
+	createPageTitle: '{{#def.trans("newItem")}}',
+	editPageTitle: '{{#def.trans("item")}} #{{=it.id}}',
 };
 
 export const viewDefaults: Partial<IView> = {
@@ -74,10 +79,12 @@ export interface IFieldType {
 	component: PossiblyAsyncComponent;
 }
 
-type RegisteredEntity = Required<IEntityMeta> & { views: Record<string, Required<IView>> };
+export interface IRegisteredEntity extends Required<IEntityMeta> {
+	views: Record<string, Required<IView>>;
+}
 
 export default class EntityManager {
-	protected entities: Record<string, RegisteredEntity> = {};
+	protected entities: Record<string, IRegisteredEntity> = {};
 	protected viewTypes: Record<string, IViewType> = {};
 	protected displayTypes: Record<string, IDisplayType> = {};
 	protected fieldTypes: Record<string, IFieldType> = {};
@@ -89,11 +96,11 @@ export default class EntityManager {
 			views[key] = { ...viewDefaults, ...view } as Required<IView>;
 		});
 		entityWithDefaults.views = views;
-		this.entities[slug] = entityWithDefaults as RegisteredEntity;
+		this.entities[slug] = entityWithDefaults as IRegisteredEntity;
 		return this;
 	}
 
-	public getEntity(key: string): RegisteredEntity | null {
+	public getEntity(key: string): IRegisteredEntity | null {
 		return this.entities[key] || null;
 	}
 

@@ -55,7 +55,7 @@ import type { ListItem } from '../modules/entity-store/list';
 import EntityListStore from '../modules/entity-store/list';
 import { get, create } from '../modules/vue-composition-utils';
 import PageNav from './pagination.vue';
-import FieldSelect from './fields/select.vue';
+import FieldSelect from '../modules/form/fields/select.vue';
 import Translator from '../modules/i18n';
 import type { IModalAction } from './modal.vue';
 import ModalDialog from './modal.vue';
@@ -169,7 +169,7 @@ export default defineComponent({
 				if (!entityMeta.value) {
 					return;
 				}
-				emit('edit-click', { item, id: `${item[entityMeta.value.idKey]}` });
+				emit('edit-click', { item, id: `${item[entityMeta.value.itemUrlKey]}` });
 			},
 			itemRoute(item: ListItem): string {
 				if (!entityMeta.value) {
@@ -179,7 +179,7 @@ export default defineComponent({
 					name: 'entityItem',
 					params: {
 						entity: props.entity,
-						id: `${item[entityMeta.value.idKey]}`,
+						id: `${item[entityMeta.value.itemUrlKey]}`,
 					},
 				}).href;
 			},

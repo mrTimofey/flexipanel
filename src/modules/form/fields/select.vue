@@ -1,5 +1,5 @@
 <template lang="pug">
-.select-field
+.form-field-select
 	select.form-select.form-select-sm(
 		:disabled="disabled"
 		:value="modelValue"

@@ -13,4 +13,7 @@ export default {
 	loginToProceed: 'Войдите, чтобы продолжить',
 	wrongCredentials: 'Неверное имя пользователя или пароль',
 	logout: 'Выйти',
+	createEntityItem: 'Создать элемент',
+	newItem: 'Новый элемент',
+	item: 'Элемент',
 };

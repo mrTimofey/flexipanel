@@ -1,15 +1,19 @@
 import { inject } from 'mini-ioc';
 import HttpClient from '../../http/http-client';
-import type { IListParams, IListData } from '../adapter';
+import type { IListParams, IListData, IItemParams, IItemData } from '../adapter';
 import type IAdapter from '../adapter';
 
-interface IListItem {
+interface IItem {
 	id: string;
 	attributes: Record<string, unknown>;
 }
 
 interface IJsonApiListResponse {
-	data: IListItem[];
+	data: IItem[];
+}
+
+interface IJsonApiItemResponse {
+	data: IItem;
 }
 
 export default class JsonApiAdapter implements IAdapter {
@@ -27,5 +31,12 @@ export default class JsonApiAdapter implements IAdapter {
 			offset: params.offset,
 			limit: params.limit || body.data.length,
 		};
+	}
+
+	async getItem(endpoint: string, { id }: IItemParams): Promise<IItemData> {
+		const { body } = await this.http.get<IJsonApiItemResponse>(`${endpoint}/${id}`, {
+			'Content-Type': 'application/vnd.api+json',
+		});
+		return { item: { id: body.data.id, ...body.data.attributes } };
 	}
 }
