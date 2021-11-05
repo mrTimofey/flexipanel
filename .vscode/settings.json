@@ -27,7 +27,7 @@
   "stylusSupremacy.alwaysUseZeroWithoutUnit": true,
   "stylusSupremacy.reduceMarginAndPaddingValues": false,
   "volar.formatting.printWidth": 160,
-  "volar.preferredAttrNameCase": "kebab",
-  "volar.preferredTagNameCase": "kebab",
-  "volar.icon.splitEditors": false
+  "volar.icon.splitEditors": false,
+  "volar.completion.preferredAttrNameCase": "kebab",
+  "volar.completion.preferredTagNameCase": "kebab"
 }
