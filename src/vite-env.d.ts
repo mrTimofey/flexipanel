@@ -3,4 +3,15 @@
 
 interface ImportMetaEnv {
 	APP_ROUTES_BASE?: string;
+	LOCAL_STORAGE_KEY_PREFIX?: string;
+
+	AUTH_AUTHENTICATE_ENDPOINT?: string;
+	AUTH_REFRESH_ENDPOINT?: string;
+	AUTH_LOGOUT_ENDPOINT?: string;
+
+	AUTH_ACCESS_TOKEN_KEY?: string;
+	AUTH_REFRESH_TOKEN_KEY?: string;
+	AUTH_LOGIN_KEY?: string;
+	AUTH_PASSWORD_KEY?: string;
+	AUTH_REFRESH_TOKEN_REQUEST_KEY?: string;
 }

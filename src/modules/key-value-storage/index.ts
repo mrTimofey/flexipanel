@@ -1,5 +1,5 @@
 export default class KeyValueStorage {
-	private keyPrefix = '__vueAdmin';
+	private keyPrefix = import.meta.env.LOCAL_STORAGE_KEY_PREFIX || '__vueAdmin__';
 
 	setGlobalKeyPrefix(prefix: string): void {
 		this.keyPrefix = prefix;

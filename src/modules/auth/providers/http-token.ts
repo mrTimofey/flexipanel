@@ -18,18 +18,18 @@ interface IHttpEndpoints {
 
 export default class HttpTokenAuthProvider extends AuthProvider {
 	protected httpBodyKeys: IHttpBodyKeys = {
-		accessToken: 'token',
-		refreshToken: 'refresh_token',
-		login: 'username',
-		password: 'password',
+		accessToken: import.meta.env.AUTH_ACCESS_TOKEN_KEY || 'token',
+		refreshToken: import.meta.env.AUTH_REFRESH_TOKEN_KEY || 'refresh_token',
+		login: import.meta.env.AUTH_LOGIN_KEY || 'username',
+		password: import.meta.env.AUTH_PASSWORD_KEY || 'password',
 		// refreshToken is used by default
-		refreshTokenInRequestBody: '',
+		refreshTokenInRequestBody: import.meta.env.AUTH_REFRESH_TOKEN_REQUEST_KEY || '',
 	};
 
 	protected httpEndpoints: IHttpEndpoints = {
-		authenticate: '/api/auth',
-		refresh: '/api/auth/refresh',
-		logout: '',
+		authenticate: import.meta.env.AUTH_AUTHENTICATE_ENDPOINT || '/api/auth',
+		refresh: import.meta.env.AUTH_REFRESH_ENDPOINT || '/api/auth/refresh',
+		logout: import.meta.env.AUTH_LOGOUT_ENDPOINT || '',
 	};
 
 	/**
