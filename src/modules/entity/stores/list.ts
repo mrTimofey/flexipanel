@@ -1,7 +1,6 @@
-import Container, { inject } from 'mini-ioc';
 import type { IRegisteredEntity } from '..';
-import ReactiveStore from '../../reactive-store';
 import adapters from '../adapters';
+import EntityBaseStore from './base';
 
 export type ListItem = Record<string, unknown>;
 
@@ -19,7 +18,7 @@ export interface IApiOptions {
 	perPage?: number;
 }
 
-export default class EntityListStore extends ReactiveStore<IState> {
+export default class EntityListStore extends EntityBaseStore<IState> {
 	protected entity: IRegisteredEntity | null = null;
 
 	protected getInitialState(): IState {
@@ -33,10 +32,6 @@ export default class EntityListStore extends ReactiveStore<IState> {
 		};
 	}
 
-	constructor(protected ioc = inject(Container)) {
-		super();
-	}
-
 	public async reload({ page = 1, perPage }: IApiOptions = {}): Promise<void> {
 		if (!this.entity) {
 			return;
@@ -47,7 +42,7 @@ export default class EntityListStore extends ReactiveStore<IState> {
 			this.state.perPage = perPage;
 		}
 		try {
-			const adapter = this.ioc.get(await adapters[this.entity.apiType]());
+			const adapter = await this.getAdapter();
 			const res = await adapter.getList(this.entity.apiEndpoint, {
 				offset: perPage ? perPage * (page - 1) : 0,
 				limit: perPage,
@@ -72,7 +67,7 @@ export default class EntityListStore extends ReactiveStore<IState> {
 		}
 		this.state.loading = true;
 		try {
-			const adapter = this.ioc.get(await adapters[this.entity.apiType]());
+			const adapter = await this.getAdapter();
 			await adapter.deleteItem(this.entity.apiEndpoint, itemKey);
 		} finally {
 			this.state.loading = false;

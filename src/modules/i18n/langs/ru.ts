@@ -16,4 +16,7 @@ export default {
 	createEntityItem: 'Создать элемент',
 	newItem: 'Новый элемент',
 	item: 'Элемент',
+	save: 'Сохранить',
+	saveAndReturn: 'Сохранить и вернуться',
+	delete: 'Удалить',
 };

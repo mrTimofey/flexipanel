@@ -43,6 +43,10 @@ function collection<T>() {
 	};
 }
 
+function isErrorStatus(status: number) {
+	return status === 0 || (status >= 400 && status < 600);
+}
+
 export default abstract class HttpClient {
 	protected requestInterceptors = collection<RequestInterceptor>();
 	protected errorHandlers = collection<ErrorHandler>();
@@ -68,7 +72,7 @@ export default abstract class HttpClient {
 		if (fallbackRes) {
 			return fallbackRes;
 		}
-		if (err.res) {
+		if (err.res && !isErrorStatus(err.res.status)) {
 			return err.res;
 		}
 		throw err;
@@ -89,7 +93,7 @@ export default abstract class HttpClient {
 		this.requestInterceptors.items.forEach((fn) => fn(req));
 		try {
 			const res = await this.sendRequest<T>(req);
-			if (res.status >= 400 && res.status < 600) {
+			if (isErrorStatus(res.status)) {
 				throw new HttpRequestError(req, res);
 			}
 			return res;

@@ -20,9 +20,9 @@ modal-dialog(
 			)
 				template(#label) {{ field.label }}
 		.btn-group.entity-form-actions
-			button.btn.btn-primary(type="submit") Save and return
-			button.btn.btn-outline-primary(type="button" @click.prevent="save()") Save
-			button.btn.btn-outline-danger(type="button" @click.prevent="confirmAndDelete()") Delete
+			button.btn.btn-primary(type="submit") {{ trans('saveAndReturn') }}
+			button.btn.btn-outline-primary(type="button" @click.prevent="save()") {{ trans('save') }}
+			button.btn.btn-outline-danger(v-if="store.itemId" type="button" @click.prevent="confirmAndDelete()") {{ trans('delete') }}
 </template>
 
 <script lang="ts">

@@ -172,5 +172,11 @@ export default class EntityManager {
 		this.registerFieldType('select', {
 			component: defineAsyncComponent(() => import('../form/fields/select.vue')),
 		});
+		this.registerFieldType('integer', {
+			component: defineAsyncComponent(() => import('../form/fields/integer.vue')),
+		});
+		this.registerFieldType('boolean', {
+			component: defineAsyncComponent(() => import('../form/fields/boolean.vue')),
+		});
 	}
 }

@@ -16,4 +16,7 @@ export default {
 	createEntityItem: 'Create entity item',
 	newItem: 'New item',
 	item: 'Item',
+	save: 'Save',
+	saveAndReturn: 'Save and return',
+	delete: 'Delete',
 };
