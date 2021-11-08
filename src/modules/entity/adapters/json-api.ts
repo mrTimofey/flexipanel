@@ -39,4 +39,8 @@ export default class JsonApiAdapter implements IAdapter {
 		});
 		return { item: { id: body.data.id, ...body.data.attributes } };
 	}
+
+	async deleteItem(endpoint: string, id: string): Promise<void> {
+		await this.http.delete(`${endpoint}/${id}`);
+	}
 }

@@ -1,8 +1,7 @@
 import Container, { inject } from 'mini-ioc';
-import type { IRegisteredEntity } from '../entity';
-import HttpClient from '../http/http-client';
-import ReactiveStore from '../reactive-store';
-import adapters from '../entity/adapters';
+import type { IRegisteredEntity } from '..';
+import ReactiveStore from '../../reactive-store';
+import adapters from '../adapters';
 
 export type ListItem = Record<string, unknown>;
 
@@ -34,7 +33,7 @@ export default class EntityListStore extends ReactiveStore<IState> {
 		};
 	}
 
-	constructor(protected httpClient = inject(HttpClient), protected ioc = inject(Container)) {
+	constructor(protected ioc = inject(Container)) {
 		super();
 	}
 
@@ -48,7 +47,7 @@ export default class EntityListStore extends ReactiveStore<IState> {
 			this.state.perPage = perPage;
 		}
 		try {
-			const adapter = this.ioc.get(await adapters[this.entity.apiType as string]());
+			const adapter = this.ioc.get(await adapters[this.entity.apiType]());
 			const res = await adapter.getList(this.entity.apiEndpoint, {
 				offset: perPage ? perPage * (page - 1) : 0,
 				limit: perPage,
@@ -67,13 +66,14 @@ export default class EntityListStore extends ReactiveStore<IState> {
 		if (!this.entity) {
 			return;
 		}
-		const itemKey = (item as unknown as Record<string, string>)[this.entity.itemUrlKey as string];
+		const itemKey = (item as unknown as Record<string, string>)[this.entity.itemUrlKey];
 		if (!itemKey) {
 			return;
 		}
 		this.state.loading = true;
 		try {
-			await this.httpClient.delete(`${this.entity.apiEndpoint}/${itemKey}`);
+			const adapter = this.ioc.get(await adapters[this.entity.apiType]());
+			await adapter.deleteItem(this.entity.apiEndpoint, itemKey);
 		} finally {
 			this.state.loading = false;
 		}
@@ -86,7 +86,7 @@ export default class EntityListStore extends ReactiveStore<IState> {
 		this.entity = entity;
 		this.resetState();
 		if (entity) {
-			adapters[entity.apiType as string]();
+			adapters[entity.apiType]();
 		}
 	}
 

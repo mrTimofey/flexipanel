@@ -20,4 +20,6 @@ export interface IItemData {
 
 export default interface IAdapter {
 	getList(endpoint: string, params: IListParams): Promise<IListData>;
+	getItem(endpoint: string, params: IItemParams): Promise<IItemData>;
+	deleteItem(endpoint: string, id: string): Promise<void>;
 }

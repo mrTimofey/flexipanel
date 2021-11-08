@@ -4,10 +4,8 @@ import type { Component, AsyncComponentLoader } from '@vue/runtime-core';
 type PossiblyAsyncComponent = Component | AsyncComponentLoader;
 
 export interface IField<T = unknown> {
-	// entity object property name
-	key: string;
 	// human readable field title
-	title: string;
+	label: string;
 	// field type (string, boolean, array...)
 	type: string;
 	// field component properties (based on type)
@@ -30,8 +28,6 @@ export interface IView<T = unknown> {
 }
 
 export interface IForm {
-	// form key, used to identify this form
-	key: string;
 	// form fields
 	fields: IField[];
 	// fields layout config
@@ -49,6 +45,8 @@ export interface IEntityMeta {
 	apiEndpoint: string;
 	// how this entity can be viewed (table, list, tree...)
 	views: Record<string, IView>;
+	// how this entity instances can be created/edited
+	form: IForm;
 	createButtonText?: string;
 	createPageTitle?: string;
 	editPageTitle?: string;
@@ -127,6 +125,10 @@ export default class EntityManager {
 		return this;
 	}
 
+	public getFieldType(key: string): IFieldType | null {
+		return this.fieldTypes[key] || null;
+	}
+
 	constructor() {
 		this.registerViewType('table', {
 			component: defineAsyncComponent(() => import('./views/table.vue')),
@@ -142,6 +144,12 @@ export default class EntityManager {
 		});
 		this.registerDisplayType('image', {
 			component: defineAsyncComponent(() => import('./displays/image.vue')),
+		});
+		this.registerFieldType('text', {
+			component: defineAsyncComponent(() => import('../form/fields/text.vue')),
+		});
+		this.registerFieldType('select', {
+			component: defineAsyncComponent(() => import('../form/fields/select.vue')),
 		});
 	}
 }

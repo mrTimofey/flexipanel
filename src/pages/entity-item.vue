@@ -7,7 +7,8 @@
 			li.breadcrumb-item
 				router-link(:to="{ name: 'entityView', params: { entity } }") {{ entityTitle }}
 			li.breadcrumb-item {{ pageTitle }}
-	h1 Hello!!!
+	h1 {{ pageTitle }}
+	entity-item(:entity="entity" :id="id")
 </template>
 
 <script lang="ts">
@@ -15,8 +16,10 @@ import { defineComponent, computed, watchEffect } from '@vue/runtime-core';
 import EntityManager from '../modules/entity';
 import Meta from '../modules/meta';
 import { get, useTemplate } from '../modules/vue-composition-utils';
+import EntityItem from '../components/entity-item.vue';
 
 export default defineComponent({
+	components: { EntityItem },
 	props: {
 		entity: {
 			type: String,
