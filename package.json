@@ -1,12 +1,13 @@
 {
   "name": "flexipanel",
-  "version": "0.0.0-dev1",
+  "version": "0.0.0-dev2",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "serve": "vite preview",
     "lint": "eslint ./ && vue-tsc --noEmit",
-    "test": "echo 'Tests are for the weak'"
+    "test": "echo 'Tests are for the weak'",
+    "prepublishOnly": "npm run build"
   },
   "dependencies": {
     "dot": "^2.0.0-beta.1",
