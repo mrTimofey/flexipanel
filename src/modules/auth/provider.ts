@@ -1,7 +1,7 @@
 /* eslint-disable max-classes-per-file */
 import { inject } from 'mini-ioc';
-import type { ErrorHandler, IHttpRequest, IHttpResponse, RequestInterceptor } from '../http/http-client';
-import HttpClient from '../http/http-client';
+import type { ErrorHandler, IHttpRequest, IHttpResponse, RequestInterceptor } from '../http';
+import HttpClient from '../http';
 
 export interface ICredentials {
 	login: string;

@@ -1,5 +1,5 @@
 import { inject } from 'mini-ioc';
-import HttpClient from '../../http/http-client';
+import HttpClient from '../../http';
 import type { IListParams, IListData, IItemParams, IItemData } from '../adapter';
 import type IAdapter from '../adapter';
 

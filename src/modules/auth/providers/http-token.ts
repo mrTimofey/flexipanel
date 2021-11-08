@@ -1,6 +1,6 @@
 import AuthProvider, { WrongCredentialsError } from '../provider';
 import type { IAuthenticationResult, ICredentials } from '../provider';
-import type { IHttpRequest, IHttpResponse } from '../../http/http-client';
+import type { IHttpRequest, IHttpResponse } from '../../http';
 
 interface IHttpBodyKeys {
 	accessToken: string;

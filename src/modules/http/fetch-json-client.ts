@@ -1,5 +1,5 @@
-import type { IHttpRequest, IHttpResponse } from './http-client';
-import HttpClient from './http-client';
+import type { IHttpRequest, IHttpResponse } from '.';
+import HttpClient from '.';
 
 export default class FetchJsonClient extends HttpClient {
 	sendRequest<T>({ url, method, body: reqBody, headers }: IHttpRequest): Promise<IHttpResponse<T>> {
