@@ -41,6 +41,22 @@ export default class JsonApiAdapter implements IAdapter {
 	}
 
 	async deleteItem(endpoint: string, id: string): Promise<void> {
-		await this.http.delete(`${endpoint}/${id}`);
+		await this.http.delete(`${endpoint}/${id}`, null, {
+			'Content-Type': 'application/vnd.api+json',
+		});
+	}
+
+	async saveItem(endpoint: string, item: Record<string, unknown>, id?: string): Promise<IItemData> {
+		const attributes = { ...item };
+		delete attributes.id;
+		const { body } = await this.http.fetch<IJsonApiItemResponse>(
+			id ? `${endpoint}/${id}` : endpoint,
+			id ? 'PATCH' : 'POST',
+			{ data: { attributes } },
+			{
+				'Content-Type': 'application/vnd.api+json',
+			},
+		);
+		return { item: { id: body.data.id, ...body.data.attributes } };
 	}
 }

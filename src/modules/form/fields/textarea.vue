@@ -1,7 +1,7 @@
 <template lang="pug">
-.form-field-text
+.form-field-textarea
 	slot(name="label")
-	input.form-control.form-control-sm(
+	textarea.form-control.form-control-sm(
 		:disabled="disabled"
 		:placeholder="placeholder"
 		:value="modelValue"

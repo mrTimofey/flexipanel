@@ -12,17 +12,18 @@ export default class FetchJsonClient extends HttpClient {
 					...headers,
 				},
 			})
-			.then((res) => {
+			.then(async (res) => {
 				const contentType = res.headers.get('Content-Type');
+				let body = null;
 				if (contentType && contentType.startsWith('application') && contentType.includes('json')) {
-					return res.json().then((body) => ({
-						headers: res.headers,
-						status: res.status,
-						statusText: res.statusText,
-						body,
-					}));
+					body = await res.json();
 				}
-				throw new Error('Response body should be in JSON format');
+				return {
+					headers: res.headers,
+					status: res.status,
+					statusText: res.statusText,
+					body,
+				};
 			});
 	}
 }

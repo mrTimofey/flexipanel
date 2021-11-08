@@ -3,16 +3,18 @@ import type { Component, AsyncComponentLoader } from '@vue/runtime-core';
 
 type PossiblyAsyncComponent = Component | AsyncComponentLoader;
 
-export interface IField<T = unknown> {
+export interface IField {
 	// human readable field title
-	label: string;
+	label?: string;
+	// entity item object property key
+	key: string;
 	// field type (string, boolean, array...)
-	type: string;
+	type?: string;
 	// field component properties (based on type)
-	props?: Record<string, T>;
+	props?: Record<string, unknown>;
 }
 
-export interface IView<T = unknown> {
+export interface IView {
 	// view type (table, list, tree...)
 	type?: string;
 	// human readable view title
@@ -20,7 +22,7 @@ export interface IView<T = unknown> {
 	// fields used as filters for this view
 	filters?: IField[];
 	// view component properties (based on type)
-	props?: T;
+	props?: Record<string, unknown>;
 	// items per page
 	perPage?: number;
 	// per page selector options
@@ -46,7 +48,7 @@ export interface IEntityMeta {
 	// how this entity can be viewed (table, list, tree...)
 	views: Record<string, IView>;
 	// how this entity instances can be created/edited
-	form: IForm;
+	form?: IForm;
 	createButtonText?: string;
 	createPageTitle?: string;
 	editPageTitle?: string;
@@ -65,6 +67,11 @@ export const viewDefaults: Partial<IView> = {
 	perPageOptions: [5, 10, 25, 50, 100],
 };
 
+export const fieldDefaults: Partial<IField> = {
+	type: 'text',
+	props: {},
+};
+
 export interface IViewType {
 	component: PossiblyAsyncComponent;
 }
@@ -79,6 +86,7 @@ export interface IFieldType {
 
 export interface IRegisteredEntity extends Required<IEntityMeta> {
 	views: Record<string, Required<IView>>;
+	form: IForm & { fields: Required<IField>[] };
 }
 
 export default class EntityManager {
@@ -94,6 +102,16 @@ export default class EntityManager {
 			views[key] = { ...viewDefaults, ...view } as Required<IView>;
 		});
 		entityWithDefaults.views = views;
+		if (entityWithDefaults.form) {
+			entityWithDefaults.form.fields = entityWithDefaults.form.fields.slice().map((field) => {
+				const newField = { ...fieldDefaults, ...field };
+				if (!newField.label) {
+					newField.label = newField.key.split(/-_\sA-Z/).join(' ');
+					newField.label = newField.label.substr(0, 1).toUpperCase() + newField.label.substr(1);
+				}
+				return newField;
+			});
+		}
 		this.entities[slug] = entityWithDefaults as IRegisteredEntity;
 		return this;
 	}
@@ -147,6 +165,9 @@ export default class EntityManager {
 		});
 		this.registerFieldType('text', {
 			component: defineAsyncComponent(() => import('../form/fields/text.vue')),
+		});
+		this.registerFieldType('textarea', {
+			component: defineAsyncComponent(() => import('../form/fields/textarea.vue')),
 		});
 		this.registerFieldType('select', {
 			component: defineAsyncComponent(() => import('../form/fields/select.vue')),

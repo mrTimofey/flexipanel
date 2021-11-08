@@ -1,25 +1,28 @@
 <template lang="pug">
-.page-entity-item
-	nav.mb-4.px-3
-		ol.breadcrumb
-			li.breadcrumb-item
-				router-link(:to="{ name: 'index' }") AdminPanel
-			li.breadcrumb-item
-				router-link(:to="{ name: 'entityView', params: { entity } }") {{ entityTitle }}
-			li.breadcrumb-item {{ pageTitle }}
-	h1 {{ pageTitle }}
-	entity-item(:entity="entity" :id="id")
+page-layout.page-entity-item
+	template(#breadcrumbs)
+		li.breadcrumb-item
+			router-link(:to="{ name: 'entityView', params: { entity } }") {{ entityTitle }}
+		li.breadcrumb-item {{ pageTitle }}
+	template(#title) {{ pageTitle }}
+	entity-item(
+		:entity="entity"
+		v-model:id="routeSyncId"
+		@return="router.back()"
+	)
 </template>
 
 <script lang="ts">
 import { defineComponent, computed, watchEffect } from '@vue/runtime-core';
+import { useRoute, useRouter } from 'vue-router';
 import EntityManager from '../modules/entity';
 import Meta from '../modules/meta';
 import { get, useTemplate } from '../modules/vue-composition-utils';
 import EntityItem from '../components/entity-item.vue';
+import PageLayout from '../components/page-layout.vue';
 
 export default defineComponent({
-	components: { EntityItem },
+	components: { EntityItem, PageLayout },
 	props: {
 		entity: {
 			type: String,
@@ -34,11 +37,15 @@ export default defineComponent({
 		const entityManager = get(EntityManager);
 		const pageMeta = get(Meta);
 		const entityMeta = computed(() => entityManager.getEntity(props.entity));
+		const router = useRouter();
+		const route = useRoute();
 		const { tpl } = useTemplate();
 		watchEffect(() => {
 			pageMeta.pageTitle = entityMeta.value?.title || '...';
 		});
 		return {
+			entityMeta,
+			router,
 			entityTitle: computed(() => entityMeta.value && tpl(entityMeta.value.title, entityMeta.value)),
 			pageTitle: computed(() =>
 				props.id
@@ -47,7 +54,17 @@ export default defineComponent({
 					: // create page
 					  tpl(entityMeta.value?.createPageTitle || '', { meta: entityMeta.value }),
 			),
-			entityMeta,
+			routeSyncId: computed({
+				get() {
+					return props.id;
+				},
+				set(id: string) {
+					if (!route.name) {
+						return;
+					}
+					router.replace({ name: route.name, params: { ...route.params, id } });
+				},
+			}),
 		};
 	},
 });

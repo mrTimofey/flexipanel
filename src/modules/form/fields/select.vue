@@ -1,5 +1,6 @@
 <template lang="pug">
 .form-field-select
+	slot(name="label")
 	select.form-select.form-select-sm(
 		:disabled="disabled"
 		:value="modelValue"
@@ -28,7 +29,7 @@ export default defineComponent({
 	props: {
 		modelValue: {
 			type: [String, Number, Boolean, Object],
-			required: true,
+			default: null,
 		},
 		options: {
 			type: [Array, Object] as PropType<OptionsProp>,
