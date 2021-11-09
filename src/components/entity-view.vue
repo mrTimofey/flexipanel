@@ -57,8 +57,8 @@ import { get, create } from '../modules/vue-composition-utils';
 import PageNav from './pagination.vue';
 import FieldSelect from '../modules/form/fields/select.vue';
 import Translator from '../modules/i18n';
-import type { IModalAction } from './modal.vue';
-import ModalDialog from './modal.vue';
+import type { IModalAction } from '../modules/modal/modal.vue';
+import ModalDialog from '../modules/modal/modal.vue';
 
 export default defineComponent({
 	components: { PageNav, FieldSelect, ModalDialog },

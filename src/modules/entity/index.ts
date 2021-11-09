@@ -181,5 +181,8 @@ export default class EntityManager {
 		this.registerFieldType('file', {
 			component: defineAsyncComponent(() => import('../form/fields/file.vue')),
 		});
+		this.registerFieldType('inline-svg', {
+			component: defineAsyncComponent(() => import('../form/fields/inline-svg.vue')),
+		});
 	}
 }

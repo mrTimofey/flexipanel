@@ -5,6 +5,7 @@
 		:disabled="disabled"
 		:placeholder="placeholder"
 		:value="modelValue"
+		:rows="height"
 		@input="onInput($event)"
 	)
 </template>
@@ -25,6 +26,10 @@ export default defineComponent({
 		placeholder: {
 			type: String,
 			default: '',
+		},
+		height: {
+			type: Number,
+			default: 5,
 		},
 	},
 	emits: ['update:modelValue'],

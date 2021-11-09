@@ -30,8 +30,8 @@ import { defineComponent, computed, watchEffect, ref } from '@vue/runtime-core';
 import EntityManager from '../modules/entity';
 import EntityItemStore from '../modules/entity/stores/item';
 import { get, create, useTranslator } from '../modules/vue-composition-utils';
-import type { IModalAction } from './modal.vue';
-import ModalDialog from './modal.vue';
+import type { IModalAction } from '../modules/modal/modal.vue';
+import ModalDialog from '../modules/modal/modal.vue';
 
 export default defineComponent({
 	components: { ModalDialog },

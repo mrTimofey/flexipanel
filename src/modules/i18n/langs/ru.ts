@@ -21,4 +21,7 @@ export default {
 	delete: 'Удалить',
 	chooseFile: 'Выберите файл',
 	uploadMessage: 'Файл будет загружен при сохранении',
+	svgFile: 'SVG файл',
+	svgCode: 'Код SVG',
+	cancel: 'Отменить',
 };

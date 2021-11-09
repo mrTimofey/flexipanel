@@ -45,13 +45,13 @@ enum UploadStatus {
 
 export default defineComponent({
 	props: {
-		placeholder: {
-			type: String,
-			default: '',
-		},
 		modelValue: {
 			type: [String, File],
 			default: null,
+		},
+		placeholder: {
+			type: String,
+			default: '',
 		},
 		disabled: {
 			type: Boolean,
