@@ -46,7 +46,7 @@ export default abstract class AuthProvider {
 		if (!refreshToken) {
 			return;
 		}
-		this.recoverErrorHandler = async (err) => {
+		this.recoverErrorHandler = async (err, retry) => {
 			if (err.req.metadata[recoveredMetadataKey] === true || !this.isRequestRecoverable(err)) {
 				return null;
 			}
@@ -55,14 +55,7 @@ export default abstract class AuthProvider {
 			if (onRefresh) {
 				onRefresh(newTokens);
 			}
-			return this.http.fetch(
-				err.req.url,
-				err.req.method,
-				err.req.body,
-				err.req.headers,
-				// prevent infinite loop
-				{ [recoveredMetadataKey]: true },
-			);
+			return retry({ ...err.req, metadata: { ...err.req.metadata, [recoveredMetadataKey]: true } });
 		};
 		this.http.addErrorHandler(this.recoverErrorHandler);
 	}

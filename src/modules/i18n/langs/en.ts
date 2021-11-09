@@ -19,4 +19,6 @@ export default {
 	save: 'Save',
 	saveAndReturn: 'Save and return',
 	delete: 'Delete',
+	chooseFile: 'Choose file',
+	uploadMessage: 'File will be uploaded on save',
 };

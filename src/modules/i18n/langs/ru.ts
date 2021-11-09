@@ -19,4 +19,6 @@ export default {
 	save: 'Сохранить',
 	saveAndReturn: 'Сохранить и вернуться',
 	delete: 'Удалить',
+	chooseFile: 'Выберите файл',
+	uploadMessage: 'Файл будет загружен при сохранении',
 };

@@ -178,5 +178,8 @@ export default class EntityManager {
 		this.registerFieldType('boolean', {
 			component: defineAsyncComponent(() => import('../form/fields/boolean.vue')),
 		});
+		this.registerFieldType('file', {
+			component: defineAsyncComponent(() => import('../form/fields/file.vue')),
+		});
 	}
 }
