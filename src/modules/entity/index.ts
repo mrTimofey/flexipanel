@@ -85,8 +85,19 @@ export interface IFieldType {
 }
 
 export interface IRegisteredEntity extends Required<IEntityMeta> {
-	views: Record<string, Required<IView>>;
+	views: Record<string, Required<IView & { filters: Required<IField>[] }>>;
 	form: IForm & { fields: Required<IField>[] };
+}
+
+function fillFields(fields: IField[]) {
+	return fields.slice().map((field) => {
+		const newField = { ...fieldDefaults, ...field };
+		if (!newField.label) {
+			newField.label = newField.key.split(/-_\sA-Z/).join(' ');
+			newField.label = newField.label.substr(0, 1).toUpperCase() + newField.label.substr(1);
+		}
+		return newField;
+	});
 }
 
 export default class EntityManager {
@@ -99,18 +110,11 @@ export default class EntityManager {
 		const entityWithDefaults = { ...entityMetaDefaults, ...entity };
 		const views = { ...entityWithDefaults.views };
 		Object.entries(entityWithDefaults.views).forEach(([key, view]) => {
-			views[key] = { ...viewDefaults, ...view } as Required<IView>;
+			views[key] = { ...viewDefaults, ...view, filters: view.filters ? fillFields(view.filters) : [] } as Required<IView>;
 		});
 		entityWithDefaults.views = views;
 		if (entityWithDefaults.form) {
-			entityWithDefaults.form.fields = entityWithDefaults.form.fields.slice().map((field) => {
-				const newField = { ...fieldDefaults, ...field };
-				if (!newField.label) {
-					newField.label = newField.key.split(/-_\sA-Z/).join(' ');
-					newField.label = newField.label.substr(0, 1).toUpperCase() + newField.label.substr(1);
-				}
-				return newField;
-			});
+			entityWithDefaults.form.fields = fillFields(entityWithDefaults.form.fields);
 		}
 		this.entities[slug] = entityWithDefaults as IRegisteredEntity;
 		return this;

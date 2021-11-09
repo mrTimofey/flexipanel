@@ -60,9 +60,9 @@ export default defineComponent({
 	display block
 	position absolute
 	top -0.5rem
-	right @top
+	right 0
 	bottom @top
-	left @top
+	left @right
 	opacity 0.8
 	background white
 	z-index 5

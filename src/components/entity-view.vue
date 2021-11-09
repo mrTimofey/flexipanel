@@ -8,12 +8,10 @@ modal-dialog(
 	:actions="confirmActions"
 ) {{ trans('areYouSure') }}?
 template(v-if="entityMeta && viewType")
-	.d-flex.justify-content-center.py-5(v-if="store.loading && !store.items.length")
+	.d-flex.justify-content-center.py-5(v-if="initialLoading && !store.items.length")
 		.spinner.spinner-grow.text-primary
-	template(v-else-if="store.total === 0")
-		.fs-2.semibold.text-center.text-muted.px-3.py-5 {{ trans('noItems') }}
 	template(v-else-if="viewComponent && entityView")
-		.d-flex.align-items-center.my-2.px-3(v-if="store.hasPagination && realPerPageOptions.length")
+		.d-flex.align-items-center.my-2.px-3(v-if="store.hasPagination && realPerPageOptions.length && store.total > 0")
 			span {{ trans('itemsPerPage') }}:
 			field-select.ms-2(
 				:model-value="store.perPage"
@@ -21,29 +19,41 @@ template(v-if="entityMeta && viewType")
 				:disabled="store.loading"
 				@update:model-value="updatePerPage($event)"
 			)
-		component(
-			:is="viewComponent"
-			v-bind="entityView.props"
-			:items="store.items"
-			:loading="store.loading"
-			@item-click="onEditClick($event)"
-		)
-			template(#actions="{ item }")
-				.d-flex.justify-content-end
-					.btn-group.btn-group-sm
-						a.btn.btn-primary(@click.prevent="onEditClick(item)" :href="itemRoute(item)")
-							i.fa-solid.fa-pencil
-						button.btn.btn-danger(@click.prevent="confirmAndDelete(item)")
-							i.fa-solid.fa-trash
-		.p-3
-			page-nav(
-				:model-value="store.page"
-				:last-page="store.lastPage"
+		.px-3.mb-3(v-if="entityView.filters")
+			.row
+				.col(v-for="filter in entityView.filters")
+					component(
+						:is="fieldComponent(filter.type)"
+						v-bind="filter.props"
+						:model-value="filters[filter.key]"
+						@update:model-value="onFilterInput(filter.key, $event)"
+					)
+						template(#label) {{ filter.label }}
+		.fs-2.semibold.text-center.text-muted.px-3.py-5(v-if="store.total === 0") {{ store.loading ? `${trans('loading')}...` : trans('noItems') }}
+		template(v-else)
+			component(
+				:is="viewComponent"
+				v-bind="entityView.props"
+				:items="store.items"
 				:loading="store.loading"
-				:total="store.total"
-				:limit="store.perPage"
-				@update:model-value="updatePage($event)"
+				@item-click="onEditClick($event)"
 			)
+				template(#actions="{ item }")
+					.d-flex.justify-content-end
+						.btn-group.btn-group-sm
+							a.btn.btn-primary(@click.prevent="onEditClick(item)" :href="itemRoute(item)")
+								i.fa-solid.fa-pencil
+							button.btn.btn-danger(@click.prevent="confirmAndDelete(item)")
+								i.fa-solid.fa-trash
+			.p-3
+				page-nav(
+					:model-value="store.page"
+					:last-page="store.lastPage"
+					:loading="store.loading"
+					:total="store.total"
+					:limit="store.perPage"
+					@update:model-value="updatePage($event)"
+				)
 </template>
 
 <script lang="ts">
@@ -53,7 +63,7 @@ import { useRouter } from 'vue-router';
 import EntityManager from '../modules/entity';
 import type { ListItem } from '../modules/entity/stores/list';
 import EntityListStore from '../modules/entity/stores/list';
-import { get, create } from '../modules/vue-composition-utils';
+import { get, create, debounce } from '../modules/vue-composition-utils';
 import PageNav from './pagination.vue';
 import FieldSelect from '../modules/form/fields/select.vue';
 import Translator from '../modules/i18n';
@@ -83,8 +93,12 @@ export default defineComponent({
 			type: Array as PropType<number[] | null>,
 			default: null,
 		},
+		filters: {
+			type: Object as PropType<Record<string, unknown>>,
+			default: () => ({}),
+		},
 	},
-	emits: ['update:page', 'update:perPage', 'edit-click'],
+	emits: ['update:page', 'update:perPage', 'update:filters', 'edit-click'],
 	setup(props, { emit }) {
 		const store = create(EntityListStore);
 		const entityManager = get(EntityManager);
@@ -103,6 +117,7 @@ export default defineComponent({
 		const viewComponent = computed(() => viewType.value?.component);
 		const realPerPageOptions = computed(() => props.perPageOptions || entityView.value?.perPageOptions || []);
 		const confirmDeleteTarget = ref<ListItem | null>(null);
+		const initialLoading = ref(true);
 
 		function reloadInitialState() {
 			if (store.loading || !entityView.value) {
@@ -112,7 +127,9 @@ export default defineComponent({
 			store.reload({
 				page: props.page > 1 ? props.page : 1,
 				perPage: props.perPage || entityView.value.perPage || 0,
+				filters: props.filters,
 			});
+			initialLoading.value = false;
 		}
 
 		watch(entityMeta, () => reloadInitialState());
@@ -137,12 +154,19 @@ export default defineComponent({
 				}
 			},
 		);
+		watch(
+			() => props.filters,
+			debounce((filters) => {
+				store.reload({ page: 1, perPage: store.perPage, filters });
+			}),
+		);
 		reloadInitialState();
 		return {
 			entityMeta,
 			viewType,
 			viewComponent,
 			entityView,
+			initialLoading,
 			store,
 			realPerPageOptions,
 			confirmDeleteTarget,
@@ -196,6 +220,18 @@ export default defineComponent({
 					);
 				}
 				confirmDeleteTarget.value = null;
+			},
+			fieldComponent(type: string) {
+				return entityManager.getFieldType(type)?.component;
+			},
+			onFilterInput(key: string, value: unknown) {
+				const filters: Record<string, unknown> = { ...props.filters };
+				if (value == null || value === '') {
+					delete filters[key];
+				} else {
+					filters[key] = value;
+				}
+				emit('update:filters', filters);
 			},
 		};
 	},

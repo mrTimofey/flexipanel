@@ -1,6 +1,7 @@
 export interface IListParams {
 	offset: number;
 	limit?: number;
+	filters?: Record<string, unknown>;
 }
 
 export interface IListData {

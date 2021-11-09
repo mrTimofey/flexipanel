@@ -36,17 +36,26 @@ export function useRouteQueryParam<T>(key: string, defaultValue: T): WritableCom
 			if (type === 'number') {
 				return Number(value) as unknown as T;
 			}
-			if (type === 'string' || type === 'object') {
+			if (type === 'string') {
 				return value.toString() as unknown as T;
 			}
 			if (type === 'boolean') {
 				return (value === '1') as unknown as T;
 			}
+			if (type === 'object') {
+				return JSON.parse(value.toString()) as unknown as T;
+			}
 			return defaultValue;
 		},
 		set(value: T) {
 			const query = { ...route.query };
-			if (value === defaultValue) {
+			if (type === 'object') {
+				if (Object.keys(value).length === 0) {
+					delete query[key];
+				} else {
+					query[key] = JSON.stringify(value);
+				}
+			} else if (value === defaultValue) {
 				delete query[key];
 			} else {
 				query[key] = `${value}`;
@@ -67,5 +76,16 @@ export function useTemplate(): { tpl: (tpl: string, data?: unknown) => string } 
 	const engine = get(TemplateEngine);
 	return {
 		tpl: (tpl, data) => engine.exec(tpl, data),
+	};
+}
+
+export function debounce<T extends unknown[]>(fn: (...args: T) => unknown, delay = 300): (...args: T) => void {
+	let timeout: ReturnType<typeof setTimeout>;
+
+	return (...args) => {
+		clearTimeout(timeout);
+		timeout = setTimeout(() => {
+			fn(...args);
+		}, delay);
 	};
 }

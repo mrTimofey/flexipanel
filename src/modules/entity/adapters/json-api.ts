@@ -20,7 +20,20 @@ export default class JsonApiAdapter implements IAdapter {
 	constructor(protected http = inject(HttpClient)) {}
 
 	async getList(endpoint: string, params: IListParams): Promise<IListData> {
-		const { body } = await this.http.get<IJsonApiListResponse>(`${endpoint}?page[offset]=${params.offset}&page[limit]=${params.limit}`, {
+		const urlParams: [string, string][] = [];
+		if (params.offset) {
+			urlParams.push(['page[offset]', params.offset.toString()]);
+		}
+		if (params.limit) {
+			urlParams.push(['page[limit]', params.limit.toString()]);
+		}
+		if (params.filters) {
+			Object.entries(params.filters).forEach(([key, value]) => {
+				urlParams.push([`filter[${key}]`, `${value}`]);
+			});
+		}
+		const urlParamsString = `?${urlParams.map(([k, v]) => `${k}=${encodeURIComponent(v)}`).join('&')}`;
+		const { body } = await this.http.get<IJsonApiListResponse>(`${endpoint}${urlParamsString.length > 1 ? urlParamsString : ''}`, {
 			'Content-Type': 'application/vnd.api+json',
 		});
 		return {

@@ -10,6 +10,7 @@ page-layout.page-entity-view(v-if="entityMeta")
 		:view="view"
 		v-model:page="page"
 		v-model:per-page="perPage"
+		v-model:filters="filters"
 		@edit-click="goToEditPage($event.id)"
 	)
 </template>
@@ -50,6 +51,7 @@ export default defineComponent({
 			entityMeta,
 			page: useRouteQueryParam('page', 1),
 			perPage: useRouteQueryParam('perPage', 0),
+			filters: useRouteQueryParam('filters', {} as Record<string, unknown>),
 			pageTitle: computed(() => entityMeta.value && tmpl.exec(entityMeta.value.title, entityMeta.value)),
 			goToEditPage(id: string) {
 				router.push({

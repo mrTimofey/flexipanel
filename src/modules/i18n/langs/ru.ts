@@ -24,4 +24,5 @@ export default {
 	svgFile: 'SVG файл',
 	svgCode: 'Код SVG',
 	cancel: 'Отменить',
+	loading: 'Загрузка',
 };
