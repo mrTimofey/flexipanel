@@ -5,8 +5,8 @@ export interface IListParams {
 
 export interface IListData {
 	items: Record<string, unknown>[];
-	offset: number;
-	limit: number;
+	offset?: number;
+	limit?: number;
 	total?: number;
 }
 

@@ -28,8 +28,7 @@ export default class JsonApiAdapter implements IAdapter {
 				id: item.id,
 				...item.attributes,
 			})),
-			offset: params.offset,
-			limit: params.limit || body.data.length,
+			// TODO pagination
 		};
 	}
 

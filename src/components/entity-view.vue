@@ -13,7 +13,7 @@ template(v-if="entityMeta && viewType")
 	template(v-else-if="store.total === 0")
 		.fs-2.semibold.text-center.text-muted.px-3.py-5 {{ trans('noItems') }}
 	template(v-else-if="viewComponent && entityView")
-		.d-flex.align-items-center.my-2.px-3(v-if="realPerPageOptions.length")
+		.d-flex.align-items-center.my-2.px-3(v-if="store.hasPagination && realPerPageOptions.length")
 			span {{ trans('itemsPerPage') }}:
 			field-select.ms-2(
 				:model-value="store.perPage"

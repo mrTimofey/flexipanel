@@ -27,7 +27,7 @@ export default class EntityListStore extends EntityBaseStore<IState> {
 			list: [],
 			total: -1,
 			perPage: 0,
-			offset: 0,
+			offset: -1,
 			page: 1,
 		};
 	}
@@ -48,9 +48,9 @@ export default class EntityListStore extends EntityBaseStore<IState> {
 				limit: perPage,
 			});
 			this.state.list = res.items;
-			this.state.offset = res.offset;
-			this.state.perPage = res.limit;
-			this.state.page = Math.ceil(this.state.offset / this.state.perPage) + 1;
+			this.state.offset = res.offset || -1;
+			this.state.perPage = res.limit || 0;
+			this.state.page = this.state.perPage > 0 ? Math.ceil(this.state.offset / this.state.perPage) + 1 : 1;
 			this.state.total = res.total || this.state.list.length;
 		} finally {
 			this.state.loading = false;
@@ -102,7 +102,7 @@ export default class EntityListStore extends EntityBaseStore<IState> {
 	}
 
 	get lastPage(): number {
-		return Math.ceil(this.state.total / this.state.perPage);
+		return this.state.perPage > 0 ? Math.ceil(this.state.total / this.state.perPage) : 1;
 	}
 
 	get perPage(): number {
@@ -111,5 +111,9 @@ export default class EntityListStore extends EntityBaseStore<IState> {
 
 	get offset(): number {
 		return this.state.offset;
+	}
+
+	get hasPagination(): boolean {
+		return this.state.perPage > 0;
 	}
 }
