@@ -8,7 +8,7 @@ modal-dialog(
 	:actions="confirmActions"
 ) {{ trans('areYouSure') }}?
 template(v-if="entityMeta && viewType")
-	.d-flex.justify-content-center.py-5(v-if="initialLoading && !store.items.length")
+	.d-flex.justify-content-center.py-5(v-if="initialLoading")
 		.spinner.spinner-grow.text-primary
 	template(v-else-if="viewComponent && entityView")
 		.d-flex.align-items-center.my-2.px-3(v-if="store.hasPagination && realPerPageOptions.length && store.total > 0")
@@ -117,14 +117,15 @@ export default defineComponent({
 		const viewComponent = computed(() => viewType.value?.component);
 		const realPerPageOptions = computed(() => props.perPageOptions || entityView.value?.perPageOptions || []);
 		const confirmDeleteTarget = ref<ListItem | null>(null);
-		const initialLoading = ref(true);
+		const initialLoading = ref(false);
 
-		function reloadInitialState() {
+		async function reloadInitialState() {
 			if (store.loading || !entityView.value) {
 				return;
 			}
+			initialLoading.value = true;
 			store.setEntity(entityMeta.value);
-			store.reload({
+			await store.reload({
 				page: props.page > 1 ? props.page : 1,
 				perPage: props.perPage || entityView.value.perPage || 0,
 				filters: props.filters,
