@@ -5,7 +5,7 @@
 			.d-flex.align-items-center
 				.item-display.flex-grow-1.p-3(@click.prevent="onItemClick(item)")
 					component(:is="displayComponent" v-bind="{ ...displayProps, item }")
-				.pe-2
+				.pe-2(v-if="!noActions")
 					slot(name="actions" :item="item")
 </template>
 
@@ -37,6 +37,10 @@ export default defineComponent({
 		displayProps: {
 			type: Object,
 			default: null,
+		},
+		noActions: {
+			type: Boolean,
+			default: false,
 		},
 	},
 	emits: ['item-click'],

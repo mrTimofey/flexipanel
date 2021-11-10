@@ -4,7 +4,7 @@
 		thead
 			tr
 				th(v-for="{ title } in columns") {{ title }}
-				th
+				th(v-if="!noActions")
 		tbody
 			tr(v-for="item in items")
 				td.cell-display(v-for="field in columns" @click.prevent="onItemClick(item)")
@@ -12,7 +12,7 @@
 						:is="resolveDisplay(field.type || defaultDisplayType)"
 						v-bind="displayProps(item, field)"
 					)
-				td.p-1
+				td.p-1(v-if="!noActions")
 					slot(name="actions" :item="item")
 </template>
 
@@ -45,6 +45,10 @@ export default defineComponent({
 		defaultDisplayType: {
 			type: String,
 			default: 'text',
+		},
+		noActions: {
+			type: Boolean,
+			default: false,
 		},
 	},
 	emits: ['item-click'],

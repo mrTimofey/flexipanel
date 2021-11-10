@@ -10,33 +10,35 @@ modal-dialog(
 template(v-if="entityMeta && viewType")
 	.d-flex.justify-content-center.py-5(v-if="initialLoading")
 		.spinner.spinner-grow.text-primary
-	template(v-else-if="viewComponent && entityView")
-		.d-flex.align-items-center.my-2.px-3(v-if="store.hasPagination && realPerPageOptions.length && store.total > 0")
-			span {{ trans('itemsPerPage') }}:
-			field-select.ms-2(
-				:model-value="store.perPage"
-				:options="realPerPageOptions"
-				:disabled="store.loading"
-				@update:model-value="updatePerPage($event)"
-			)
-		.px-3.mb-3(v-if="entityView.filters")
-			.row
-				.col(v-for="filter in entityView.filters")
-					component(
-						:is="fieldComponent(filter.type)"
-						v-bind="filter.props"
-						:model-value="filters[filter.key]"
-						@update:model-value="onFilterInput(filter.key, $event)"
-					)
-						template(#label) {{ filter.label }}
+	.d-flex.flex-column.flex-grow-1(v-else-if="viewComponent && entityView")
+		.flex-grow-0.flex-shrink-0
+			.d-flex.align-items-center.my-2.px-3(v-if="store.hasPagination && realPerPageOptions.length && store.total > 0")
+				span {{ trans('itemsPerPage') }}:
+				field-select.ms-2(
+					:model-value="store.perPage"
+					:options="realPerPageOptions"
+					:disabled="store.loading"
+					@update:model-value="updatePerPage($event)"
+				)
+			.px-3.mb-3(v-if="entityView.filters")
+				.row
+					.col(v-for="filter in entityView.filters")
+						component(
+							:is="fieldComponent(filter.type)"
+							v-bind="filter.props"
+							:model-value="filters[filter.key]"
+							@update:model-value="onFilterInput(filter.key, $event)"
+						)
+							template(#label) {{ filter.label }}
 		.fs-2.semibold.text-center.text-muted.px-3.py-5(v-if="store.total === 0") {{ store.loading ? `${trans('loading')}...` : trans('noItems') }}
-		template(v-else)
+		.flex-shrink-1.overflow-auto(v-else)
 			component(
 				:is="viewComponent"
 				v-bind="entityView.props"
 				:items="store.items"
 				:loading="store.loading"
-				@item-click="onEditClick($event)"
+				:no-actions="noActions"
+				@item-click="onItemClick($event)"
 			)
 				template(#actions="{ item }")
 					.d-flex.justify-content-end
@@ -60,15 +62,15 @@ template(v-if="entityMeta && viewType")
 import type { PropType } from '@vue/runtime-core';
 import { defineComponent, computed, watch, ref } from '@vue/runtime-core';
 import { useRouter } from 'vue-router';
-import EntityManager from '../modules/entity';
-import type { ListItem } from '../modules/entity/stores/list';
-import EntityListStore from '../modules/entity/stores/list';
-import { get, create, debounce } from '../modules/vue-composition-utils';
+import EntityManager from '.';
+import type { ListItem } from './stores/list';
+import EntityListStore from './stores/list';
+import { get, create, debounce } from '../vue-composition-utils';
 import PageNav from './pagination.vue';
-import FieldSelect from '../modules/form/fields/select.vue';
-import Translator from '../modules/i18n';
-import type { IModalAction } from '../modules/modal/modal.vue';
-import ModalDialog from '../modules/modal/modal.vue';
+import FieldSelect from '../form/fields/select.vue';
+import Translator from '../i18n';
+import type { IModalAction } from '../modal/modal.vue';
+import ModalDialog from '../modal/modal.vue';
 
 export default defineComponent({
 	components: { PageNav, FieldSelect, ModalDialog },
@@ -80,6 +82,10 @@ export default defineComponent({
 		view: {
 			type: String,
 			default: '',
+		},
+		noActions: {
+			type: Boolean,
+			default: false,
 		},
 		page: {
 			type: Number,
@@ -97,8 +103,12 @@ export default defineComponent({
 			type: Object as PropType<Record<string, unknown>>,
 			default: () => ({}),
 		},
+		sort: {
+			type: Object as PropType<Record<string, unknown>>,
+			default: () => ({}),
+		},
 	},
-	emits: ['update:page', 'update:perPage', 'update:filters', 'edit-click'],
+	emits: ['update:page', 'update:perPage', 'update:filters', 'edit-click', 'item-click'],
 	setup(props, { emit }) {
 		const store = create(EntityListStore);
 		const entityManager = get(EntityManager);
@@ -195,6 +205,12 @@ export default defineComponent({
 					return;
 				}
 				emit('edit-click', { item, id: `${item[entityMeta.value.itemUrlKey]}` });
+			},
+			onItemClick(item: ListItem): void {
+				if (!entityMeta.value) {
+					return;
+				}
+				emit('item-click', { item, id: `${item[entityMeta.value.itemUrlKey]}` });
 			},
 			itemRoute(item: ListItem): string {
 				if (!entityMeta.value) {

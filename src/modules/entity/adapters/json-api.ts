@@ -3,17 +3,36 @@ import HttpClient from '../../http';
 import type { IListParams, IListData, IItemParams, IItemData } from '../adapter';
 import type IAdapter from '../adapter';
 
-interface IItem {
-	id: string;
-	attributes: Record<string, unknown>;
+interface IJsonApiListResponse {
+	data: IJsonApiItem[];
 }
 
-interface IJsonApiListResponse {
-	data: IItem[];
+interface IJsonApiRelationship {
+	data: { id: string } | { id: string }[];
+}
+
+interface IJsonApiItem {
+	id: string;
+	attributes: Record<string, unknown>;
+	relationships?: Record<string, IJsonApiRelationship>;
 }
 
 interface IJsonApiItemResponse {
-	data: IItem;
+	data: IJsonApiItem;
+}
+
+function adaptItemResponse({ data }: IJsonApiItemResponse): IItemData {
+	const adapted: IItemData = { item: { id: data.id, ...data.attributes } };
+	if (data.relationships) {
+		Object.entries(data.relationships).forEach(([key, value]) => {
+			adapted.item[key] = Array.isArray(value.data)
+				? // array of related items
+				  value.data.map(({ id }) => id)
+				: // single related item
+				  value.data?.id || null;
+		});
+	}
+	return adapted;
 }
 
 export default class JsonApiAdapter implements IAdapter {
@@ -49,7 +68,7 @@ export default class JsonApiAdapter implements IAdapter {
 		const { body } = await this.http.get<IJsonApiItemResponse>(`${endpoint}/${id}`, {
 			'Content-Type': 'application/vnd.api+json',
 		});
-		return { item: { id: body.data.id, ...body.data.attributes } };
+		return adaptItemResponse(body);
 	}
 
 	async deleteItem(endpoint: string, id: string): Promise<void> {
@@ -69,6 +88,6 @@ export default class JsonApiAdapter implements IAdapter {
 				'Content-Type': 'application/vnd.api+json',
 			},
 		);
-		return { item: { id: body.data.id, ...body.data.attributes } };
+		return adaptItemResponse(body);
 	}
 }

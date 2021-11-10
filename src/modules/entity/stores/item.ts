@@ -22,13 +22,13 @@ export default class EntityItemStore extends EntityBaseStore<IState> {
 		};
 	}
 
-	createBlankItem(): DetailedItem {
+	protected createItem(values: Record<string, unknown> = {}): DetailedItem {
 		if (!this.entity?.form.fields) {
 			return {};
 		}
 		const item: DetailedItem = {};
 		this.entity?.form.fields.forEach((field) => {
-			item[field.key] = null;
+			item[field.key] = Object.prototype.hasOwnProperty.call(values, field.key) ? values[field.key] : null;
 		});
 		return item;
 	}
@@ -41,7 +41,7 @@ export default class EntityItemStore extends EntityBaseStore<IState> {
 		this.state.loading = true;
 		try {
 			const adapter = await this.getAdapter();
-			this.state.originalItem = (await adapter.getItem(this.entity.apiEndpoint, { id: this.itemId })).item;
+			this.state.originalItem = this.createItem((await adapter.getItem(this.entity.apiEndpoint, { id: this.itemId })).item);
 		} finally {
 			this.state.loading = false;
 		}
@@ -61,8 +61,8 @@ export default class EntityItemStore extends EntityBaseStore<IState> {
 			await this.reloadOriginalItem();
 			this.state.formItem = { ...this.state.originalItem };
 		} else {
-			this.state.originalItem = this.createBlankItem();
-			this.state.formItem = this.createBlankItem();
+			this.state.originalItem = this.createItem();
+			this.state.formItem = this.createItem();
 		}
 	}
 
@@ -76,7 +76,7 @@ export default class EntityItemStore extends EntityBaseStore<IState> {
 			const { item } = await adapter.saveItem(this.entity.apiEndpoint, this.formItem, this.itemId);
 			Object.assign(this.originalItem, item);
 			Object.assign(this.formItem, item);
-			this.itemIdInternal = `${item.id}`;
+			this.itemIdInternal = `${item[this.entity.itemUrlKey]}`;
 		} catch (err) {
 			// TODO validation
 			if (err instanceof HttpRequestError && err.res) {
@@ -97,8 +97,8 @@ export default class EntityItemStore extends EntityBaseStore<IState> {
 		try {
 			const adapter = await this.getAdapter();
 			await adapter.deleteItem(this.entity.apiEndpoint, this.itemId);
-			this.state.originalItem = this.createBlankItem();
-			this.state.formItem = this.createBlankItem();
+			this.state.originalItem = this.createItem();
+			this.state.formItem = this.createItem();
 		} finally {
 			this.state.loading = false;
 		}

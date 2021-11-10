@@ -25,4 +25,5 @@ export default {
 	svgCode: 'SVG raw code',
 	cancel: 'Cancel',
 	loading: 'Loading',
+	nothingSelected: 'Nothing selected',
 };

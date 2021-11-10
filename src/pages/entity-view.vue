@@ -11,6 +11,7 @@ page-layout.page-entity-view(v-if="entityMeta")
 		v-model:page="page"
 		v-model:per-page="perPage"
 		v-model:filters="filters"
+		@item-click="goToEditPage($event.id)"
 		@edit-click="goToEditPage($event.id)"
 	)
 </template>
@@ -19,7 +20,7 @@ page-layout.page-entity-view(v-if="entityMeta")
 import { defineComponent, computed, watchEffect } from '@vue/runtime-core';
 import { useRouter } from 'vue-router';
 import { get, useRouteQueryParam, useTranslator } from '../modules/vue-composition-utils';
-import EntityView from '../components/entity-view.vue';
+import EntityView from '../modules/entity/entity-view.vue';
 import TemplateEngine from '../modules/template';
 import EntityManager from '../modules/entity';
 import Meta from '../modules/meta';

@@ -25,4 +25,5 @@ export default {
 	svgCode: 'Код SVG',
 	cancel: 'Отменить',
 	loading: 'Загрузка',
+	nothingSelected: 'Ничего не выбрано',
 };

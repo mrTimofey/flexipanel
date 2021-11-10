@@ -56,8 +56,8 @@ nav.pagination-wrapper(:class="{ loading }" v-if="lastPage > 1 || total")
 <script lang="ts">
 import { defineComponent, computed } from '@vue/runtime-core';
 import { useRoute } from 'vue-router';
-import Translator from '../modules/i18n';
-import { get } from '../modules/vue-composition-utils';
+import Translator from '../i18n';
+import { get } from '../vue-composition-utils';
 
 function range(from: number, to: number) {
 	const res = [];

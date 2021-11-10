@@ -115,6 +115,8 @@ export default class EntityManager {
 		entityWithDefaults.views = views;
 		if (entityWithDefaults.form) {
 			entityWithDefaults.form.fields = fillFields(entityWithDefaults.form.fields);
+		} else {
+			entityWithDefaults.form = { fields: [] };
 		}
 		this.entities[slug] = entityWithDefaults as IRegisteredEntity;
 		return this;
@@ -187,6 +189,9 @@ export default class EntityManager {
 		});
 		this.registerFieldType('inline-svg', {
 			component: defineAsyncComponent(() => import('../form/fields/inline-svg.vue')),
+		});
+		this.registerFieldType('entity', {
+			component: defineAsyncComponent(() => import('./fields/entity.vue')),
 		});
 	}
 }

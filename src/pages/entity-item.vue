@@ -18,7 +18,7 @@ import { useRoute, useRouter } from 'vue-router';
 import EntityManager from '../modules/entity';
 import Meta from '../modules/meta';
 import { get, useTemplate } from '../modules/vue-composition-utils';
-import EntityItem from '../components/entity-item.vue';
+import EntityItem from '../modules/entity/entity-item.vue';
 import PageLayout from '../components/page-layout.vue';
 
 export default defineComponent({
