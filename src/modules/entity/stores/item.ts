@@ -8,6 +8,7 @@ export interface IState {
 	loading: boolean;
 	originalItem: DetailedItem;
 	formItem: DetailedItem;
+	relatedItems: Record<string, Record<string, Record<string, unknown>>>;
 }
 
 export default class EntityItemStore extends EntityBaseStore<IState> {
@@ -19,6 +20,7 @@ export default class EntityItemStore extends EntityBaseStore<IState> {
 			loading: false,
 			originalItem: {},
 			formItem: {},
+			relatedItems: {},
 		};
 	}
 
@@ -41,7 +43,9 @@ export default class EntityItemStore extends EntityBaseStore<IState> {
 		this.state.loading = true;
 		try {
 			const adapter = await this.getAdapter();
-			this.state.originalItem = this.createItem((await adapter.getItem(this.entity.apiEndpoint, { id: this.itemId })).item);
+			const { item, relatedItems } = await adapter.getItem(this.entity.apiEndpoint, { id: this.itemId });
+			this.state.originalItem = this.createItem(item);
+			this.state.relatedItems = relatedItems;
 		} finally {
 			this.state.loading = false;
 		}
@@ -104,16 +108,20 @@ export default class EntityItemStore extends EntityBaseStore<IState> {
 		}
 	}
 
-	get loading(): boolean {
+	get loading(): IState['loading'] {
 		return this.state.loading;
 	}
 
-	get formItem(): DetailedItem {
+	get formItem(): IState['formItem'] {
 		return this.state.formItem;
 	}
 
-	get originalItem(): DetailedItem {
+	get originalItem(): IState['originalItem'] {
 		return this.state.originalItem;
+	}
+
+	get relatedItems(): IState['relatedItems'] {
+		return this.state.relatedItems;
 	}
 
 	get itemId(): string {

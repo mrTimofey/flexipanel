@@ -15,6 +15,9 @@ modal-dialog(
 			component(
 				:is="fieldComponent(field.type)"
 				:model-value="store.formItem[field.key]"
+				:field-key="field.key"
+				:entity-item="store.formItem"
+				:related-items="store.relatedItems"
 				v-bind="field.props"
 				@update:model-value="onFieldInput(field.key, $event)"
 			)

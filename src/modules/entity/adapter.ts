@@ -17,6 +17,7 @@ export interface IItemParams {
 
 export interface IItemData {
 	item: Record<string, unknown>;
+	relatedItems: Record<string, Record<string, Record<string, unknown>>>;
 }
 
 export default interface IAdapter {

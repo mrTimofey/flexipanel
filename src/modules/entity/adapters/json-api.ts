@@ -7,29 +7,64 @@ interface IJsonApiListResponse {
 	data: IJsonApiItem[];
 }
 
-interface IJsonApiRelationship {
-	data: { id: string } | { id: string }[];
+interface IJsonApiRelationshipData {
+	id: string;
+	type: string;
 }
 
 interface IJsonApiItem {
 	id: string;
+	type: string;
 	attributes: Record<string, unknown>;
-	relationships?: Record<string, IJsonApiRelationship>;
+	relationships?: Record<string, { data: IJsonApiRelationshipData | IJsonApiRelationshipData[] }>;
 }
 
 interface IJsonApiItemResponse {
 	data: IJsonApiItem;
+	included?: IJsonApiItem[];
 }
 
-function adaptItemResponse({ data }: IJsonApiItemResponse): IItemData {
-	const adapted: IItemData = { item: { id: data.id, ...data.attributes } };
+function adaptItemResponse({ data, included }: IJsonApiItemResponse): IItemData {
+	const adapted: IItemData = {
+		item: { id: data.id, ...data.attributes },
+		relatedItems: {},
+	};
+	const typeFieldMap: Record<string, string[]> = {};
 	if (data.relationships) {
 		Object.entries(data.relationships).forEach(([key, value]) => {
-			adapted.item[key] = Array.isArray(value.data)
-				? // array of related items
-				  value.data.map(({ id }) => id)
-				: // single related item
-				  value.data?.id || null;
+			if (Array.isArray(value.data)) {
+				const itemValue: string[] = [];
+				value.data.forEach((item) => {
+					itemValue.push(item.id);
+					if (!typeFieldMap[item.type]) {
+						typeFieldMap[item.type] = [];
+					}
+					typeFieldMap[item.type].push(key);
+				});
+				adapted.item[key] = itemValue;
+			} else if (value.data) {
+				adapted.item[key] = value.data.id;
+				if (!typeFieldMap[value.data.type]) {
+					typeFieldMap[value.data.type] = [];
+				}
+				typeFieldMap[value.data.type].push(key);
+			} else {
+				adapted.item[key] = null;
+			}
+		});
+	}
+	if (included) {
+		included.forEach((item) => {
+			if (!typeFieldMap[item.type]) {
+				return;
+			}
+			const relatedItem = adaptItemResponse({ data: item }).item;
+			typeFieldMap[item.type].forEach((fieldKey) => {
+				if (!adapted.relatedItems[fieldKey]) {
+					adapted.relatedItems[fieldKey] = {};
+				}
+				adapted.relatedItems[fieldKey][item.id] = relatedItem;
+			});
 		});
 	}
 	return adapted;

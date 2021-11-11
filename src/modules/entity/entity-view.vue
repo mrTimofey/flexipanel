@@ -20,7 +20,7 @@ template(v-if="entityMeta && viewType")
 					:disabled="store.loading"
 					@update:model-value="updatePerPage($event)"
 				)
-			.px-3.mb-3(v-if="entityView.filters")
+			.px-3.mb-3(v-if="entityView.filters && entityView.filters.length")
 				.row
 					.col(v-for="filter in entityView.filters")
 						component(
