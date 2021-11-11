@@ -3,10 +3,13 @@
 	table.table.table-hover.m-0
 		thead
 			tr
+				th(v-if="selectable")
 				th(v-for="{ title } in columns") {{ title }}
 				th(v-if="!noActions")
 		tbody
 			tr(v-for="item in items")
+				td(v-if="selectable")
+					slot(name="selection" :item="item")
 				td.cell-display(v-for="field in columns" @click.prevent="onItemClick(item)")
 					component(
 						:is="resolveDisplay(field.type || defaultDisplayType)"
@@ -47,6 +50,10 @@ export default defineComponent({
 			default: 'text',
 		},
 		noActions: {
+			type: Boolean,
+			default: false,
+		},
+		selectable: {
 			type: Boolean,
 			default: false,
 		},

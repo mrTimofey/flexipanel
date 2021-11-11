@@ -44,7 +44,7 @@ export default class EntityItemStore extends EntityBaseStore<IState> {
 		try {
 			const adapter = await this.getAdapter();
 			const { item, relatedItems } = await adapter.getItem(this.entity.apiEndpoint, { id: this.itemId });
-			this.state.originalItem = this.createItem(item);
+			this.state.originalItem = item;
 			this.state.relatedItems = relatedItems;
 		} finally {
 			this.state.loading = false;
@@ -77,9 +77,10 @@ export default class EntityItemStore extends EntityBaseStore<IState> {
 		this.state.loading = true;
 		try {
 			const adapter = await this.getAdapter();
-			const { item } = await adapter.saveItem(this.entity.apiEndpoint, this.formItem, this.itemId);
+			const { item, relatedItems } = await adapter.saveItem(this.entity.apiEndpoint, this.createItem(this.formItem), this.itemId);
 			Object.assign(this.originalItem, item);
 			Object.assign(this.formItem, item);
+			this.state.relatedItems = relatedItems;
 			this.itemIdInternal = `${item[this.entity.itemUrlKey]}`;
 		} catch (err) {
 			// TODO validation

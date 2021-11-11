@@ -37,14 +37,22 @@
 					entity-view(
 						v-if="selecting"
 						no-actions
+						selectable
 						:entity="entity"
 						:view="view"
 						v-model:page="page"
 						v-model:perPage="perPage"
 						v-model:filters="filters"
 						v-model:sort="sort"
-						@item-click="addItem($event)"
+						@item-click="toggleItem($event)"
 					)
+						template(#selection="data")
+							label.d-block
+								input.form-check-input(
+									:type="multiple ? 'checkbox' : 'radio'"
+									:checked="modelValueArray.includes(key ? data.item[key] : data.id)"
+									@change="toggleItem(data)"
+								)
 </template>
 
 <script lang="ts">
@@ -119,6 +127,26 @@ export default defineComponent({
 			}
 		};
 
+		const removeItem = (i: number) => {
+			if (modelValueArray.value.length <= i) {
+				return;
+			}
+			const newValue = modelValueArray.value.slice();
+			newValue.splice(i, 1);
+			emitValue(newValue);
+		};
+		const addItem = (e: { id: string; item: Record<string, unknown> }) => {
+			if (!props.multiple) {
+				selecting.value = false;
+			}
+			const item = props.key ? e.item[props.key] : e.id;
+			if (modelValueArray.value.includes(item)) {
+				return;
+			}
+			internalRelatedItems[e.id] = e.item;
+			emitValue([...modelValueArray.value, item]);
+		};
+
 		return {
 			...useTranslator(),
 			page,
@@ -133,24 +161,15 @@ export default defineComponent({
 					selecting.value = false;
 				}
 			},
-			removeItem(i: number) {
-				if (modelValueArray.value.length <= i) {
-					return;
+			removeItem,
+			addItem,
+			toggleItem(e: { id: string; item: Record<string, unknown> }) {
+				const index = modelValueArray.value.indexOf(props.key ? e.item[props.key] : e.id);
+				if (index === -1) {
+					addItem(e);
+				} else {
+					removeItem(index);
 				}
-				const newValue = modelValueArray.value.slice();
-				newValue.splice(i, 1);
-				emitValue(newValue);
-			},
-			addItem(e: { id: string; item: Record<string, unknown> }) {
-				if (!props.multiple) {
-					selecting.value = false;
-				}
-				const item = props.key ? e.item[props.key] : e.id;
-				if (modelValueArray.value.includes(item)) {
-					return;
-				}
-				internalRelatedItems[e.id] = e.item;
-				emitValue([...modelValueArray.value, item]);
 			},
 			onClickOutsideSelector() {
 				selecting.value = false;

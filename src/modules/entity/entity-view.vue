@@ -34,12 +34,15 @@ template(v-if="entityMeta && viewType")
 		.flex-shrink-1.overflow-auto(v-else)
 			component(
 				:is="viewComponent"
+				:selectable="selectable"
 				v-bind="entityView.props"
 				:items="store.items"
 				:loading="store.loading"
 				:no-actions="noActions"
 				@item-click="onItemClick($event)"
 			)
+				template(#selection="{ item }")
+					slot(name="selection" :item="item" :id="item[idKey]")
 				template(#actions="{ item }")
 					.d-flex.justify-content-end
 						.btn-group.btn-group-sm
@@ -87,6 +90,10 @@ export default defineComponent({
 			type: Boolean,
 			default: false,
 		},
+		selectable: {
+			type: Boolean,
+			default: false,
+		},
 		page: {
 			type: Number,
 			default: 0,
@@ -126,6 +133,7 @@ export default defineComponent({
 		// TODO skeleton and not found state
 		const viewComponent = computed(() => viewType.value?.component);
 		const realPerPageOptions = computed(() => props.perPageOptions || entityView.value?.perPageOptions || []);
+		const idKey = computed(() => entityMeta.value?.itemUrlKey || 'id');
 		const confirmDeleteTarget = ref<ListItem | null>(null);
 		const initialLoading = ref(false);
 
@@ -181,6 +189,7 @@ export default defineComponent({
 			store,
 			realPerPageOptions,
 			confirmDeleteTarget,
+			idKey,
 			confirmActions: computed<IModalAction[]>(() => [
 				{
 					type: 'danger',
@@ -204,13 +213,13 @@ export default defineComponent({
 				if (!entityMeta.value) {
 					return;
 				}
-				emit('edit-click', { item, id: `${item[entityMeta.value.itemUrlKey]}` });
+				emit('edit-click', { item, id: `${item[idKey.value]}` });
 			},
 			onItemClick(item: ListItem): void {
 				if (!entityMeta.value) {
 					return;
 				}
-				emit('item-click', { item, id: `${item[entityMeta.value.itemUrlKey]}` });
+				emit('item-click', { item, id: `${item[idKey.value]}` });
 			},
 			itemRoute(item: ListItem): string {
 				if (!entityMeta.value) {

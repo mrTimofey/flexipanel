@@ -3,10 +3,9 @@
 	slot(name="label")
 	select.form-select.form-select-sm(
 		:disabled="disabled"
-		:value="modelValue"
 		@change="onChange($event)"
 	)
-		option(v-for="item in normalizedOptions") {{ item.label }}
+		option(v-for="item in normalizedOptions" :selected="modelValue === item.value") {{ item.label }}
 </template>
 
 <script lang="ts">
