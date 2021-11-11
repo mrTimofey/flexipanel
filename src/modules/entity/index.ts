@@ -175,6 +175,9 @@ export default class EntityManager {
 		this.registerFieldType('textarea', {
 			component: defineAsyncComponent(() => import('../form/fields/textarea.vue')),
 		});
+		this.registerFieldType('date', {
+			component: defineAsyncComponent(() => import('../form/fields/date.vue')),
+		});
 		this.registerFieldType('select', {
 			component: defineAsyncComponent(() => import('../form/fields/select.vue')),
 		});
@@ -192,6 +195,9 @@ export default class EntityManager {
 		});
 		this.registerFieldType('entity', {
 			component: defineAsyncComponent(() => import('./fields/entity.vue')),
+		});
+		this.registerFieldType('array', {
+			component: defineAsyncComponent(() => import('./fields/array.vue')),
 		});
 	}
 }
