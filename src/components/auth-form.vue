@@ -3,20 +3,22 @@ form(@submit.prevent="onSubmit()" :class="{ loading: auth.isAuthenticating }")
 	.mb-3
 		.text-danger.text-center(v-if="auth.error") {{ auth.error }}
 		.text-muted.text-center(v-else) {{ trans('loginToProceed') }}
-	input.form-control.mb-2(
-		:placeholder="trans('login')"
-		:disabled="auth.isAuthenticating"
-		v-model="login"
-		ref="loginInput"
-	)
-	input.form-control.mb-3(
-		type="password"
-		:placeholder="trans('password')"
-		:disabled="auth.isAuthenticating"
-		v-model="pswd"
-	)
-	.text-center
-		button.btn-submit.btn.btn-primary(style="min-width:120px" :class="{ loading: auth.isAuthenticating }")
+	.form-floating
+		input#auth-form-login-input.form-control(
+			:disabled="auth.isAuthenticating"
+			v-model="login"
+			ref="loginInput"
+		)
+		label(for="auth-form-login-input") {{ trans('login') }}
+	.form-floating
+		input#auth-form-password-input.form-control(
+			type="password"
+			:disabled="auth.isAuthenticating"
+			v-model="pswd"
+		)
+		label(for="auth-form-password-input") {{ trans('password') }}
+	.text-center.mt-3
+		button.btn-submit.btn.btn-primary.btn-lg.w-100(style="min-width:120px" :class="{ loading: auth.isAuthenticating }")
 			.spinner-border.spinner-border-sm
 			span.btn-submit-text {{ trans('loginAction') }}
 </template>
@@ -58,6 +60,13 @@ export default defineComponent({
 </script>
 
 <style lang="stylus" scoped>
+#auth-form-login-input
+	border-bottom-left-radius 0
+	border-bottom-right-radius 0
+	margin-bottom -1px
+#auth-form-password-input
+	border-top-left-radius 0
+	border-top-right-radius 0
 .btn-submit
 	position relative
 	.spinner-border
