@@ -2,20 +2,28 @@
 .form-field-entity
 	.form-field-entity-label
 		slot(name="label")
-	.position-relative
-		.entity-selection.px-2.py-1.border.rounded(
+	.form-field-entity-wrap.position-relative(
+		@keypress.enter="selecting = true"
+		@keypress.space="selecting = true"
+		@keypress.escape="selecting = false"
+		@blur="onBlur($event)"
+		tabindex="0"
+		:class="{ selecting }"
+	)
+		.entity-selection.px-2.py-1.rounded(
 			style="font-size:0.875rem"
 			@click.prevent="selecting = true"
 		)
 			div(v-for="item in modelValueArray")
 				.d-flex.align-items-center
-					span {{ tpl(displayTemplate, { value: item, item: getRelatedItem(item) }) }}
+					span {{ getDisplayValue(item) }}
 					!=' '
 					//- .btn-close(type="button" @click.prevent="clearValue()")
 			.text-muted(v-if="modelValueArray.length === 0") {{ placeholder || trans('nothingSelected') }}
-		.entity-select-dropdown.position-absolute.bg-light.shadow-lg.border.rounded.top-0.left-0.pt-2(
+			span.dropdown-toggle
+		.entity-select-dropdown.position-absolute.bg-light.rounded.top-0.left-0.pt-2(
 			v-show="selecting"
-			style="min-width:280px;max-width:100%;z-index:5;overflow:hidden"
+			style="min-width:280px;width:100%;z-index:5;overflow:hidden"
 			v-click-outside="selecting ? onClickOutsideSelector : null"
 		)
 			.d-flex.justify-content-center(style="max-height:480px;width:100%")
@@ -83,6 +91,7 @@ export default defineComponent({
 	},
 	emits: ['update:modelValue'],
 	setup(props, { emit }) {
+		const { tpl } = useTemplate();
 		const page = ref<number>(1);
 		const perPage = ref<number | undefined>(undefined);
 		const filters = ref<Record<string, unknown>>({});
@@ -93,13 +102,18 @@ export default defineComponent({
 
 		return {
 			...useTranslator(),
-			...useTemplate(),
 			page,
 			perPage,
 			filters,
 			sort,
 			selecting,
 			modelValueArray,
+			onBlur(e: FocusEvent) {
+				// hide selector if there is no focus within the element
+				if (!(e.currentTarget as Node)?.contains(e.relatedTarget as Node)) {
+					selecting.value = false;
+				}
+			},
 			setValue(e: { id: string; item: Record<string, unknown> }) {
 				const oldValue = Array.isArray(props.modelValue) ? props.modelValue[0] : props.modelValue;
 				const newValue = props.key ? e.item[props.key] : e.id;
@@ -119,8 +133,12 @@ export default defineComponent({
 			onClickOutsideSelector() {
 				selecting.value = false;
 			},
-			getRelatedItem(id: string): Record<string, unknown> {
-				return props.relatedItems[props.fieldKey]?.[id] || internalRelatedItems[id] || {};
+			getDisplayValue(value: unknown) {
+				const valueString = `${value}`;
+				return tpl(props.displayTemplate, {
+					value,
+					item: props.relatedItems[props.fieldKey]?.[valueString] || internalRelatedItems[valueString] || {},
+				});
 			},
 		};
 	},
@@ -128,12 +146,27 @@ export default defineComponent({
 </script>
 
 <style lang="stylus" scoped>
+.form-field-entity-wrap
+	&:focus
+		outline 0
 .entity-selection
 	cursor pointer
+	font-size 0.875rem
+	border 1px solid var(--bs-gray-400)
+	border-radius 0.25rem
 	&:hover
 		background-color var(--bs-light)
+.form-field-entity-wrap:not(.selecting):focus-within .entity-selection, .entity-select-dropdown
+	border 1px solid #86b7fe
+	box-shadow unquote('0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25)')
 .entity-select-dropdown
 	animation entity-dropdown-appear 0.1s ease-out
+.dropdown-toggle
+	position absolute
+	top 50%
+	right 0.5rem
+	margin auto
+	transform translateY(-50%)
 @keyframes entity-dropdown-appear
 	0%
 		opacity 0
