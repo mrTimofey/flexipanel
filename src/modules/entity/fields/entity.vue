@@ -10,7 +10,7 @@
 		tabindex="0"
 		:class="{ selecting }"
 	)
-		.entity-selection.ps-1.pe-3.py-1.rounded(
+		.entity-selection.ps-1.pe-3.py-1(
 			style="font-size:0.875rem"
 			@click.prevent="selecting = true"
 		)
@@ -28,7 +28,7 @@
 						@click.prevent.stop="removeItem(i)"
 					)
 			span.dropdown-toggle
-		.entity-select-dropdown.bg-light.rounded.pt-2(
+		.entity-select-dropdown.bg-light.rounded-bottom.pt-2(
 			v-show="selecting"
 			v-click-outside="selecting ? onClickOutsideSelector : null"
 		)
@@ -196,20 +196,25 @@ export default defineComponent({
 	font-size 0.875rem
 	border 1px solid var(--bs-gray-400)
 	border-radius 0.25rem
-	&:hover
+	&:hover, .form-field-entity-wrap.selecting &
 		background-color var(--bs-light)
-.form-field-entity-wrap:not(.selecting):focus-within .entity-selection, .entity-select-dropdown
+	.form-field-entity-wrap.selecting &
+		border-bottom-left-radius 0
+		border-bottom-right-radius 0
+.form-field-entity-wrap:focus-within .entity-selection
 	border 1px solid #86b7fe
-	box-shadow unquote('0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25)')
 .entity-select-dropdown
 	position absolute
-	top 0
+	top 100%
 	left 0
 	right 0
+	margin-top -1px
 	min-width 280px
 	z-index 5
 	overflow hidden
 	animation entity-dropdown-appear 0.1s ease-out
+	border 1px solid #86b7fe
+	border-top none
 .entity-select-dropdown-content
 	display flex
 	justify-content center

@@ -16,7 +16,7 @@ import { defineComponent, computed } from '@vue/runtime-core';
 export default defineComponent({
 	props: {
 		modelValue: {
-			type: Number,
+			type: [Number, String],
 			default: 0,
 		},
 		disabled: {
@@ -55,7 +55,7 @@ export default defineComponent({
 		return {
 			onInput(e: Event) {
 				const target = e.target as HTMLInputElement;
-				const real = target.value.toString();
+				const real = target.value;
 				const v = real.replace(/(?!^-)[^0-9]/g, '');
 				if (v !== real) {
 					target.value = v;

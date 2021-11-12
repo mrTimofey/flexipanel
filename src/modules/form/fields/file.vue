@@ -22,10 +22,10 @@
 			i.fa-solid.fa-upload
 			!=' '
 			| {{ placeholder || trans('chooseFile') }}
-		a.btn.btn-default(
+		a.btn.btn-light(
 			v-if="modelValue && typeof modelValue === 'string'"
 			target="_blank"
-			:href="modelValue"
+			:href="fileUrl"
 		)
 			i.fa-solid.fa-download
 			!=' '
@@ -35,7 +35,7 @@
 <script lang="ts">
 import { defineComponent, ref, computed } from '@vue/runtime-core';
 import HttpClient from '../../http';
-import { get, useTranslator } from '../../vue-composition-utils';
+import { get, useTemplate, useTranslator } from '../../vue-composition-utils';
 
 enum UploadStatus {
 	Idle = 1,
@@ -73,9 +73,14 @@ export default defineComponent({
 			type: String,
 			default: '/api/files',
 		},
+		urlTemplate: {
+			type: String,
+			default: '/storage/uploads/{{=it}}',
+		},
 	},
 	emits: ['update:modelValue'],
 	setup(props, { emit }) {
+		const { tpl } = useTemplate();
 		const http = get(HttpClient);
 		const uploaded = computed<boolean>(() => typeof props.modelValue === 'string' && props.modelValue !== '');
 		const uploadStatus = ref(UploadStatus.Idle);
@@ -87,6 +92,7 @@ export default defineComponent({
 			uploadStatus,
 			uploadProgress,
 			uploaded,
+			fileUrl: computed(() => tpl(props.urlTemplate, props.modelValue)),
 			async onFileChange(e: Event) {
 				uploadProgress.value = 0;
 				uploadStatus.value = UploadStatus.Idle;
