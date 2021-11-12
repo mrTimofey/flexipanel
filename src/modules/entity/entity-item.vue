@@ -18,6 +18,7 @@ modal-dialog(
 				:field-key="field.key"
 				:entity-item="store.formItem"
 				:related-items="store.relatedItems"
+				:errors="store.formErrors[field.key]"
 				v-bind="field.props"
 				@update:model-value="onFieldInput(field.key, $event)"
 			)
@@ -95,7 +96,7 @@ export default defineComponent({
 				},
 			]),
 			async save() {
-				if (await handleErrors(() => store.save())) {
+				if ((await handleErrors(() => store.save())) && !store.hasErrors) {
 					notifier.push({
 						type: 'success',
 						body: trans('successfullySaved'),
@@ -106,7 +107,7 @@ export default defineComponent({
 				}
 			},
 			async saveAndReturn() {
-				if (await handleErrors(() => store.save())) {
+				if ((await handleErrors(() => store.save())) && !store.hasErrors) {
 					emit('return');
 				}
 			},

@@ -1,5 +1,6 @@
 import { inject } from 'mini-ioc';
-import HttpClient from '../../http';
+import HttpClient, { HttpRequestError } from '../../http';
+import { ValidationError } from '../adapter';
 import type { IListParams, IListData, IItemParams, IItemData } from '../adapter';
 import type IAdapter from '../adapter';
 
@@ -22,6 +23,31 @@ interface IJsonApiItem {
 interface IJsonApiItemResponse {
 	data: IJsonApiItem;
 	included?: IJsonApiItem[];
+}
+
+function isValidationMessageError(data: unknown): data is { source: { pointer: string }; title: string } {
+	if (typeof data !== 'object') {
+		return false;
+	}
+	if (!data) {
+		return false;
+	}
+	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+	// @ts-ignore
+	return !!(data.source?.pointer && data.title);
+}
+
+function createValidationError(data: unknown): ValidationError {
+	const errors: unknown[] = Array.isArray(data) ? data : [data];
+	const fieldErrors: Record<string, string[]> = {};
+	errors.filter(isValidationMessageError).forEach((err) => {
+		const key = err.source.pointer.replace(/^\/data\/attributes\//, '');
+		if (!fieldErrors[key]) {
+			fieldErrors[key] = [];
+		}
+		fieldErrors[key].push(err.title);
+	});
+	return new ValidationError(fieldErrors);
 }
 
 function adaptItemResponse({ data, included }: IJsonApiItemResponse): IItemData {
@@ -115,14 +141,21 @@ export default class JsonApiAdapter implements IAdapter {
 	async saveItem(endpoint: string, item: Record<string, unknown>, id?: string): Promise<IItemData> {
 		const attributes = { ...item };
 		delete attributes.id;
-		const { body } = await this.http.fetch<IJsonApiItemResponse>(
-			id ? `${endpoint}/${id}` : endpoint,
-			id ? 'PATCH' : 'POST',
-			{ data: { attributes } },
-			{
-				'Content-Type': 'application/vnd.api+json',
-			},
-		);
-		return adaptItemResponse(body);
+		try {
+			const { body } = await this.http.fetch<IJsonApiItemResponse>(
+				id ? `${endpoint}/${id}` : endpoint,
+				id ? 'PATCH' : 'POST',
+				{ data: { attributes } },
+				{
+					'Content-Type': 'application/vnd.api+json',
+				},
+			);
+			return adaptItemResponse(body);
+		} catch (err) {
+			if (err instanceof HttpRequestError && err.res) {
+				throw createValidationError(err.res.body.errors);
+			}
+			throw err;
+		}
 	}
 }

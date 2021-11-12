@@ -6,10 +6,14 @@
 		v-model="dateValue"
 		:placeholder="placeholder"
 		:disabled="disabled"
+		:class="{ 'is-invalid': !!errors }"
 	)
+	.invalid-feedback(v-if="errors && errors.length")
+		div(v-for="err in errors") {{ err }}
 </template>
 
 <script lang="ts">
+import type { PropType } from '@vue/runtime-core';
 import { defineComponent, computed } from '@vue/runtime-core';
 
 export default defineComponent({
@@ -25,6 +29,10 @@ export default defineComponent({
 		disabled: {
 			type: Boolean,
 			default: false,
+		},
+		errors: {
+			type: Array as PropType<string[]>,
+			default: null,
 		},
 	},
 	emits: ['update:modelValue'],

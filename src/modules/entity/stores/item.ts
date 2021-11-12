@@ -1,4 +1,5 @@
 import type { IRegisteredEntity } from '..';
+import { ValidationError } from '../adapter';
 import EntityBaseStore from './base';
 
 export type DetailedItem = Record<string, unknown>;
@@ -8,6 +9,7 @@ export interface IState {
 	originalItem: DetailedItem;
 	formItem: DetailedItem;
 	relatedItems: Record<string, Record<string, Record<string, unknown>>>;
+	formErrors: Record<string, string[]>;
 }
 
 export default class EntityItemStore extends EntityBaseStore<IState> {
@@ -20,6 +22,7 @@ export default class EntityItemStore extends EntityBaseStore<IState> {
 			originalItem: {},
 			formItem: {},
 			relatedItems: {},
+			formErrors: {},
 		};
 	}
 
@@ -70,6 +73,7 @@ export default class EntityItemStore extends EntityBaseStore<IState> {
 	}
 
 	public async save(): Promise<void> {
+		this.state.formErrors = {};
 		if (!this.entity) {
 			return;
 		}
@@ -81,6 +85,10 @@ export default class EntityItemStore extends EntityBaseStore<IState> {
 			Object.assign(this.formItem, item);
 			this.state.relatedItems = relatedItems;
 			this.itemIdInternal = `${item[this.entity.itemUrlKey]}`;
+		} catch (err) {
+			if (err instanceof ValidationError) {
+				this.state.formErrors = err.fieldErrors;
+			}
 		} finally {
 			this.state.loading = false;
 		}
@@ -117,7 +125,15 @@ export default class EntityItemStore extends EntityBaseStore<IState> {
 		return this.state.relatedItems;
 	}
 
+	get formErrors(): IState['formErrors'] {
+		return this.state.formErrors;
+	}
+
 	get itemId(): string {
 		return this.itemIdInternal;
+	}
+
+	get hasErrors(): boolean {
+		return Object.keys(this.formErrors).length > 0;
 	}
 }

@@ -3,9 +3,12 @@
 	slot(name="label")
 	select.form-select.form-select-sm(
 		:disabled="disabled"
+		:class="{ 'is-invalid': !!errors }"
 		@change="onChange($event)"
 	)
 		option(v-for="item in normalizedOptions" :selected="modelValue === item.value") {{ item.label }}
+	.invalid-feedback(v-if="errors && errors.length")
+		div(v-for="err in errors") {{ err }}
 </template>
 
 <script lang="ts">
@@ -45,6 +48,10 @@ export default defineComponent({
 		labelKey: {
 			type: String,
 			default: 'label',
+		},
+		errors: {
+			type: Array as PropType<string[]>,
+			default: null,
 		},
 	},
 	emits: ['update:modelValue'],

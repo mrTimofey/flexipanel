@@ -5,11 +5,15 @@
 		:disabled="disabled"
 		:placeholder="placeholder"
 		:value="modelValue"
+		:class="{ 'is-invalid': !!errors }"
 		@input="onInput($event)"
 	)
+	.invalid-feedback(v-if="errors && errors.length")
+		div(v-for="err in errors") {{ err }}
 </template>
 
 <script lang="ts">
+import type { PropType } from '@vue/runtime-core';
 import { defineComponent } from '@vue/runtime-core';
 
 export default defineComponent({
@@ -25,6 +29,10 @@ export default defineComponent({
 		placeholder: {
 			type: String,
 			default: '',
+		},
+		errors: {
+			type: Array as PropType<string[]>,
+			default: null,
 		},
 	},
 	emits: ['update:modelValue'],

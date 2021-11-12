@@ -5,12 +5,16 @@
 		:disabled="disabled"
 		:placeholder="placeholder"
 		:value="modelValue"
+		:class="{ 'is-invalid': !!errors }"
 		@input="onInput($event)"
 		@blur="onBlur()"
 	)
+	.invalid-feedback(v-if="errors && errors.length")
+		div(v-for="err in errors") {{ err }}
 </template>
 
 <script lang="ts">
+import type { PropType } from '@vue/runtime-core';
 import { defineComponent, computed } from '@vue/runtime-core';
 
 export default defineComponent({
@@ -37,6 +41,10 @@ export default defineComponent({
 		},
 		default: {
 			type: Number,
+			default: null,
+		},
+		errors: {
+			type: Array as PropType<string[]>,
 			default: null,
 		},
 	},
