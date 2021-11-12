@@ -1,6 +1,6 @@
 <template lang="pug">
-.form-field-file
-	.form-field-file-label
+.form-field-image
+	.form-field-image-label
 		slot(name="label")
 	.progress.active(v-if="uploadStatus === UploadStatus.InQueue")
 		.progress-bar.progress-bar-striped(style="width:100%;opacity:0.5")
@@ -8,9 +8,17 @@
 		.progress-bar.progress-bar-striped.progress-bar-animated(
 			:style="{ width: `${uploadProgress * 100}%` }"
 		)
-	.form-field-file-actions.btn-group(v-else)
-		.btn.btn-danger(v-if="modelValue" @click="clearValue()" :disabled="disabled")
-			i.fa-solid.fa-trash
+	.form-field-image-actions(v-else)
+		template(v-if="modelValue")
+			.d-block.position-relative(v-if="typeof modelValue === 'string'")
+				a(target="_blank" :href="fileUrl")
+					img.img-thumbnail(:src="fileUrl" :alt="valueLabel || modelValue")
+				.btn.btn-danger.btn-sm.position-absolute.top-0.start-0.m-2(@click="clearValue()" :disabled="disabled")
+					i.fa-solid.fa-trash
+			.btn-group(v-else)
+				.btn.btn-danger(@click="clearValue()" :disabled="disabled")
+					i.fa-solid.fa-trash
+				.btn.btn-light {{ uploadMessage || trans('uploadMessage') }}
 		label.btn.btn-light(v-else :disabled="disabled")
 			input(
 				type="file"
@@ -22,15 +30,6 @@
 			i.fa-solid.fa-upload
 			!=' '
 			| {{ placeholder || trans('chooseFile') }}
-		a.btn.btn-light(
-			v-if="modelValue && typeof modelValue === 'string'"
-			target="_blank"
-			:href="fileUrl"
-		)
-			i.fa-solid.fa-download
-			!=' '
-			| {{ valueLabel || modelValue }}
-		.btn.btn-light(v-else-if="modelValue") {{ uploadMessage || trans('uploadMessage') }}
 </template>
 
 <script lang="ts">
@@ -38,3 +37,9 @@ import Component from './file-upload';
 
 export default Component;
 </script>
+
+<style lang="stylus" scoped>
+.img-thumbnail
+	min-width 5rem
+	min-height 5rem
+</style>
