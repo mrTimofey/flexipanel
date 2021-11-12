@@ -14,4 +14,6 @@ interface ImportMetaEnv {
 	AUTH_LOGIN_KEY?: string;
 	AUTH_PASSWORD_KEY?: string;
 	AUTH_REFRESH_TOKEN_REQUEST_KEY?: string;
+
+	NOTIFICATION_DEFAULT_CLOSE_TIMEOUT_MS?: string;
 }

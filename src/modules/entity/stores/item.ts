@@ -1,5 +1,4 @@
 import type { IRegisteredEntity } from '..';
-import { HttpRequestError } from '../../http';
 import EntityBaseStore from './base';
 
 export type DetailedItem = Record<string, unknown>;
@@ -82,13 +81,6 @@ export default class EntityItemStore extends EntityBaseStore<IState> {
 			Object.assign(this.formItem, item);
 			this.state.relatedItems = relatedItems;
 			this.itemIdInternal = `${item[this.entity.itemUrlKey]}`;
-		} catch (err) {
-			// TODO validation
-			if (err instanceof HttpRequestError && err.res) {
-				console.error(err.res);
-			} else {
-				console.error('Something went wrong...');
-			}
 		} finally {
 			this.state.loading = false;
 		}

@@ -19,6 +19,7 @@
 		.p-3.fs-5.fw-semibold.text-center.border-bottom {{ appTitle }}
 		.p-4
 			auth-form
+notification-root
 </template>
 
 <script lang="ts">
@@ -30,12 +31,14 @@ import MainNav from './components/main-nav/index.vue';
 import AuthForm from './components/auth-form.vue';
 import Meta from './modules/meta';
 import AuthStore from './modules/auth/store';
+import { NotificationRoot } from './modules/notification';
 
 export default defineComponent({
 	name: 'App',
 	components: {
 		MainNav,
 		AuthForm,
+		NotificationRoot,
 	},
 	setup() {
 		const config = get(AppConfig);

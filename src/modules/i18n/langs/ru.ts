@@ -26,4 +26,5 @@ export default {
 	cancel: 'Отменить',
 	loading: 'Загрузка',
 	nothingSelected: 'Ничего не выбрано',
+	successfullySaved: 'Успешно сохранено',
 };

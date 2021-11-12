@@ -35,6 +35,7 @@ import EntityItemStore from './stores/item';
 import { get, create, useTranslator } from '../vue-composition-utils';
 import type { IModalAction } from '../modal/modal.vue';
 import ModalDialog from '../modal/modal.vue';
+import NotificationManager from '../notification';
 
 export default defineComponent({
 	components: { ModalDialog },
@@ -51,6 +52,7 @@ export default defineComponent({
 	emits: ['update:id', 'return'],
 	setup(props, { emit }) {
 		const entityManager = get(EntityManager);
+		const notifier = get(NotificationManager);
 		const entityMeta = computed(() => entityManager.getEntity(props.entity));
 		const store = create(EntityItemStore);
 		const initializing = ref(false);
@@ -62,6 +64,19 @@ export default defineComponent({
 			await store.loadEntityItem(entityMeta.value, props.id);
 			initializing.value = false;
 		});
+
+		const handleErrors = async (cb: () => Promise<void>) => {
+			try {
+				await cb();
+			} catch (err) {
+				notifier.push({
+					type: 'error',
+					body: `${err}`,
+				});
+				return false;
+			}
+			return true;
+		};
 
 		return {
 			trans,
@@ -80,14 +95,20 @@ export default defineComponent({
 				},
 			]),
 			async save() {
-				await store.save();
+				if (await handleErrors(() => store.save())) {
+					notifier.push({
+						type: 'success',
+						body: trans('successfullySaved'),
+					});
+				}
 				if (props.id !== store.itemId) {
 					emit('update:id', store.itemId);
 				}
 			},
 			async saveAndReturn() {
-				await store.save();
-				emit('return');
+				if (await handleErrors(() => store.save())) {
+					emit('return');
+				}
 			},
 			fieldComponent(type: string) {
 				return entityManager.getFieldType(type)?.component;
@@ -99,8 +120,10 @@ export default defineComponent({
 				confirmingDelete.value = true;
 			},
 			async onDeleteConfirm(yes: boolean) {
-				if (yes && confirmingDelete.value) {
-					await store.destroy();
+				if (!yes || !confirmingDelete.value) {
+					return;
+				}
+				if (await handleErrors(() => store.destroy())) {
 					emit('return');
 				}
 				confirmingDelete.value = false;

@@ -26,4 +26,5 @@ export default {
 	cancel: 'Cancel',
 	loading: 'Loading',
 	nothingSelected: 'Nothing selected',
+	successfullySaved: 'Successfully saved',
 };
