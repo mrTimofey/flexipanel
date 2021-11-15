@@ -122,7 +122,7 @@ module.exports = {
 		'@typescript-eslint/ban-ts-comment': 1,
 
 		'vue/component-name-in-template-casing': [1, 'kebab-case'],
-		'vue/html-indent': 0,
+		'vue/multi-word-component-names': 0,
 	},
 	overrides: [
 		{

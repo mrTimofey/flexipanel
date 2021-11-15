@@ -17,6 +17,7 @@ import type { RouteLocationRaw, RouterLinkProps } from 'vue-router';
 import { RouterLink } from 'vue-router';
 
 export default defineComponent({
+	name: 'MainNavItem',
 	components: { RouterLink },
 	props: {
 		active: {

@@ -11,6 +11,7 @@ import NavItemList from './tree.vue';
 import type { INavItem } from '../../modules/app-config';
 
 export default defineComponent({
+	name: 'MainNav',
 	components: { NavItemList },
 	props: {
 		items: {

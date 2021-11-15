@@ -10,6 +10,7 @@
 import { defineComponent } from '@vue/runtime-core';
 
 export default defineComponent({
+	name: 'MainNavItemBadge',
 	props: {
 		color: {
 			type: String,

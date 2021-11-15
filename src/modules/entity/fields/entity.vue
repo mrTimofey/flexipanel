@@ -50,7 +50,7 @@
 							label.d-block
 								input.form-check-input(
 									:type="multiple ? 'checkbox' : 'radio'"
-									:checked="modelValueArray.includes(key ? data.item[key] : data.id)"
+									:checked="modelValueArray.includes(foreignKey ? data.item[foreignKey] : data.id)"
 									@change="toggleItem(data)"
 								)
 </template>
@@ -86,7 +86,7 @@ export default defineComponent({
 			type: String,
 			default: '',
 		},
-		key: {
+		foreignKey: {
 			type: String,
 			default: '',
 		},
@@ -139,7 +139,7 @@ export default defineComponent({
 			if (!props.multiple) {
 				selecting.value = false;
 			}
-			const item = props.key ? e.item[props.key] : e.id;
+			const item = props.foreignKey ? e.item[props.foreignKey] : e.id;
 			if (modelValueArray.value.includes(item)) {
 				return;
 			}
@@ -164,7 +164,7 @@ export default defineComponent({
 			removeItem,
 			addItem,
 			toggleItem(e: { id: string; item: Record<string, unknown> }) {
-				const index = modelValueArray.value.indexOf(props.key ? e.item[props.key] : e.id);
+				const index = modelValueArray.value.indexOf(props.foreignKey ? e.item[props.foreignKey] : e.id);
 				if (index === -1) {
 					addItem(e);
 				} else {

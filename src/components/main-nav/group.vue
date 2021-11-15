@@ -23,6 +23,7 @@ import NavItemIcon from './item-icon.vue';
 import NavItemBadge from './item-badge.vue';
 
 export default defineComponent({
+	name: 'MainNavGroup',
 	components: { NavItem, NavItemIcon, NavItemBadge },
 	props: {
 		active: {
