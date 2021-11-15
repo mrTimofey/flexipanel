@@ -27,4 +27,5 @@ export default {
 	loading: 'Loading',
 	nothingSelected: 'Nothing selected',
 	successfullySaved: 'Successfully saved',
+	checkValidationErrors: 'Check validation errors',
 };

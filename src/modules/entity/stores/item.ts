@@ -89,6 +89,7 @@ export default class EntityItemStore extends EntityBaseStore<IState> {
 			if (err instanceof ValidationError) {
 				this.state.formErrors = err.fieldErrors;
 			}
+			throw err;
 		} finally {
 			this.state.loading = false;
 		}

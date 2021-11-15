@@ -74,6 +74,7 @@ import FieldSelect from '../form/fields/select.vue';
 import Translator from '../i18n';
 import type { IModalAction } from '../modal/modal.vue';
 import ModalDialog from '../modal/modal.vue';
+import NotificationManager from '../notification';
 
 export default defineComponent({
 	components: { PageNav, FieldSelect, ModalDialog },
@@ -119,6 +120,7 @@ export default defineComponent({
 	setup(props, { emit }) {
 		const store = create(EntityListStore);
 		const entityManager = get(EntityManager);
+		const notifier = get(NotificationManager);
 		const translator = get(Translator);
 		const router = useRouter();
 		const entityMeta = computed(() => entityManager.getEntity(props.entity));
@@ -238,12 +240,20 @@ export default defineComponent({
 			},
 			onDeleteConfirm(yes: boolean): void {
 				if (yes && confirmDeleteTarget.value) {
-					store.deleteItem(confirmDeleteTarget.value).then(() =>
-						store.reload({
-							page: store.page,
-							perPage: store.perPage,
-						}),
-					);
+					store
+						.deleteItem(confirmDeleteTarget.value)
+						.then(() =>
+							store.reload({
+								page: store.page,
+								perPage: store.perPage,
+							}),
+						)
+						.catch((err) => {
+							notifier.push({
+								type: 'error',
+								body: `${err}`,
+							});
+						});
 				}
 				confirmDeleteTarget.value = null;
 			},

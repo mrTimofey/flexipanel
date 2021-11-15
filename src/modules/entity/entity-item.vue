@@ -37,6 +37,7 @@ import { get, create, useTranslator } from '../vue-composition-utils';
 import type { IModalAction } from '../modal/modal.vue';
 import ModalDialog from '../modal/modal.vue';
 import NotificationManager from '../notification';
+import { ValidationError } from './adapter';
 
 export default defineComponent({
 	components: { ModalDialog },
@@ -72,7 +73,7 @@ export default defineComponent({
 			} catch (err) {
 				notifier.push({
 					type: 'error',
-					body: `${err}`,
+					body: err instanceof ValidationError ? trans('checkValidationErrors') : `${err}`,
 				});
 				return false;
 			}
@@ -108,6 +109,10 @@ export default defineComponent({
 			},
 			async saveAndReturn() {
 				if ((await handleErrors(() => store.save())) && !store.hasErrors) {
+					notifier.push({
+						type: 'success',
+						body: trans('successfullySaved'),
+					});
 					emit('return');
 				}
 			},

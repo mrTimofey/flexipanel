@@ -27,4 +27,5 @@ export default {
 	loading: 'Загрузка',
 	nothingSelected: 'Ничего не выбрано',
 	successfullySaved: 'Успешно сохранено',
+	checkValidationErrors: 'Проверьте правильность заполнения полей',
 };
