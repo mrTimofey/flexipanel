@@ -28,4 +28,5 @@ export default {
 	nothingSelected: 'Nothing selected',
 	successfullySaved: 'Successfully saved',
 	checkValidationErrors: 'Check validation errors',
+	symbolCount: 'Symbol count',
 };

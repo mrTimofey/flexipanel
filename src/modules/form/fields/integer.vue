@@ -15,7 +15,7 @@
 
 <script lang="ts">
 import type { PropType } from '@vue/runtime-core';
-import { defineComponent, computed } from '@vue/runtime-core';
+import { defineComponent } from '@vue/runtime-core';
 
 export default defineComponent({
 	props: {
@@ -50,16 +50,6 @@ export default defineComponent({
 	},
 	emits: ['update:modelValue'],
 	setup(props, { emit }) {
-		const defaultValue = computed(() => {
-			if (props.default !== null) {
-				return props.default;
-			}
-			if (props.min !== -Infinity) {
-				return props.min;
-			}
-			return 0;
-		});
-
 		return {
 			onInput(e: Event) {
 				const target = e.target as HTMLInputElement;
@@ -69,7 +59,7 @@ export default defineComponent({
 					target.value = v;
 				}
 				if (v !== '-') {
-					const newValue = v === '' ? defaultValue.value : Number(v);
+					const newValue = v === '' ? props.default : Number(v);
 					if (props.modelValue !== newValue) {
 						emit('update:modelValue', newValue);
 					}

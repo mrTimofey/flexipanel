@@ -2,6 +2,7 @@ import { computed, ref } from '@vue/reactivity';
 import type { SetupContext } from '@vue/runtime-core';
 import { defineComponent } from '@vue/runtime-core';
 import HttpClient from '../../http';
+import NotificationManager from '../../notification';
 import { get, useTemplate, useTranslator } from '../../vue-composition-utils';
 
 export enum UploadStatus {
@@ -21,6 +22,7 @@ function useFileUpload<T extends ['update:modelValue'] = ['update:modelValue']>(
 ) {
 	const { tpl } = useTemplate();
 	const http = get(HttpClient);
+	const notifier = get(NotificationManager);
 	const uploaded = computed<boolean>(() => typeof props.modelValue === 'string' && props.modelValue !== '');
 	const uploadStatus = ref(UploadStatus.Idle);
 	const uploadProgress = ref(0);
@@ -52,8 +54,10 @@ function useFileUpload<T extends ['update:modelValue'] = ['update:modelValue']>(
 				});
 				emit('update:modelValue', res.body);
 			} catch (err) {
-				// TODO handle error
-				console.error(err);
+				notifier.push({
+					type: 'error',
+					body: `${err}`,
+				});
 			} finally {
 				uploadStatus.value = UploadStatus.Idle;
 			}

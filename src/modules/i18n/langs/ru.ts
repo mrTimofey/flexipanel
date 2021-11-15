@@ -28,4 +28,5 @@ export default {
 	nothingSelected: 'Ничего не выбрано',
 	successfullySaved: 'Успешно сохранено',
 	checkValidationErrors: 'Проверьте правильность заполнения полей',
+	symbolCount: 'Кол-во символов',
 };
