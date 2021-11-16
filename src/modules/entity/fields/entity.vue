@@ -20,7 +20,6 @@
 					v-for="(item, i) in modelValueArray" style="--bs-bg-opacity:0.25"
 					:class="multiple ? 'bg-secondary rounded' : ''"
 				)
-
 					.me-1.flex-grow-1 {{ getDisplayValue(item) }}
 					!=' '
 					button.btn-entity-item-remove.rounded(
@@ -117,7 +116,7 @@ export default defineComponent({
 			}
 			return props.modelValue == null ? [] : [props.modelValue];
 		});
-		const internalRelatedItems = reactive<Record<string, unknown>>({});
+		const internalRelatedItems = reactive<Map<unknown, unknown>>(new Map());
 
 		const emitValue = (newValue: unknown[]) => {
 			if (props.multiple) {
@@ -143,7 +142,7 @@ export default defineComponent({
 			if (modelValueArray.value.includes(item)) {
 				return;
 			}
-			internalRelatedItems[e.id] = e.item;
+			internalRelatedItems.set(item, e.item);
 			emitValue([...modelValueArray.value, item]);
 		};
 
@@ -178,7 +177,7 @@ export default defineComponent({
 				const valueString = `${value}`;
 				return tpl(props.displayTemplate, {
 					value,
-					item: props.relatedItems[props.fieldKey]?.[valueString] || internalRelatedItems[valueString] || {},
+					item: props.relatedItems[props.fieldKey]?.[valueString] || internalRelatedItems.get(value) || {},
 				});
 			},
 		};

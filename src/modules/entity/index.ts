@@ -149,6 +149,7 @@ export default class EntityManager {
 		return this;
 	}
 
+	// TODO move fields to form module
 	public getFieldType(key: string): IFieldType | null {
 		return this.fieldTypes[key] || null;
 	}
@@ -201,6 +202,9 @@ export default class EntityManager {
 		});
 		this.registerFieldType('array', {
 			component: defineAsyncComponent(() => import('./fields/array.vue')),
+		});
+		this.registerFieldType('object', {
+			component: defineAsyncComponent(() => import('./fields/object.vue')),
 		});
 	}
 }
