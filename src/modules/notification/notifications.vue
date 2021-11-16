@@ -36,7 +36,7 @@ export default defineComponent({
 
 <style lang="stylus" scoped>
 .toast-container
-	z-index 100
+	z-index 1060
 .toast
 	position relative
 .btn-close

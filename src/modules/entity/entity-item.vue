@@ -113,7 +113,7 @@ export default defineComponent({
 						type: 'success',
 						body: trans('successfullySaved'),
 					});
-					emit('return');
+					emit('return', { id: store.itemId, item: store.formItem });
 				}
 			},
 			fieldComponent(type: string) {

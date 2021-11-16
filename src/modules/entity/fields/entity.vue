@@ -1,5 +1,15 @@
 <template lang="pug">
 .form-field-entity
+	modal-dialog(
+		v-if="creating && allowCreate"
+		size="lg"
+		:title="trans('createEntityItem')"
+		@close="creating = false"
+	)
+		entity-item(
+			:entity="entity"
+			@return="addItem($event)"
+		)
 	.form-field-entity-label
 		slot(name="label")
 	.form-field-entity-wrap(
@@ -29,8 +39,10 @@
 			span.dropdown-toggle
 		.entity-select-dropdown.bg-light.rounded-bottom.pt-2(
 			v-show="selecting"
-			v-click-outside="selecting ? onClickOutsideSelector : null"
+			v-click-outside="selecting && !creating ? onClickOutsideSelector : null"
 		)
+			.p-2(v-if="allowCreate")
+				button.btn.btn-primary.btn-sm(type="button" @click.prevent="creating = true") {{ trans('createEntityItem') }}
 			.entity-select-dropdown-content
 				keep-alive
 					entity-view(
@@ -59,10 +71,12 @@ import type { PropType } from '@vue/runtime-core';
 import { defineComponent, ref, computed, reactive } from '@vue/runtime-core';
 import { useTemplate, useTranslator } from '../../vue-composition-utils';
 import EntityView from '../entity-view.vue';
+import EntityItem from '../entity-item.vue';
+import ModalDialog from '../../modal/modal.vue';
 import clickOutside from '../../click-outside';
 
 export default defineComponent({
-	components: { EntityView },
+	components: { EntityView, ModalDialog, EntityItem },
 	directives: { clickOutside },
 	props: {
 		modelValue: {
@@ -101,6 +115,10 @@ export default defineComponent({
 			type: Boolean,
 			default: false,
 		},
+		allowCreate: {
+			type: Boolean,
+			default: false,
+		},
 	},
 	emits: ['update:modelValue'],
 	setup(props, { emit }) {
@@ -110,6 +128,7 @@ export default defineComponent({
 		const filters = ref<Record<string, unknown>>({});
 		const sort = ref<Record<string, unknown>>({});
 		const selecting = ref(false);
+		const creating = ref(false);
 		const modelValueArray = computed<unknown[]>(() => {
 			if (Array.isArray(props.modelValue)) {
 				return props.modelValue;
@@ -138,6 +157,7 @@ export default defineComponent({
 			if (!props.multiple) {
 				selecting.value = false;
 			}
+			creating.value = false;
 			const item = props.foreignKey ? e.item[props.foreignKey] : e.id;
 			if (modelValueArray.value.includes(item)) {
 				return;
@@ -153,6 +173,7 @@ export default defineComponent({
 			filters,
 			sort,
 			selecting,
+			creating,
 			modelValueArray,
 			onBlur(e: FocusEvent) {
 				// hide selector if there is no focus within the element

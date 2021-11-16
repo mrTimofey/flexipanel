@@ -1,14 +1,14 @@
 <template lang="pug">
-modal-dialog(
-	v-if="editCodeModalOpen"
-	@close="editCodeModalOpen = false"
-	@action-click="onEditCodeActionClick($event.index === 0)"
-	size="lg"
-	:title="trans('svgCode')"
-	:actions="editCodeActions"
-)
-	field-textarea(v-model="rawCode" :height="15")
 .form-field-inline-svg
+	modal-dialog(
+		v-if="editCodeModalOpen"
+		@close="editCodeModalOpen = false"
+		@action-click="onEditCodeActionClick($event.index === 0)"
+		size="lg"
+		:title="trans('svgCode')"
+		:actions="editCodeActions"
+	)
+		field-textarea(v-model="rawCode" :height="15")
 	.form-field-inline-svg-label
 		slot(name="label")
 	.btn-group.btn-group-sm.my-1
