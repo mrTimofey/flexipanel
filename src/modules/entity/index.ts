@@ -8,6 +8,8 @@ export interface IField {
 	label?: string;
 	// entity item object property key
 	key: string;
+	// related item object should be used instead of related object id as a value
+	inlineRelated?: boolean;
 	// field type (string, boolean, array...)
 	type?: string;
 	// field component properties (based on type)
@@ -70,6 +72,7 @@ export const viewDefaults: Partial<IView> = {
 export const fieldDefaults: Partial<IField> = {
 	type: 'text',
 	props: {},
+	inlineRelated: false,
 };
 
 export interface IViewType {

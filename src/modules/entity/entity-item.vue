@@ -1,13 +1,13 @@
 <template lang="pug">
-modal-dialog(
-	v-if="confirmingDelete"
-	@close="confirmingDelete = false"
-	@action-click="onDeleteConfirm($event.index === 0)"
-	size="sm"
-	:title="trans('deleteItem')"
-	:actions="confirmActions"
-) {{ trans('areYouSure') }}?
 .entity-form(v-if="entityMeta?.form" :class="{ loading: store.loading }")
+	modal-dialog(
+		v-if="confirmingDelete"
+		@close="confirmingDelete = false"
+		@action-click="onDeleteConfirm($event.index === 0)"
+		size="sm"
+		:title="trans('deleteItem')"
+		:actions="confirmActions"
+	) {{ trans('areYouSure') }}?
 	.d-flex.justify-content-center.py-5(v-if="initializing")
 		.spinner.spinner-grow.text-primary
 	form.px-3.pb-3(v-else @submit.prevent="saveAndReturn()" :class="{ loading: store.loading }")

@@ -50,49 +50,45 @@ function createValidationError(data: unknown): ValidationError {
 	return new ValidationError(fieldErrors);
 }
 
-function adaptItemResponse({ data, included }: IJsonApiItemResponse): IItemData {
+function adaptItemResponse({ data, included }: IJsonApiItemResponse, relatedItems: IItemData['relatedItems'] = {}, path: string[] = []): IItemData {
 	const adapted: IItemData = {
 		item: { id: data.id, ...data.attributes },
-		relatedItems: {},
+		relatedItems,
 	};
-	const typeFieldMap: Record<string, string[]> = {};
+
+	function addRelatedItem(key: string, item: { type: string; id: string }) {
+		if (!adapted.relatedItems[key]) {
+			adapted.relatedItems[key] = {};
+		}
+		const includedItem = included?.find((cmp) => cmp.id === item.id && cmp.type === item.type);
+		if (!includedItem) {
+			return;
+		}
+		const fieldPath = path.map((str) => `${str}.`).join('') + key;
+		if (!adapted.relatedItems[fieldPath]) {
+			adapted.relatedItems[fieldPath] = {};
+		}
+		adapted.relatedItems[fieldPath][item.id] = adaptItemResponse({ data: includedItem, included }, relatedItems, [...path, key]).item;
+	}
+
 	if (data.relationships) {
 		Object.entries(data.relationships).forEach(([key, value]) => {
 			if (Array.isArray(value.data)) {
 				const itemValue: string[] = [];
 				value.data.forEach((item) => {
 					itemValue.push(item.id);
-					if (!typeFieldMap[item.type]) {
-						typeFieldMap[item.type] = [];
-					}
-					typeFieldMap[item.type].push(key);
+					addRelatedItem(key, item);
 				});
 				adapted.item[key] = itemValue;
 			} else if (value.data) {
 				adapted.item[key] = value.data.id;
-				if (!typeFieldMap[value.data.type]) {
-					typeFieldMap[value.data.type] = [];
-				}
-				typeFieldMap[value.data.type].push(key);
+				addRelatedItem(key, value.data);
 			} else {
 				adapted.item[key] = null;
 			}
 		});
 	}
-	if (included) {
-		included.forEach((item) => {
-			if (!typeFieldMap[item.type]) {
-				return;
-			}
-			const relatedItem = adaptItemResponse({ data: item }).item;
-			typeFieldMap[item.type].forEach((fieldKey) => {
-				if (!adapted.relatedItems[fieldKey]) {
-					adapted.relatedItems[fieldKey] = {};
-				}
-				adapted.relatedItems[fieldKey][item.id] = relatedItem;
-			});
-		});
-	}
+
 	return adapted;
 }
 

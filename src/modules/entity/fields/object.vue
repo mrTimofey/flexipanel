@@ -7,7 +7,7 @@
 			:key="k"
 			:is="fieldComponent(field.type)"
 			v-bind="field.props"
-			:field-key="field.key"
+			:field-key="`${fieldKey}.${k}`"
 			:entity-item="entityItem"
 			:related-items="relatedItems"
 			:model-value="modelValue && modelValue[k] !== undefined ? modelValue[k] : null"

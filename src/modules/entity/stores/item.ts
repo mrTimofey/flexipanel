@@ -31,10 +31,26 @@ export default class EntityItemStore extends EntityBaseStore<IState> {
 			return {};
 		}
 		const item: DetailedItem = {};
-		this.entity?.form.fields.forEach((field) => {
+		this.entity.form.fields.forEach((field) => {
 			item[field.key] = Object.prototype.hasOwnProperty.call(values, field.key) ? values[field.key] : null;
 		});
 		return item;
+	}
+
+	protected inlineRelatedItems(item: Record<string, unknown>): void {
+		if (!this.entity?.form.fields) {
+			return;
+		}
+		this.entity.form.fields
+			.filter(({ inlineRelated }) => inlineRelated)
+			.forEach((field) => {
+				const value = item[field.key];
+				if (Array.isArray(value)) {
+					item[field.key] = value.map((id) => this.relatedItems[field.key][id]);
+				} else {
+					item[field.key] = this.relatedItems[field.key][`${value}`];
+				}
+			});
 	}
 
 	async reloadOriginalItem(): Promise<void> {
@@ -46,8 +62,9 @@ export default class EntityItemStore extends EntityBaseStore<IState> {
 		try {
 			const adapter = await this.getAdapter();
 			const { item, relatedItems } = await adapter.getItem(this.entity.apiEndpoint, { id: this.itemId });
-			this.state.originalItem = item;
 			this.state.relatedItems = relatedItems;
+			this.inlineRelatedItems(item);
+			this.state.originalItem = item;
 		} finally {
 			this.state.loading = false;
 		}
@@ -81,9 +98,10 @@ export default class EntityItemStore extends EntityBaseStore<IState> {
 		try {
 			const adapter = await this.getAdapter();
 			const { item, relatedItems } = await adapter.saveItem(this.entity.apiEndpoint, this.createItem(this.formItem), this.itemId);
+			this.state.relatedItems = relatedItems;
+			this.inlineRelatedItems(item);
 			Object.assign(this.originalItem, item);
 			Object.assign(this.formItem, item);
-			this.state.relatedItems = relatedItems;
 			this.itemIdInternal = `${item[this.entity.itemUrlKey]}`;
 		} catch (err) {
 			if (err instanceof ValidationError) {

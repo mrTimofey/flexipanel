@@ -8,6 +8,9 @@
 				component(
 					:is="fieldComponent(type)"
 					v-bind="props"
+					:entity-item="entityItem"
+					:related-items="relatedItems"
+					:field-key="fieldKey"
 					:model-value="modelValue && modelValue[num - 1] || null"
 					:disabled="disabled"
 					@update:model-value="updateItem(num - 1, $event)"
@@ -47,9 +50,21 @@ export default defineComponent({
 			type: Array as PropType<unknown[]>,
 			default: () => [],
 		},
+		fieldKey: {
+			type: String,
+			default: '',
+		},
 		disabled: {
 			type: Boolean,
 			default: false,
+		},
+		relatedItems: {
+			type: Object as PropType<Record<string, Record<string, Record<string, unknown>>>>,
+			default: () => ({}),
+		},
+		entityItem: {
+			type: Object,
+			default: null,
 		},
 		type: {
 			type: String,
