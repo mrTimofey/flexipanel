@@ -25,17 +25,26 @@
 			@click.prevent="selecting = true"
 		)
 			.px-1.text-muted(v-if="modelValueArray.length === 0") {{ placeholder || trans('nothingSelected') }}
-			ol.list-unstyled.m-0(v-else :class="multiple ? 'd-flex' : ''")
-				li.ps-1.me-1.d-flex(
-					v-for="(item, i) in modelValueArray" style="--bs-bg-opacity:0.25"
-					:class="multiple ? 'bg-secondary rounded' : ''"
+			draggable-group.list-unstyled.m-0.d-flex(
+				v-else-if="multiple"
+				tag="ul"
+				v-model="modelValueArray"
+				:item-key="getModelItemKey"
+			)
+				template(#item="{ element, index }")
+					li.ps-1.me-1.d-flex.bg-secondary.rounded(style="--bs-bg-opacity:0.25;cursor:move")
+						.me-1 {{ getDisplayValue(element) }}
+						!=' '
+						button.btn-entity-item-remove.rounded(
+							type="button"
+							@click.prevent.stop="removeItem(index)"
+						)
+			.ps-1.me-2.d-flex(v-else)
+				span.flex-grow-1 {{ getDisplayValue(modelValueArray[0]) }}
+				button.btn-entity-item-remove.rounded(
+					type="button"
+					@click.prevent.stop="removeItem(0)"
 				)
-					.me-1.flex-grow-1 {{ getDisplayValue(item) }}
-					!=' '
-					button.btn-entity-item-remove.rounded(
-						type="button"
-						@click.prevent.stop="removeItem(i)"
-					)
 			span.dropdown-toggle
 		.entity-select-dropdown.bg-light.rounded-bottom.pt-2(
 			v-show="selecting"
@@ -69,6 +78,7 @@
 <script lang="ts">
 import type { PropType } from '@vue/runtime-core';
 import { defineComponent, ref, computed, reactive } from '@vue/runtime-core';
+import DraggableGroup from 'vuedraggable';
 import { useTemplate, useTranslator } from '../../vue-composition-utils';
 import EntityView from '../entity-view.vue';
 import EntityItem from '../entity-item.vue';
@@ -76,7 +86,7 @@ import ModalDialog from '../../modal/modal.vue';
 import clickOutside from '../../click-outside';
 
 export default defineComponent({
-	components: { EntityView, ModalDialog, EntityItem },
+	components: { EntityView, ModalDialog, EntityItem, DraggableGroup },
 	directives: { clickOutside },
 	props: {
 		modelValue: {
@@ -119,6 +129,10 @@ export default defineComponent({
 			type: Boolean,
 			default: false,
 		},
+		idField: {
+			type: String,
+			default: '',
+		},
 	},
 	emits: ['update:modelValue'],
 	setup(props, { emit }) {
@@ -129,11 +143,16 @@ export default defineComponent({
 		const sort = ref<Record<string, unknown>>({});
 		const selecting = ref(false);
 		const creating = ref(false);
-		const modelValueArray = computed<unknown[]>(() => {
-			if (Array.isArray(props.modelValue)) {
-				return props.modelValue;
-			}
-			return props.modelValue == null ? [] : [props.modelValue];
+		const modelValueArray = computed<unknown[]>({
+			get() {
+				if (Array.isArray(props.modelValue)) {
+					return props.modelValue;
+				}
+				return props.modelValue == null ? [] : [props.modelValue];
+			},
+			set(newValue) {
+				emit('update:modelValue', newValue);
+			},
 		});
 		const internalRelatedItems = reactive<Map<unknown, unknown>>(new Map());
 
@@ -153,6 +172,7 @@ export default defineComponent({
 			newValue.splice(i, 1);
 			emitValue(newValue);
 		};
+
 		const addItem = (e: { id: string; item: Record<string, unknown> }) => {
 			if (!props.multiple) {
 				selecting.value = false;
@@ -200,6 +220,9 @@ export default defineComponent({
 					value,
 					item: props.relatedItems[props.fieldKey]?.[valueString] || internalRelatedItems.get(value) || {},
 				});
+			},
+			getModelItemKey(value: unknown) {
+				return `${value}`;
 			},
 		};
 	},
