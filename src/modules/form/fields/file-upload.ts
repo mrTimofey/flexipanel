@@ -1,5 +1,5 @@
 import { computed, ref } from '@vue/reactivity';
-import type { SetupContext } from '@vue/runtime-core';
+import type { PropType, SetupContext } from '@vue/runtime-core';
 import { defineComponent } from '@vue/runtime-core';
 import HttpClient from '../../http';
 import NotificationManager from '../../notification';
@@ -104,6 +104,10 @@ export default defineComponent({
 		urlTemplate: {
 			type: String,
 			default: '/storage/uploads/{{=it}}',
+		},
+		errors: {
+			type: Array as PropType<string[]>,
+			default: null,
 		},
 	},
 	emits: ['update:modelValue'],

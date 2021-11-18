@@ -12,7 +12,10 @@
 	.form-field-inline-svg-label
 		slot(name="label")
 	.btn-group.btn-group-sm.my-1
-		label.btn.btn-outline-primary(:disabled="disabled")
+		label.btn(
+			:disabled="disabled"
+			:class="errors ? 'btn-outline-danger' : 'btn-outline-primary'"
+		)
 			input(
 				type="file"
 				style="display:none"
@@ -23,8 +26,9 @@
 			i.fa-solid.fa-file
 			!=' '
 			span.ps-1 {{ trans('svgFile') }}
-		button.btn.btn-outline-primary(
+		button.btn(
 			type="button"
+			:class="errors ? 'btn-outline-danger' : 'btn-outline-primary'"
 			@click.prevent="openEditCodeModal()"
 		)
 			i.fa-solid.fa-pencil
@@ -38,9 +42,13 @@
 			i.fa-solid.fa-trash
 	.form-field-inline-svg-contents.d-flex(v-if="modelValue")
 		.p-1.border.rounded(v-html="modelValue")
+	.text-danger(v-if="errors && errors.length")
+		div(v-for="err in errors")
+			small {{ err }}
 </template>
 
 <script lang="ts">
+import type { PropType } from '@vue/runtime-core';
 import { defineComponent, ref, computed } from '@vue/runtime-core';
 import { useTranslator } from '../../vue-composition-utils';
 import type { IModalAction } from '../../modal/modal.vue';
@@ -57,6 +65,10 @@ export default defineComponent({
 		disabled: {
 			type: Boolean,
 			default: false,
+		},
+		errors: {
+			type: Array as PropType<string[]>,
+			default: null,
 		},
 	},
 	emits: ['update:modelValue'],

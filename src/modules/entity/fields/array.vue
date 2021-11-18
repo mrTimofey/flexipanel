@@ -2,7 +2,7 @@
 .form-field-array
 	.form-field-array-label
 		slot(name="label")
-	template(v-if="keys && valueLength > 0")
+	.rounded(v-if="keys && valueLength > 0" :class="errors ? 'bg-danger' : ''" style="--bs-bg-opacity:0.25")
 		.d-flex.align-items-center.py-1(v-for="num in valueLength" :key="keys[num - 1]")
 			.flex-grow-1
 				component(
@@ -30,6 +30,9 @@
 	)
 		i.fa-solid.fa-plus
 		!=' {{ addLabel }}'
+	.text-danger(v-if="errors && errors.length")
+		div(v-for="err in errors")
+			small {{ err }}
 </template>
 
 <script lang="ts">
@@ -93,6 +96,10 @@ export default defineComponent({
 		addLabel: {
 			type: String,
 			default: '',
+		},
+		errors: {
+			type: Array as PropType<string[]>,
+			default: null,
 		},
 	},
 	emits: ['update:modelValue'],

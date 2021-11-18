@@ -18,7 +18,7 @@
 		@keypress.escape="selecting = false"
 		@blur="onBlur($event)"
 		tabindex="0"
-		:class="{ selecting }"
+		:class="{ selecting, 'has-errors': !!errors }"
 	)
 		.entity-selection.ps-1.pe-3.py-1(
 			style="font-size:0.875rem"
@@ -73,6 +73,9 @@
 									:checked="modelValueArray.includes(foreignKey ? data.item[foreignKey] : data.id)"
 									@change="toggleItem(data)"
 								)
+	.text-danger(v-if="errors && errors.length")
+		div(v-for="err in errors")
+			small {{ err }}
 </template>
 
 <script lang="ts">
@@ -132,6 +135,10 @@ export default defineComponent({
 		idField: {
 			type: String,
 			default: '',
+		},
+		errors: {
+			type: Array as PropType<string[]>,
+			default: null,
 		},
 	},
 	emits: ['update:modelValue'],
@@ -244,6 +251,8 @@ export default defineComponent({
 	.form-field-entity-wrap.selecting &
 		border-bottom-left-radius 0
 		border-bottom-right-radius 0
+	.form-field-entity-wrap.has-errors &
+		border-color var(--bs-danger)
 .form-field-entity-wrap:focus-within .entity-selection
 	border 1px solid #86b7fe
 .entity-select-dropdown

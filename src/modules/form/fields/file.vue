@@ -11,7 +11,11 @@
 	.form-field-file-actions.btn-group(v-else)
 		.btn.btn-danger(v-if="modelValue" @click="clearValue()" :disabled="disabled")
 			i.fa-solid.fa-trash
-		label.btn.btn-light(v-else :disabled="disabled")
+		label.btn(
+			v-else
+			:disabled="disabled"
+			:class="errors ? 'btn-outline-danger' : 'btn-light'"
+		)
 			input(
 				type="file"
 				style="display:none"
@@ -22,15 +26,22 @@
 			i.fa-solid.fa-upload
 			!=' '
 			| {{ placeholder || trans('chooseFile') }}
-		a.btn.btn-light(
+		a.btn(
 			v-if="modelValue && typeof modelValue === 'string'"
 			target="_blank"
+			:class="errors ? 'btn-outline-danger' : 'btn-light'"
 			:href="fileUrl"
 		)
 			i.fa-solid.fa-download
 			!=' '
 			| {{ valueLabel || modelValue }}
-		.btn.btn-light(v-else-if="modelValue") {{ uploadMessage || trans('uploadMessage') }}
+		.btn(
+			v-else-if="modelValue"
+			:class="errors ? 'btn-outline-danger' : 'btn-light'"
+		) {{ uploadMessage || trans('uploadMessage') }}
+	.text-danger(v-if="errors && errors.length")
+		div(v-for="err in errors")
+			small {{ err }}
 </template>
 
 <script lang="ts">
