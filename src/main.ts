@@ -50,18 +50,3 @@ export default class VueAdminApp {
 		return this;
 	}
 }
-
-export { PublicAuthProvider };
-
-export { default as AppConfig } from './modules/app-config';
-export { default as AuthProvider } from './modules/auth/provider';
-export { default as HttpTokenAuthProvider } from './modules/auth/providers/http-token';
-export { default as EntityManager } from './modules/entity';
-export { default as JsonApiEntityApiAdapter } from './modules/entity/adapters/json-api';
-export { default as HttpClient } from './modules/http';
-export { default as FetchJsonHttpClient } from './modules/http/fetch-json-client';
-export { default as Translator } from './modules/i18n';
-export { default as KeyValueStorage } from './modules/key-value-storage';
-export { default as TemplateEngine } from './modules/template';
-
-export type { default as EntityApiAdapter } from './modules/entity/adapter';

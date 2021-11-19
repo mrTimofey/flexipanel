@@ -1,6 +1,6 @@
 {
   "name": "flexipanel",
-  "version": "0.0.0-dev3",
+  "version": "0.0.0-dev4",
   "author": "Timofey Tiunov <timoxa17@gmail.com>",
   "license": "MIT",
   "homepage": "https://github.com/mrTimofey/flexipanel",
@@ -11,7 +11,7 @@
     "serve": "vite preview",
     "lint": "eslint ./ && vue-tsc --noEmit",
     "test": "echo 'Tests are for the weak'",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run lint"
   },
   "dependencies": {
     "dot": "^2.0.0-beta.1",
@@ -49,14 +49,7 @@
     "npm": ">=8"
   },
   "files": [
-    "dist"
+    "src"
   ],
-  "main": "./dist/flexipanel.umd.js",
-  "module": "./dist/flexipanel.es.js",
-  "exports": {
-    ".": {
-      "import": "./dist/flexipanel.es.js",
-      "require": "./dist/flexipanel.umd.js"
-    }
-  }
+  "main": "src/main.ts"
 }
