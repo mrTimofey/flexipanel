@@ -46,7 +46,7 @@ export default defineComponent({
 					if (!v && props.modelValue) {
 						emit('update:modelValue', null);
 					} else if (v !== props.modelValue) {
-						emit('update:modelValue', v);
+						emit('update:modelValue', v.substr(0, 10));
 					}
 				},
 			}),

@@ -52,8 +52,10 @@ export default defineComponent({
 		return {
 			...useTranslator(),
 			onInput(e: Event) {
-				const { value } = e.target as HTMLInputElement;
-				emit('update:modelValue', value);
+				const value = (e.target as HTMLInputElement).value.trim();
+				if (value !== props.modelValue) {
+					emit('update:modelValue', value);
+				}
 			},
 			length: computed(() => (props.modelValue && props.modelValue.length) || 0),
 		};
