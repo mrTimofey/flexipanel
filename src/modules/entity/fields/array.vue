@@ -3,12 +3,14 @@
 	.form-field-array-label
 		slot(name="label")
 	.rounded(v-if="keys && valueLength > 0" :class="errors ? 'bg-danger' : ''" style="--bs-bg-opacity:0.25")
-		.d-flex.align-items-center.py-1(v-for="num in valueLength" :key="keys[num - 1]")
+		.d-flex.align-items-center.my-1(v-for="num in valueLength" :key="keys[num - 1]")
 			.flex-grow-1
 				component(
 					:is="fieldComponent(type)"
 					v-bind="props"
+					:entity="entity"
 					:entity-item="entityItem"
+					:entity-item-id="entityItemId"
 					:related-items="relatedItems"
 					:field-key="fieldKey"
 					:model-value="modelValue && modelValue[num - 1] || null"
@@ -65,9 +67,17 @@ export default defineComponent({
 			type: Object as PropType<Record<string, Record<string, Record<string, unknown>>>>,
 			default: () => ({}),
 		},
+		entity: {
+			type: String,
+			default: '',
+		},
 		entityItem: {
 			type: Object,
 			default: null,
+		},
+		entityItemId: {
+			type: String,
+			default: '',
 		},
 		type: {
 			type: String,

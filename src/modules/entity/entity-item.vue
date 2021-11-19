@@ -16,10 +16,12 @@
 				:is="fieldComponent(field.type)"
 				:model-value="store.formItem[field.key]"
 				:field-key="field.key"
+				:entity="entity"
 				:entity-item="store.formItem"
+				:entity-item-id="id"
 				:related-items="store.relatedItems"
 				:errors="store.formErrors[field.key]"
-				v-bind="field.props"
+				v-bind="{ ...field.props, ...field[id ? 'updateProps' : 'createProps'] }"
 				@update:model-value="onFieldInput(field.key, $event)"
 			)
 				template(#label) {{ field.label }}

@@ -14,6 +14,10 @@ export interface IField {
 	type?: string;
 	// field component properties (based on type)
 	props?: Record<string, unknown>;
+	// properties for creating only
+	createProps?: Record<string, unknown>;
+	// properties for update only
+	updateProps?: Record<string, unknown>;
 }
 
 export interface IView {
@@ -72,6 +76,8 @@ export const viewDefaults: Partial<IView> = {
 export const fieldDefaults: Partial<IField> = {
 	type: 'text',
 	props: {},
+	createProps: {},
+	updateProps: {},
 	inlineRelated: false,
 };
 

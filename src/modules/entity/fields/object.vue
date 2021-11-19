@@ -8,7 +8,9 @@
 			:is="fieldComponent(field.type)"
 			v-bind="field.props"
 			:field-key="`${fieldKey}.${k}`"
+			:entity="entity"
 			:entity-item="entityItem"
+			:entity-item-id="entityItemId"
 			:related-items="relatedItems"
 			:model-value="modelValue && modelValue[k] !== undefined ? modelValue[k] : null"
 			:disabled="disabled"
@@ -37,9 +39,17 @@ export default defineComponent({
 			type: Object as PropType<Record<string, Record<string, Record<string, unknown>>>>,
 			default: () => ({}),
 		},
+		entity: {
+			type: String,
+			default: '',
+		},
 		entityItem: {
 			type: Object,
 			default: null,
+		},
+		entityItemId: {
+			type: String,
+			default: '',
 		},
 		disabled: {
 			type: Boolean,
