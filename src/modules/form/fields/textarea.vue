@@ -17,7 +17,7 @@
 
 <script lang="ts">
 import type { PropType } from '@vue/runtime-core';
-import { defineComponent } from '@vue/runtime-core';
+import { defineComponent, computed } from '@vue/runtime-core';
 import { useTranslator } from '../../vue-composition-utils';
 
 export default defineComponent({
@@ -55,6 +55,7 @@ export default defineComponent({
 				const { value } = e.target as HTMLInputElement;
 				emit('update:modelValue', value);
 			},
+			length: computed(() => (props.modelValue && props.modelValue.length) || 0),
 		};
 	},
 });
