@@ -2,28 +2,43 @@
 .form-field-array
 	.form-field-array-label
 		slot(name="label")
-	.rounded(v-if="keys && valueLength > 0" :class="errors ? 'bg-danger' : ''" style="--bs-bg-opacity:0.25")
-		.d-flex.align-items-center.my-1(v-for="num in valueLength" :key="keys[num - 1]")
-			.flex-grow-1
-				component(
-					:is="fieldComponent(type)"
-					v-bind="props"
-					:entity="entity"
-					:entity-item="entityItem"
-					:entity-item-id="entityItemId"
-					:related-items="relatedItems"
-					:field-key="fieldKey"
-					:model-value="modelValue && modelValue[num - 1] || null"
-					:disabled="disabled"
-					@update:model-value="updateItem(num - 1, $event)"
+	draggable-group(
+		v-if="keys && valueLength > 0"
+		style="--bs-bg-opacity:0.25"
+		item-key="key"
+		handle="[data-move-handle]"
+		:class="errors ? 'bg-danger' : ''"
+		:model-value="keyedItems"
+		@change="$event.moved && changePosition($event.moved.oldIndex, $event.moved.newIndex)"
+	)
+		template(#item="{ element: { value }, index }")
+			.d-flex.align-items-center.my-1
+				button.btn.btn-light.btn-sm.drag-action.me-1(
+					v-if="valueLength > 1 && !disabled"
+					@click.prevent
+					data-move-handle
 				)
-			.actions.ms-1(v-if="!length && valueLength > min")
-				button.btn.btn-sm.btn-danger(
-					type="button"
-					@click.prevent="removeItem(num - 1)"
-					:disabled="disabled"
-				)
-					i.fa-solid.fa-trash
+					i.fa-solid.fa-arrows-alt-v
+				.flex-grow-1
+					component(
+						:is="fieldComponent(type)"
+						v-bind="props"
+						:entity="entity"
+						:entity-item="entityItem"
+						:entity-item-id="entityItemId"
+						:related-items="relatedItems"
+						:field-key="`${fieldKey}.${index}`"
+						:model-value="value"
+						:disabled="disabled"
+						@update:model-value="updateItem(index, $event)"
+					)
+				.actions.ms-1(v-if="!length && valueLength > min")
+					button.btn.btn-sm.btn-danger(
+						type="button"
+						@click.prevent="removeItem(index)"
+						:disabled="disabled"
+					)
+						i.fa-solid.fa-trash
 	button.btn.btn-sm.btn-primary.mt-1(
 		v-if="!length && valueLength < max"
 		type="button"
@@ -40,6 +55,7 @@
 <script lang="ts">
 import type { PropType } from '@vue/runtime-core';
 import { defineComponent, computed, ref, watch } from '@vue/runtime-core';
+import DraggableGroup from 'vuedraggable';
 import EntityManager from '..';
 import { get } from '../../vue-composition-utils';
 
@@ -50,6 +66,7 @@ function uid() {
 }
 
 export default defineComponent({
+	components: { DraggableGroup },
 	props: {
 		modelValue: {
 			type: Array as PropType<unknown[]>,
@@ -122,6 +139,22 @@ export default defineComponent({
 			}
 			return Math.max(props.modelValue ? props.modelValue.length : 0, props.min);
 		});
+		const items = computed<unknown[]>(() => {
+			if (!props.modelValue) {
+				return Array(valueLength.value).fill(props.defaultItemValue);
+			}
+			const diff = valueLength.value - (props.modelValue?.length || 0);
+			if (diff <= 0) {
+				return props.modelValue;
+			}
+			return [...props.modelValue, ...Array(diff).fill(props.defaultItemValue)];
+		});
+		const keyedItems = computed<{ value: unknown; key: ReturnType<typeof uid> }[]>(() =>
+			items.value.map((value, i) => ({
+				value,
+				key: (keys.value && keys.value[i]) || -1,
+			})),
+		);
 		let internalInput = false;
 
 		watch(
@@ -147,6 +180,7 @@ export default defineComponent({
 		return {
 			keys,
 			valueLength,
+			keyedItems,
 			fieldComponent(type: string) {
 				return entityManager.getFieldType(type)?.component;
 			},
@@ -197,6 +231,19 @@ export default defineComponent({
 				value.splice(i, 1);
 				keys.value = newKeys;
 				emitInternal(value);
+			},
+			changePosition(oldIndex: number, newIndex: number) {
+				if (oldIndex === newIndex) {
+					return;
+				}
+				const newValue = items.value.slice();
+				const newKeys = keys.value?.slice() || [];
+				newValue.splice(oldIndex, 1);
+				newValue.splice(newIndex, 0, items.value[oldIndex]);
+				newKeys.splice(oldIndex, 1);
+				newKeys.splice(newIndex, 0, keys.value?.[oldIndex] || uid());
+				emitInternal(newValue);
+				keys.value = newKeys;
 			},
 		};
 	},
