@@ -1,4 +1,5 @@
 import { createApp } from '@vue/runtime-dom';
+import type { Router, RouteRecordRaw } from 'vue-router';
 import { createRouter, createWebHistory } from 'vue-router';
 import Container from 'mini-ioc';
 import { injectKey } from 'mini-ioc-vue';
@@ -15,6 +16,10 @@ export interface IVueAdminConfig {
 
 export default class VueAdminApp {
 	protected container = new Container();
+	protected router: Router = createRouter({
+		history: createWebHistory(import.meta.env.APP_ROUTES_BASE),
+		routes,
+	});
 
 	constructor() {
 		// set default implementations
@@ -25,8 +30,16 @@ export default class VueAdminApp {
 	}
 
 	/**
+	 * Add route to the app Vue router instance.
+	 * @param route route definition
+	 */
+	addRoute(route: RouteRecordRaw): this {
+		this.router.addRoute(route);
+		return this;
+	}
+
+	/**
 	 * Returns IoC container. This is the entry point for anything you wish to customize.
-	 * @returns container
 	 */
 	getIocContainer(): Container {
 		return this.container;
@@ -35,18 +48,9 @@ export default class VueAdminApp {
 	/**
 	 * Mount administration panel to a DOM element.
 	 * @param target CSS selector or DOM element
-	 * @returns this
 	 */
 	mount(target: string | Element): this {
-		createApp(App)
-			.use(
-				createRouter({
-					history: createWebHistory(import.meta.env.APP_ROUTES_BASE),
-					routes,
-				}),
-			)
-			.provide(injectKey, this.container)
-			.mount(target);
+		createApp(App).use(this.router).provide(injectKey, this.container).mount(target);
 		return this;
 	}
 }
