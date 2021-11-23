@@ -6,6 +6,7 @@
 		:class="{ 'is-invalid': !!errors }"
 		@change="onChange($event)"
 	)
+		option(:selected="modelValue === emptyValue") {{ placeholder }}
 		option(v-for="item in normalizedOptions" :selected="modelValue === item.value") {{ item.label }}
 	.invalid-feedback(v-if="errors && errors.length")
 		div(v-for="err in errors") {{ err }}
@@ -53,6 +54,14 @@ export default defineComponent({
 			type: Array as PropType<string[]>,
 			default: null,
 		},
+		emptyValue: {
+			type: [String, Number, Boolean, Object],
+			default: null,
+		},
+		placeholder: {
+			type: String,
+			default: '',
+		},
 	},
 	emits: ['update:modelValue'],
 	setup(props, { emit }) {
@@ -88,7 +97,7 @@ export default defineComponent({
 			normalizedOptions,
 			onChange(e: Event) {
 				const { selectedIndex } = e.target as HTMLSelectElement;
-				emit('update:modelValue', normalizedOptions.value[selectedIndex].value);
+				emit('update:modelValue', selectedIndex === 0 ? props.emptyValue : normalizedOptions.value[selectedIndex - 1].value);
 			},
 		};
 	},
