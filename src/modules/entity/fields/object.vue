@@ -2,21 +2,22 @@
 .form-field-object(:class="{ inline }")
 	.form-field-object-label
 		slot(name="label")
-	.form-field-object-item(v-for="(field, k) in fields")
-		component(
-			:key="k"
-			:is="fieldComponent(field.type)"
-			v-bind="field.props"
-			:field-key="`${fieldKey}.${k}`"
-			:entity="entity"
-			:entity-item="entityItem"
-			:entity-item-id="entityItemId"
-			:related-items="relatedItems"
-			:model-value="modelValue && modelValue[k] !== undefined ? modelValue[k] : null"
-			:disabled="disabled"
-			@update:model-value="updateItem(k, $event)"
-		)
-			template(#label) {{ field.label }}
+	.form-field-object-fields
+		.form-field-object-item(v-for="(field, k) in fields")
+			component(
+				:key="k"
+				:is="fieldComponent(field.type)"
+				v-bind="field.props"
+				:field-key="`${fieldKey}.${k}`"
+				:entity="entity"
+				:entity-item="entityItem"
+				:entity-item-id="entityItemId"
+				:related-items="relatedItems"
+				:model-value="modelValue && modelValue[k] !== undefined ? modelValue[k] : null"
+				:disabled="disabled"
+				@update:model-value="updateItem(k, $event)"
+			)
+				template(#label) {{ field.label }}
 </template>
 
 <script lang="ts">
@@ -89,10 +90,11 @@ export default defineComponent({
 
 <style lang="stylus" scoped>
 .inline
-	display flex
-	justify-content stretch
-	margin-left -0.25rem
-	padding 0.125rem 0
+	.form-field-object-fields
+		display flex
+		justify-content stretch
+		margin-left -0.25rem
+		padding 0.125rem 0
 	.form-field-object-item
 		flex 1 1 0
 		padding-left 0.25rem
