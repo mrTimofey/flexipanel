@@ -39,12 +39,14 @@
 							type="button"
 							@click.prevent.stop="removeItem(index)"
 						)
+							i.fa-solid.fa-trash
 			.ps-1.me-2.d-flex(v-else)
-				span.flex-grow-1 {{ getDisplayValue(modelValueArray[0]) }}
-				button.btn-entity-item-remove.rounded(
+				span {{ getDisplayValue(modelValueArray[0]) }}
+				button.btn-entity-item-remove.rounded.ms-2(
 					type="button"
 					@click.prevent.stop="removeItem(0)"
 				)
+					i.fa-solid.fa-trash
 			span.dropdown-toggle
 		.entity-select-dropdown.bg-light.rounded-bottom.pt-2(
 			v-show="selecting"
@@ -279,7 +281,9 @@ export default defineComponent({
 	margin auto
 	transform translateY(-50%)
 .btn-entity-item-remove
-	display block
+	display flex
+	align-items center
+	justify-content center
 	width 1.5em
 	position relative
 	background unquote('rgba(var(--bs-danger-rgb), 0.8)')
@@ -289,22 +293,9 @@ export default defineComponent({
 	color white
 	&:hover
 		background var(--bs-danger)
-	&::before, &::after
-		content ''
+	i
 		display block
-		border-top 1px solid
-		border-bottom @border-top
-		border-radius 2px
-		position absolute
-		top 50%
-		right 0.25rem
-		left 0.25rem
-		margin-top -1px
-		backface-visibility hidden
-	&::before
-		transform rotate(45deg)
-	&::after
-		transform rotate(-45deg)
+		font-size 12px
 @keyframes entity-dropdown-appear
 	0%
 		opacity 0
