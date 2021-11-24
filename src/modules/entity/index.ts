@@ -170,6 +170,9 @@ export default class EntityManager {
 		this.registerViewType('list', {
 			component: defineAsyncComponent(() => import('./views/list.vue')),
 		});
+		this.registerViewType('tree', {
+			component: defineAsyncComponent(() => import('./views/tree.vue')),
+		});
 		this.registerDisplayType('text', {
 			component: defineAsyncComponent(() => import('./displays/text.vue')),
 		});

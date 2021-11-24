@@ -6,6 +6,7 @@ import type IAdapter from '../adapter';
 
 interface IJsonApiListResponse {
 	data: IJsonApiItem[];
+	included?: IJsonApiItem[];
 }
 
 interface IJsonApiRelationshipData {
@@ -48,6 +49,37 @@ function createValidationError(data: unknown): ValidationError {
 		fieldErrors[key].push(err.title);
 	});
 	return new ValidationError(fieldErrors);
+}
+
+function adaptListResponse({ data, included }: IJsonApiListResponse): IListData {
+	return {
+		items: data.map((item) => {
+			const adapted: Record<string, unknown> = { id: item.id, ...item.attributes };
+			if (!item.relationships || !included?.length) {
+				return adapted;
+			}
+			Object.entries(item.relationships).forEach(([key, value]) => {
+				if (Array.isArray(value.data)) {
+					const itemValue: Record<string, unknown>[] = [];
+					value.data.forEach((relation) => {
+						const includedItem = included.find(({ type, id }) => id === relation.id && type === relation.type);
+						if (includedItem) {
+							itemValue.push({ id: includedItem.id, ...includedItem.attributes });
+						}
+					});
+					adapted[key] = itemValue;
+				} else if (value.data) {
+					const relation = value.data;
+					const relatedItem = included.find(({ type, id }) => id === relation.id && type === relation.type);
+					adapted[key] = relatedItem ? { id: relatedItem.id, ...relatedItem.attributes } : null;
+				} else {
+					adapted[key] = null;
+				}
+			});
+			return adapted;
+		}),
+		// TODO pagination
+	};
 }
 
 function adaptItemResponse({ data, included }: IJsonApiItemResponse, relatedItems: IItemData['relatedItems'] = {}, path: string[] = []): IItemData {
@@ -112,13 +144,7 @@ export default class JsonApiAdapter implements IAdapter {
 		const { body } = await this.http.get<IJsonApiListResponse>(`${endpoint}${urlParamsString.length > 1 ? urlParamsString : ''}`, {
 			'Content-Type': 'application/vnd.api+json',
 		});
-		return {
-			items: body.data.map((item) => ({
-				id: item.id,
-				...item.attributes,
-			})),
-			// TODO pagination
-		};
+		return adaptListResponse(body);
 	}
 
 	async getItem(endpoint: string, { id }: IItemParams): Promise<IItemData> {
