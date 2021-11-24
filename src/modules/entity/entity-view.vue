@@ -163,7 +163,7 @@ export default defineComponent({
 			() => props.page,
 			(page) => {
 				if (page > 0 && store.page !== page) {
-					store.reload({ page, perPage: store.perPage });
+					store.reload({ page, perPage: store.perPage, filters: props.filters });
 				}
 			},
 		);
@@ -171,7 +171,7 @@ export default defineComponent({
 			() => props.perPage,
 			(perPage) => {
 				if (perPage > 0 && store.perPage !== perPage) {
-					store.reload({ perPage });
+					store.reload({ perPage, filters: props.filters });
 				}
 			},
 		);
@@ -246,6 +246,7 @@ export default defineComponent({
 							store.reload({
 								page: store.page,
 								perPage: store.perPage,
+								filters: props.filters,
 							}),
 						)
 						.catch((err) => {
@@ -268,6 +269,14 @@ export default defineComponent({
 					filters[key] = value;
 				}
 				emit('update:filters', filters);
+			},
+			// external API
+			reload() {
+				store.reload({
+					page: store.page,
+					perPage: store.perPage,
+					filters: props.filters,
+				});
 			},
 		};
 	},

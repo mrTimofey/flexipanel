@@ -212,6 +212,9 @@ export default class EntityManager {
 		this.registerFieldType('entity', {
 			component: defineAsyncComponent(() => import('./fields/entity.vue')),
 		});
+		this.registerFieldType('entity-view', {
+			component: defineAsyncComponent(() => import('./fields/entity-view.vue')),
+		});
 		this.registerFieldType('array', {
 			component: defineAsyncComponent(() => import('./fields/array.vue')),
 		});

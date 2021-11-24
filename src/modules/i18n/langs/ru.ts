@@ -14,6 +14,7 @@ export default {
 	wrongCredentials: 'Неверное имя пользователя или пароль',
 	logout: 'Выйти',
 	createEntityItem: 'Создать элемент',
+	editEntityItem: 'Редактировать элемент',
 	newItem: 'Новый элемент',
 	item: 'Элемент',
 	save: 'Сохранить',

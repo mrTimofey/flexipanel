@@ -14,6 +14,7 @@ export default {
 	wrongCredentials: 'Wrong credentials',
 	logout: 'Log out',
 	createEntityItem: 'Create entity item',
+	editEntityItem: 'Edit entity item',
 	newItem: 'New item',
 	item: 'Item',
 	save: 'Save',

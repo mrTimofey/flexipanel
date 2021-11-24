@@ -13,6 +13,7 @@
 	form.px-3.pb-3(v-else @submit.prevent="saveAndReturn()" :class="{ loading: store.loading }")
 		.entity-form-field.mb-3(v-for="field in entityMeta.form.fields")
 			component(
+				v-if="typeof fixedValues[field.key] === 'undefined'"
 				:is="fieldComponent(field.type)"
 				:model-value="store.formItem[field.key]"
 				:field-key="field.key"
@@ -32,6 +33,7 @@
 </template>
 
 <script lang="ts">
+import type { PropType } from '@vue/runtime-core';
 import { defineComponent, computed, watchEffect, ref } from '@vue/runtime-core';
 import EntityManager from '.';
 import EntityItemStore from './stores/item';
@@ -52,8 +54,12 @@ export default defineComponent({
 			type: String,
 			default: '',
 		},
+		fixedValues: {
+			type: Object as PropType<Record<string, unknown>>,
+			default: () => ({}),
+		},
 	},
-	emits: ['update:id', 'return'],
+	emits: ['update:id', 'return', 'delete', 'change'],
 	setup(props, { emit }) {
 		const entityManager = get(EntityManager);
 		const notifier = get(NotificationManager);
@@ -66,6 +72,9 @@ export default defineComponent({
 		watchEffect(async () => {
 			initializing.value = true;
 			await store.loadEntityItem(entityMeta.value, props.id);
+			Object.entries(props.fixedValues).forEach(([key, value]) => {
+				store.formItem[key] = value;
+			});
 			initializing.value = false;
 		});
 
@@ -105,6 +114,7 @@ export default defineComponent({
 						body: trans('successfullySaved'),
 					});
 				}
+				emit('change');
 				if (props.id !== store.itemId) {
 					emit('update:id', store.itemId);
 				}
@@ -115,6 +125,7 @@ export default defineComponent({
 						type: 'success',
 						body: trans('successfullySaved'),
 					});
+					emit('change');
 					emit('return', { id: store.itemId, item: store.formItem });
 				}
 			},
@@ -128,13 +139,11 @@ export default defineComponent({
 				confirmingDelete.value = true;
 			},
 			async onDeleteConfirm(yes: boolean) {
-				if (!yes || !confirmingDelete.value) {
-					return;
-				}
-				if (await handleErrors(() => store.destroy())) {
+				confirmingDelete.value = false;
+				if (yes && (await handleErrors(() => store.destroy()))) {
+					emit('delete');
 					emit('return');
 				}
-				confirmingDelete.value = false;
 			},
 		};
 	},
