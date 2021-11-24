@@ -7,7 +7,7 @@
 		@close="creating = false"
 	)
 		entity-item(
-			:entity="entity"
+			:entity="relatedEntity"
 			@return="addItem($event)"
 		)
 	.form-field-entity-label
@@ -60,7 +60,7 @@
 						v-if="selecting"
 						no-actions
 						selectable
-						:entity="entity"
+						:entity="relatedEntity"
 						:view="view"
 						v-model:page="page"
 						v-model:perPage="perPage"
@@ -103,6 +103,10 @@ export default defineComponent({
 			default: '',
 		},
 		entity: {
+			type: String,
+			required: true,
+		},
+		relatedEntity: {
 			type: String,
 			required: true,
 		},
@@ -227,7 +231,7 @@ export default defineComponent({
 				const valueString = `${value}`;
 				return tpl(props.displayTemplate, {
 					value,
-					item: props.relatedItems[props.fieldKey]?.[valueString] || internalRelatedItems.get(value) || {},
+					item: props.relatedItems[props.fieldKey.replace(/\.[0-9]+(\.|$)/g, '$1')]?.[valueString] || internalRelatedItems.get(value) || {},
 				});
 			},
 			getModelItemKey(value: unknown) {

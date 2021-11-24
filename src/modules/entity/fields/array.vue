@@ -9,12 +9,13 @@
 		handle="[data-move-handle]"
 		:class="errors ? 'bg-danger' : ''"
 		:model-value="keyedItems"
+		:disabled="!sortable || disabled"
 		@change="$event.moved && changePosition($event.moved.oldIndex, $event.moved.newIndex)"
 	)
 		template(#item="{ element: { value }, index }")
 			.d-flex.align-items-center.my-1
 				button.btn.btn-light.btn-sm.drag-action.me-1(
-					v-if="valueLength > 1 && !disabled"
+					v-if="valueLength > 1 && !disabled && sortable"
 					@click.prevent
 					data-move-handle
 				)
@@ -127,6 +128,10 @@ export default defineComponent({
 		errors: {
 			type: Array as PropType<string[]>,
 			default: null,
+		},
+		sortable: {
+			type: Boolean,
+			default: false,
 		},
 	},
 	emits: ['update:modelValue'],
