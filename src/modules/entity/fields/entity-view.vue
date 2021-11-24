@@ -16,7 +16,7 @@
 		)
 	.form-field-entity-view-label
 		slot(name="label")
-	.form-field-entity-view-content.border.rounded.shadow-sm
+	.form-field-entity-view-content.border.rounded.shadow-sm.pb-1
 		.p-2
 			button.btn.btn-primary.btn-sm(type="button" @click.prevent="editingItem = ''") {{ trans('createEntityItem') }}
 		entity-view(

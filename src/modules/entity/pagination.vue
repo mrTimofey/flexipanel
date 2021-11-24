@@ -46,11 +46,10 @@ nav.pagination-wrapper(:class="{ loading }" v-if="lastPage > 1 || total")
 					span.page-link-text {{ modelValue }} / {{ lastPage }}
 					.spinner.spinner-grow.spinner-grow-sm
 			+nextLink
-	.bg-primary.text-light.px-2.rounded(v-if="total > 0")
+	.bg-primary.text-light.px-2.rounded(v-if="total > 0 && lastPage > 1")
 		| {{ trans('itemsOnPage') }}
 		!=': '
-		span(v-if="lastPage > 1") {{ firstItemNum === lastItemNum ? firstItemNum : `${firstItemNum}-${lastItemNum}` }} / {{ total }}
-		span(v-else) {{ total }}
+		span {{ firstItemNum === lastItemNum ? firstItemNum : `${firstItemNum}-${lastItemNum}` }} / {{ total }}
 </template>
 
 <script lang="ts">

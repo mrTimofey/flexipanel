@@ -50,7 +50,7 @@ template(v-if="entityMeta && viewType")
 								i.fa-solid.fa-pencil
 							button.btn.btn-danger(@click.prevent="confirmAndDelete(item)")
 								i.fa-solid.fa-trash
-			.p-3
+			.p-3(v-if="store.lastPage > 1")
 				page-nav(
 					:model-value="store.page"
 					:last-page="store.lastPage"
