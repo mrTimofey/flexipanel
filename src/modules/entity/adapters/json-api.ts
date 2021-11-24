@@ -89,16 +89,18 @@ function adaptItemResponse({ data, included }: IJsonApiItemResponse, relatedItem
 	};
 
 	function addRelatedItem(key: string, item: { type: string; id: string }) {
-		if (!adapted.relatedItems[key]) {
-			adapted.relatedItems[key] = {};
-		}
-		const includedItem = included?.find((cmp) => cmp.id === item.id && cmp.type === item.type);
-		if (!includedItem) {
+		if (path.length > 3) {
 			return;
 		}
 		const fieldPath = path.map((str) => `${str}.`).join('') + key;
 		if (!adapted.relatedItems[fieldPath]) {
 			adapted.relatedItems[fieldPath] = {};
+		} else if (adapted.relatedItems[fieldPath][item.id]) {
+			return;
+		}
+		const includedItem = included?.find((cmp) => cmp.id === item.id && cmp.type === item.type);
+		if (!includedItem) {
+			return;
 		}
 		adapted.relatedItems[fieldPath][item.id] = adaptItemResponse({ data: includedItem, included }, relatedItems, [...path, key]).item;
 	}
