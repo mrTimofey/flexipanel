@@ -6,7 +6,7 @@
 		v-model="dateValue"
 		:placeholder="placeholder"
 		:disabled="disabled"
-		:class="{ 'is-invalid': !!errors }"
+		:class="{ 'is-invalid': !!errors, empty: !modelValue }"
 	)
 	.invalid-feedback(v-if="errors && errors.length")
 		div(v-for="err in errors") {{ err }}
@@ -54,3 +54,11 @@ export default defineComponent({
 	},
 });
 </script>
+
+<style lang="stylus" scoped>
+input.empty:not(:focus)
+	color transparent
+	&::before
+		color var(--bs-gray-600)
+		content attr(placeholder)
+</style>
