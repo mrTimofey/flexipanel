@@ -16,7 +16,7 @@
 		)
 	.form-field-entity-view-label
 		slot(name="label")
-	.form-field-entity-view-content.border.rounded.shadow-sm.pb-1
+	.form-field-entity-view-content.border.rounded.shadow-sm.pb-1(v-if="entityItemId")
 		.p-2
 			button.btn.btn-primary.btn-sm(type="button" @click.prevent="editingItem = ''") {{ trans('createEntityItem') }}
 		entity-view(
@@ -30,6 +30,8 @@
 			@edit-click="editingItem = $event.id"
 			@item-click="editingItem = $event.id"
 		)
+	.form-field-entity-view-warning.border.rounded.shadow-sm.px-3.py-2(v-else)
+		.fs-5.text-muted {{ trans('createToProceed') }}
 </template>
 
 <script lang="ts">

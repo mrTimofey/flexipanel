@@ -1,4 +1,4 @@
-import type { IRegisteredEntity } from '..';
+import type { IField, IRegisteredEntity } from '..';
 import { ValidationError } from '../adapter';
 import EntityBaseStore from './base';
 
@@ -26,12 +26,19 @@ export default class EntityItemStore extends EntityBaseStore<IState> {
 		};
 	}
 
+	protected get keyedFormFields(): Required<IField>[] {
+		if (!this.entity?.form.fields) {
+			return [];
+		}
+		return this.entity.form.fields.filter((field) => !!field.key) as Required<IField>[];
+	}
+
 	protected createItem(values: Record<string, unknown> = {}): DetailedItem {
 		if (!this.entity?.form.fields) {
 			return {};
 		}
 		const item: DetailedItem = {};
-		this.entity.form.fields.forEach((field) => {
+		this.keyedFormFields.forEach((field) => {
 			item[field.key] = Object.prototype.hasOwnProperty.call(values, field.key) ? values[field.key] : null;
 		});
 		return item;
@@ -41,7 +48,7 @@ export default class EntityItemStore extends EntityBaseStore<IState> {
 		if (!this.entity?.form.fields) {
 			return;
 		}
-		this.entity.form.fields
+		this.keyedFormFields
 			.filter(({ inlineRelated }) => inlineRelated)
 			.forEach((field) => {
 				const value = item[field.key];

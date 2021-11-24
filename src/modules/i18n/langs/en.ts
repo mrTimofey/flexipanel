@@ -30,4 +30,5 @@ export default {
 	successfullySaved: 'Successfully saved',
 	checkValidationErrors: 'Check validation errors',
 	symbolCount: 'Symbol count',
+	createToProceed: 'Create entity item to proceed',
 };

@@ -6,8 +6,8 @@ type PossiblyAsyncComponent = Component | AsyncComponentLoader;
 export interface IField {
 	// human readable field title
 	label?: string;
-	// entity item object property key
-	key: string;
+	// entity item object property key (some fields don't require it)
+	key?: string;
 	// related item object should be used instead of related object id as a value
 	inlineRelated?: boolean;
 	// field type (string, boolean, array...)
@@ -74,6 +74,7 @@ export const viewDefaults: Partial<IView> = {
 };
 
 export const fieldDefaults: Partial<IField> = {
+	key: '',
 	type: 'text',
 	props: {},
 	createProps: {},
@@ -101,7 +102,7 @@ export interface IRegisteredEntity extends Required<IEntityMeta> {
 function fillFields(fields: IField[]) {
 	return fields.slice().map((field) => {
 		const newField = { ...fieldDefaults, ...field };
-		if (!newField.label) {
+		if (newField.key && newField.label == null) {
 			newField.label = newField.key.split(/-_\sA-Z/).join(' ');
 			newField.label = newField.label.substr(0, 1).toUpperCase() + newField.label.substr(1);
 		}

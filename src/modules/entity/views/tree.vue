@@ -15,10 +15,12 @@
 			:loading="false"
 			@item-click="onItemClick($event)"
 		)
-			template(#selection="bindings")
-				slot(name="selection" v-bind="bindings")
-			template(#actions="bindings")
-				slot(name="actions" v-bind="bindings")
+			template(
+				v-for="(_, slot) of slots"
+				#[slot]=`// @ts-ignore
+							scope`
+			)
+				slot(:name="slot" v-bind="scope")
 </template>
 
 <script lang="ts">
@@ -80,7 +82,7 @@ export default defineComponent({
 		},
 	},
 	emits: ['item-click'],
-	setup(props, { emit }) {
+	setup(props, { emit, slots }) {
 		const entityManager = get(EntityManager);
 		const foreignPath = computed<string[]>(() => (Array.isArray(props.itemForeign) ? props.itemForeign : props.itemForeign.split('.')));
 		const currentLevelItems = computed(() =>
@@ -91,6 +93,7 @@ export default defineComponent({
 				  props.items.filter((item) => !deep(item, foreignPath.value)),
 		);
 		return {
+			slots,
 			props,
 			currentLevelItems,
 			displayComponent: computed(() => entityManager.getDisplayType(props.displayType)?.component),

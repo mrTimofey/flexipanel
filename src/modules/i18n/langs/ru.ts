@@ -30,4 +30,5 @@ export default {
 	successfullySaved: 'Успешно сохранено',
 	checkValidationErrors: 'Проверьте правильность заполнения полей',
 	symbolCount: 'Кол-во символов',
+	createToProceed: 'Сохраните элемент, чтобы продолжить',
 };
