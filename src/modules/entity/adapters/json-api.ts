@@ -43,7 +43,7 @@ function createValidationError(data: unknown): ValidationError {
 	const errors: unknown[] = Array.isArray(data) ? data : [data];
 	const fieldErrors: Record<string, string[]> = {};
 	errors.filter(isValidationMessageError).forEach((err) => {
-		const key = err.source.pointer.replace(/^\/data\/attributes\//, '');
+		const key = err.source.pointer.replace(/^\/data\/attributes\//, '').replace(/\//g, '.');
 		if (!fieldErrors[key]) {
 			fieldErrors[key] = [];
 		}
