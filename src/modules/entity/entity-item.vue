@@ -10,22 +10,22 @@
 	) {{ trans('areYouSure') }}?
 	.d-flex.justify-content-center.py-5(v-if="initializing")
 		.spinner.spinner-grow.text-primary
-	form.px-3.pb-3(v-else @submit.prevent="saveAndReturn()" :class="{ loading: store.loading }")
-		.entity-form-field.mb-3(v-for="field in entityMeta.form.fields")
-			component(
-				v-if="typeof fixedValues[field.key] === 'undefined'"
-				:is="fieldComponent(field.type)"
-				:model-value="store.formItem[field.key]"
-				:field-key="field.key"
-				:entity="entity"
-				:entity-item="store.formItem"
-				:entity-item-id="id"
-				:related-items="store.relatedItems"
-				:errors="store.formErrors[field.key]"
-				v-bind="{ ...field.props, ...field[id ? 'updateProps' : 'createProps'] }"
-				@update:model-value="onFieldInput(field.key, $event)"
-			)
-				template(#label) {{ field.label }}
+	form(v-else @submit.prevent="saveAndReturn()" :class="{ loading: store.loading }")
+		template(v-for="field in entityMeta.form.fields")
+			.entity-form-field.mb-3(v-if="typeof fixedValues[field.key] === 'undefined'")
+				component(
+					:is="fieldComponent(field.type)"
+					:model-value="store.formItem[field.key]"
+					:field-key="field.key"
+					:entity="entity"
+					:entity-item="store.formItem"
+					:entity-item-id="id"
+					:related-items="store.relatedItems"
+					:errors="store.formErrors[field.key]"
+					v-bind="{ ...field.props, ...field[id ? 'updateProps' : 'createProps'] }"
+					@update:model-value="onFieldInput(field.key, $event)"
+				)
+					template(#label) {{ field.label }}
 		.btn-group.entity-form-actions
 			button.btn.btn-primary(type="submit") {{ trans('saveAndReturn') }}
 			button.btn.btn-outline-primary(type="button" @click.prevent="save()") {{ trans('save') }}

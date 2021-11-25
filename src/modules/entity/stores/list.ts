@@ -123,8 +123,8 @@ export default class EntityListStore extends EntityBaseStore<IState> {
 		// TODO abilities
 		return {
 			create: !!this.entity?.form.fields.length,
-			edit: true,
-			delete: true,
+			edit: !!this.entity?.form.fields.length,
+			delete: !!this.entity,
 		};
 	}
 }
