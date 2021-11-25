@@ -11,13 +11,14 @@
 	.d-flex.justify-content-center.py-5(v-if="initializing")
 		.spinner.spinner-grow.text-primary
 	form(v-else @submit.prevent="saveAndReturn()" :class="{ loading: store.loading }")
-		slot(name="form" :fields="availableFields" :store="store")
+		slot(name="form" v-bind="{ store, fields: availableFields, fieldComponent: EntityItemFormField }")
 			.entity-form-field.mb-3(v-for="field in availableFields")
 				entity-item-form-field(v-bind="{ field, store }")
-		.btn-group.entity-form-actions
-			button.btn.btn-primary(type="submit") {{ trans('saveAndReturn') }}
-			button.btn.btn-outline-primary(type="button" @click.prevent="save()") {{ trans('save') }}
-			button.btn.btn-outline-danger(v-if="store.itemId" type="button" @click.prevent="confirmAndDelete()") {{ trans('delete') }}
+		slot(name="actions" v-bind="{ save, saveAndReturn, confirmAndDelete }")
+			.btn-group.entity-form-actions
+				button.btn.btn-primary(type="submit") {{ trans('saveAndReturn') }}
+				button.btn.btn-outline-primary(type="button" @click.prevent="save()") {{ trans('save') }}
+				button.btn.btn-outline-danger(v-if="store.itemId" type="button" @click.prevent="confirmAndDelete()") {{ trans('delete') }}
 </template>
 
 <script lang="ts">
@@ -79,6 +80,7 @@ export default defineComponent({
 		};
 
 		return {
+			EntityItemFormField,
 			trans,
 			store,
 			initializing,
