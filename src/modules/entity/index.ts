@@ -39,7 +39,7 @@ export interface IForm {
 	// form fields
 	fields: IField[];
 	// fields layout config
-	layout?: unknown;
+	layout?: PossiblyAsyncComponent;
 }
 
 export interface IEntityMeta {

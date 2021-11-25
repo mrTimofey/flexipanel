@@ -12,8 +12,14 @@
 		.spinner.spinner-grow.text-primary
 	form(v-else @submit.prevent="saveAndReturn()" :class="{ loading: store.loading }")
 		slot(name="form" v-bind="{ store, fields: availableFields, fieldComponent: EntityItemFormField }")
-			.entity-form-field.mb-3(v-for="field in availableFields")
-				entity-item-form-field(v-bind="{ field, store }")
+			component(
+				v-if="entityMeta.form.layout"
+				:is="entityMeta.form.layout"
+				v-bind="{ store, fields: availableFields, fieldComponent: EntityItemFormField }"
+			)
+			template(v-else)
+				.mb-3(v-for="field in availableFields")
+					entity-item-form-field(v-bind="{ field, store }")
 		slot(name="actions" v-bind="{ save, saveAndReturn, confirmAndDelete }")
 			.btn-group.entity-form-actions
 				button.btn.btn-primary(type="submit") {{ trans('saveAndReturn') }}
