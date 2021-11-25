@@ -15,13 +15,13 @@
 			.entity-form-field.mb-3(v-if="typeof fixedValues[field.key] === 'undefined'")
 				component(
 					:is="fieldComponent(field.type)"
-					:model-value="store.formItem[field.key]"
 					:field-key="field.key"
-					:entity="entity"
-					:entity-item="store.formItem"
-					:entity-item-id="id"
-					:related-items="store.relatedItems"
 					:errors="store.formErrors[field.key]"
+					:model-value="store.formItem[field.key]"
+					:entity-meta="store.entityMeta"
+					:entity-item="store.formItem"
+					:entity-item-id="store.itemId"
+					:related-items="store.relatedItems"
 					v-bind="{ ...field.props, ...field[id ? 'updateProps' : 'createProps'] }"
 					@update:model-value="onFieldInput(field.key, $event)"
 				)
@@ -35,6 +35,7 @@
 <script lang="ts">
 import type { PropType } from '@vue/runtime-core';
 import { defineComponent, computed, watchEffect, ref } from '@vue/runtime-core';
+import type { IRegisteredEntity } from '.';
 import EntityManager from '.';
 import EntityItemStore from './stores/item';
 import { get, create, useTranslator } from '../vue-composition-utils';
@@ -46,9 +47,9 @@ import { ValidationError } from './adapter';
 export default defineComponent({
 	components: { ModalDialog },
 	props: {
-		entity: {
-			type: String,
-			required: true,
+		entityMeta: {
+			type: Object as PropType<IRegisteredEntity | null>,
+			default: null,
 		},
 		id: {
 			type: String,
@@ -63,7 +64,6 @@ export default defineComponent({
 	setup(props, { emit }) {
 		const entityManager = get(EntityManager);
 		const notifier = get(NotificationManager);
-		const entityMeta = computed(() => entityManager.getEntity(props.entity));
 		const store = create(EntityItemStore);
 		const initializing = ref(false);
 		const confirmingDelete = ref(false);
@@ -71,7 +71,7 @@ export default defineComponent({
 
 		watchEffect(async () => {
 			initializing.value = true;
-			await store.loadEntityItem(entityMeta.value, props.id);
+			await store.loadEntityItem(props.entityMeta, props.id);
 			Object.entries(props.fixedValues).forEach(([key, value]) => {
 				store.formItem[key] = value;
 			});
@@ -93,7 +93,6 @@ export default defineComponent({
 
 		return {
 			trans,
-			entityMeta,
 			store,
 			initializing,
 			confirmingDelete,

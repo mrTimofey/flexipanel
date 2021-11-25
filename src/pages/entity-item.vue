@@ -7,7 +7,7 @@ page-layout.page-entity-item
 	template(#title) {{ pageTitle }}
 	.px-3.pb-3
 		entity-item(
-			:entity="entity"
+			:entity-meta="entityMeta"
 			v-model:id="routeSyncId"
 			@return="router.back()"
 		)

@@ -6,7 +6,7 @@ page-layout.page-entity-view(v-if="entityMeta")
 	template(#header)
 		button.btn.btn-primary(@click.prevent="goToCreatePage()") {{ entityMeta.createButtonText || trans('createEntityItem') }}
 	entity-view(
-		:entity="entity"
+		:entity-meta="entityMeta"
 		:view="view"
 		v-model:page="page"
 		v-model:per-page="perPage"

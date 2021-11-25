@@ -95,6 +95,7 @@ export interface IFieldType {
 }
 
 export interface IRegisteredEntity extends Required<IEntityMeta> {
+	slug: string;
 	views: Record<string, Required<IView & { filters: Required<IField>[] }>>;
 	form: IForm & { fields: Required<IField>[] };
 }
@@ -117,7 +118,7 @@ export default class EntityManager {
 	protected fieldTypes: Record<string, IFieldType> = {};
 
 	public registerEntity(slug: string, entity: IEntityMeta): this {
-		const entityWithDefaults = { ...entityMetaDefaults, ...entity };
+		const entityWithDefaults = { ...entityMetaDefaults, ...entity, slug };
 		const views = { ...entityWithDefaults.views };
 		Object.entries(entityWithDefaults.views).forEach(([key, view]) => {
 			views[key] = { ...viewDefaults, ...view, filters: view.filters ? fillFields(view.filters) : [] } as Required<IView>;

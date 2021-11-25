@@ -67,6 +67,7 @@ template(v-if="entityMeta && viewType")
 import type { PropType } from '@vue/runtime-core';
 import { defineComponent, computed, watch, ref } from '@vue/runtime-core';
 import { useRouter } from 'vue-router';
+import type { IRegisteredEntity } from '.';
 import EntityManager from '.';
 import type { ListItem } from './stores/list';
 import EntityListStore from './stores/list';
@@ -81,9 +82,9 @@ import NotificationManager from '../notification';
 export default defineComponent({
 	components: { PageNav, FieldSelect, ModalDialog },
 	props: {
-		entity: {
-			type: String,
-			required: true,
+		entityMeta: {
+			type: Object as PropType<IRegisteredEntity | null>,
+			default: null,
 		},
 		view: {
 			type: String,
@@ -125,19 +126,18 @@ export default defineComponent({
 		const notifier = get(NotificationManager);
 		const translator = get(Translator);
 		const router = useRouter();
-		const entityMeta = computed(() => entityManager.getEntity(props.entity));
 		const entityView = computed(() => {
-			if (!entityMeta.value) {
+			if (!props.entityMeta) {
 				return null;
 			}
-			const { views } = entityMeta.value;
+			const { views } = props.entityMeta;
 			return props.view ? views[props.view] : views[Object.keys(views)[0]];
 		});
 		const viewType = computed(() => entityView.value && entityManager.getViewType(entityView.value.type));
 		// TODO skeleton and not found state
 		const viewComponent = computed(() => viewType.value?.component);
 		const realPerPageOptions = computed(() => props.perPageOptions || entityView.value?.perPageOptions || []);
-		const idKey = computed(() => entityMeta.value?.itemUrlKey || 'id');
+		const idKey = computed(() => props.entityMeta?.itemUrlKey || 'id');
 		const confirmDeleteTarget = ref<ListItem | null>(null);
 		const initialLoading = ref(false);
 
@@ -146,7 +146,7 @@ export default defineComponent({
 				return;
 			}
 			initialLoading.value = true;
-			store.setEntity(entityMeta.value);
+			store.setEntity(props.entityMeta);
 			await store.reload({
 				page: props.page > 1 ? props.page : 1,
 				perPage: props.perPage || entityView.value.perPage || 0,
@@ -155,7 +155,10 @@ export default defineComponent({
 			initialLoading.value = false;
 		}
 
-		watch(entityMeta, () => reloadInitialState());
+		watch(
+			() => props.entityMeta,
+			() => reloadInitialState(),
+		);
 		watch(entityView, () => {
 			if (store.perPage !== entityView.value?.perPage && !(entityView.value?.perPageOptions || props.perPageOptions)?.includes(store.perPage)) {
 				reloadInitialState();
@@ -185,7 +188,6 @@ export default defineComponent({
 		);
 		reloadInitialState();
 		return {
-			entityMeta,
 			viewType,
 			viewComponent,
 			entityView,
@@ -214,26 +216,26 @@ export default defineComponent({
 				emit('update:perPage', perPage);
 			},
 			onEditClick(item: ListItem): void {
-				if (!entityMeta.value) {
+				if (!props.entityMeta) {
 					return;
 				}
 				emit('edit-click', { item, id: `${item[idKey.value]}` });
 			},
 			onItemClick(item: ListItem): void {
-				if (!entityMeta.value) {
+				if (!props.entityMeta) {
 					return;
 				}
 				emit('item-click', { item, id: `${item[idKey.value]}` });
 			},
 			itemRoute(item: ListItem): string {
-				if (!entityMeta.value) {
+				if (!props.entityMeta) {
 					return '#';
 				}
 				return router.resolve({
 					name: 'entityItem',
 					params: {
-						entity: props.entity,
-						id: `${item[entityMeta.value.itemUrlKey]}`,
+						entity: props.entityMeta.slug,
+						id: `${item[props.entityMeta.itemUrlKey]}`,
 					},
 				}).href;
 			},

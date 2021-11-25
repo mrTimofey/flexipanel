@@ -7,7 +7,7 @@
 		@close="editingItem = null"
 	)
 		entity-item(
-			:entity="entity"
+			:entity-meta="relatedEntityMeta"
 			:fixed-values="fixedItemValues"
 			v-model:id="editingItem"
 			@return="editingItem = null"
@@ -21,7 +21,7 @@
 			button.btn.btn-primary.btn-sm(type="button" @click.prevent="editingItem = ''") {{ trans('createEntityItem') }}
 		entity-view(
 			ref="entityViewComponent"
-			:entity="entity"
+			:entity-meta="relatedEntityMeta"
 			:view="view"
 			v-model:page="page"
 			v-model:perPage="perPage"
@@ -41,13 +41,14 @@ import EntityView from '../entity-view.vue';
 import EntityItem from '../entity-item.vue';
 import ModalDialog from '../../modal/modal.vue';
 import clickOutside from '../../click-outside';
-import { useTranslator } from '../../vue-composition-utils';
+import { get, useTranslator } from '../../vue-composition-utils';
+import EntityManager from '..';
 
 export default defineComponent({
 	components: { EntityView, ModalDialog, EntityItem },
 	directives: { clickOutside },
 	props: {
-		entity: {
+		relatedEntity: {
 			type: String,
 			default: '',
 		},
@@ -88,9 +89,12 @@ export default defineComponent({
 		const fixedItemValues = computed(() => ({
 			[props.foreignKey]: props.entityItemId,
 		}));
+		const entityManager = get(EntityManager);
+		const relatedEntityMeta = computed(() => entityManager.getEntity(props.relatedEntity));
 
 		return {
 			...useTranslator(),
+			relatedEntityMeta,
 			page,
 			perPage,
 			filters,

@@ -7,7 +7,7 @@
 		@close="creating = false"
 	)
 		entity-item(
-			:entity="relatedEntity"
+			:entity="relatedEntityMeta"
 			@return="addItem($event)"
 		)
 	.form-field-entity-label
@@ -60,7 +60,7 @@
 						v-if="selecting"
 						no-actions
 						selectable
-						:entity="relatedEntity"
+						:entity-meta="relatedEntityMeta"
 						:view="view"
 						v-model:page="page"
 						v-model:perPage="perPage"
@@ -84,11 +84,13 @@
 import type { PropType } from '@vue/runtime-core';
 import { defineComponent, ref, computed, reactive } from '@vue/runtime-core';
 import DraggableGroup from 'vuedraggable';
-import { useTemplate, useTranslator } from '../../vue-composition-utils';
+import { get, useTemplate, useTranslator } from '../../vue-composition-utils';
 import EntityView from '../entity-view.vue';
 import EntityItem from '../entity-item.vue';
 import ModalDialog from '../../modal/modal.vue';
 import clickOutside from '../../click-outside';
+import type { IRegisteredEntity } from '..';
+import EntityManager from '..';
 
 export default defineComponent({
 	components: { EntityView, ModalDialog, EntityItem, DraggableGroup },
@@ -102,9 +104,9 @@ export default defineComponent({
 			type: String,
 			default: '',
 		},
-		entity: {
-			type: String,
-			required: true,
+		entityMeta: {
+			type: Object as PropType<IRegisteredEntity>,
+			default: null,
 		},
 		relatedEntity: {
 			type: String,
@@ -156,6 +158,8 @@ export default defineComponent({
 		const sort = ref<Record<string, unknown>>({});
 		const selecting = ref(false);
 		const creating = ref(false);
+		const entityManager = get(EntityManager);
+		const relatedEntityMeta = computed(() => entityManager.getEntity(props.relatedEntity));
 		const modelValueArray = computed<unknown[]>({
 			get() {
 				if (Array.isArray(props.modelValue)) {
@@ -201,6 +205,7 @@ export default defineComponent({
 
 		return {
 			...useTranslator(),
+			relatedEntityMeta,
 			page,
 			perPage,
 			filters,

@@ -24,7 +24,7 @@
 					component(
 						:is="fieldComponent(type)"
 						v-bind="props"
-						:entity="entity"
+						:entity-meta="entityMeta"
 						:entity-item="entityItem"
 						:entity-item-id="entityItemId"
 						:related-items="relatedItems"
@@ -57,6 +57,7 @@
 import type { PropType } from '@vue/runtime-core';
 import { defineComponent, computed, ref, watch } from '@vue/runtime-core';
 import DraggableGroup from 'vuedraggable';
+import type { IRegisteredEntity } from '..';
 import EntityManager from '..';
 import { get } from '../../vue-composition-utils';
 
@@ -85,9 +86,9 @@ export default defineComponent({
 			type: Object as PropType<Record<string, Record<string, Record<string, unknown>>>>,
 			default: () => ({}),
 		},
-		entity: {
-			type: String,
-			default: '',
+		entityMeta: {
+			type: Object as PropType<IRegisteredEntity>,
+			default: null,
 		},
 		entityItem: {
 			type: Object,

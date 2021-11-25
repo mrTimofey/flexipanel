@@ -37,4 +37,8 @@ export default abstract class EntityBaseStore<T extends object> extends Reactive
 		}
 		return this.ioc.get(await adapters[this.entity.apiType]());
 	}
+
+	get entityMeta() {
+		return this.entity;
+	}
 }
