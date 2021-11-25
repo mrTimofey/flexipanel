@@ -64,6 +64,13 @@ export default defineComponent({
 	},
 	emits: ['update:modelValue'],
 	setup(props, { emit }) {
+		const createEmptyObject = () => {
+			const obj: Record<string, null> = {};
+			Object.keys(props.fields).forEach((k) => {
+				obj[k] = null;
+			});
+			return obj;
+		};
 		return {
 			store: inject(storeInjectKey),
 			getFieldDefinition(key: string): Required<IField> {
@@ -82,7 +89,7 @@ export default defineComponent({
 				if (props.disabled) {
 					return;
 				}
-				emit('update:modelValue', props.modelValue ? { ...props.modelValue, [k]: v } : { [k]: v });
+				emit('update:modelValue', props.modelValue ? { ...props.modelValue, [k]: v } : { ...createEmptyObject(), [k]: v });
 			},
 		};
 	},
