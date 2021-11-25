@@ -159,10 +159,10 @@ export default class JsonApiAdapter implements IAdapter {
 
 	async getList(endpoint: string, params: IListParams): Promise<IListData> {
 		const urlParams: [string, string][] = [];
-		if (params.offset) {
+		if (params.offset && params.offset > 0) {
 			urlParams.push(['page[offset]', params.offset.toString()]);
 		}
-		if (params.limit) {
+		if (params.limit && params.limit > 0) {
 			urlParams.push(['page[limit]', params.limit.toString()]);
 		}
 		if (params.filters) {
