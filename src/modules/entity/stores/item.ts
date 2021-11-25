@@ -135,6 +135,11 @@ export default class EntityItemStore extends EntityBaseStore<IState> {
 		}
 	}
 
+	public updateFormFieldValue(key: string, value: unknown): this {
+		this.formItem[key] = value;
+		return this;
+	}
+
 	get loading(): IState['loading'] {
 		return this.state.loading;
 	}

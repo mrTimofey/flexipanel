@@ -3,31 +3,23 @@
 	.form-field-object-label
 		slot(name="label")
 	.form-field-object-fields
-		.form-field-object-item(v-for="(field, k) in fields")
-			component(
-				:key="k"
-				:is="fieldComponent(field.type)"
-				v-bind="field.props"
-				:field-key="`${fieldKey}.${k}`"
-				:entity-meta="entityMeta"
-				:entity-item="entityItem"
-				:entity-item-id="entityItemId"
-				:related-items="relatedItems"
-				:model-value="modelValue && modelValue[k] !== undefined ? modelValue[k] : null"
-				:disabled="disabled"
-				@update:model-value="updateItem(k, $event)"
+		.form-field-object-item(v-for="(_, k) in fields")
+			entity-item-form-field(
+				v-if="store"
+				:field="getFieldDefinition(k)"
+				:store="store"
+				@change="updateItem(k, $event)"
 			)
-				template(#label) {{ field.label }}
 </template>
 
 <script lang="ts">
 import type { PropType } from '@vue/runtime-core';
-import { defineComponent } from '@vue/runtime-core';
-import type { IRegisteredEntity } from '..';
-import EntityManager from '..';
-import { get } from '../../vue-composition-utils';
+import { inject, defineComponent } from '@vue/runtime-core';
+import type { IField, IRegisteredEntity } from '..';
+import EntityItemFormField, { storeInjectKey } from '../entity-item-form-field.vue';
 
 export default defineComponent({
+	components: { EntityItemFormField },
 	props: {
 		modelValue: {
 			type: Object as PropType<Record<string, unknown> | null>,
@@ -72,11 +64,19 @@ export default defineComponent({
 	},
 	emits: ['update:modelValue'],
 	setup(props, { emit }) {
-		const entityManager = get(EntityManager);
-
 		return {
-			fieldComponent(type: string) {
-				return entityManager.getFieldType(type)?.component;
+			store: inject(storeInjectKey),
+			getFieldDefinition(key: string): Required<IField> {
+				const field = props.fields[key];
+				return {
+					key: `${props.fieldKey}.${key}`,
+					type: (field.type && `${field.type}`) || 'text',
+					label: (field.label && `${field.label}`) || '',
+					inlineRelated: false,
+					createProps: {},
+					updateProps: {},
+					props: { ...field.props, disabled: props.disabled },
+				};
 			},
 			updateItem(k: string, v: unknown) {
 				if (props.disabled) {

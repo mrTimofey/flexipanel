@@ -21,17 +21,11 @@
 				)
 					i.fa-solid.fa-arrows-alt-v
 				.flex-grow-1
-					component(
-						:is="fieldComponent(type)"
-						v-bind="props"
-						:entity-meta="entityMeta"
-						:entity-item="entityItem"
-						:entity-item-id="entityItemId"
-						:related-items="relatedItems"
-						:field-key="`${fieldKey}.${index}`"
-						:model-value="value"
-						:disabled="disabled"
-						@update:model-value="updateItem(index, $event)"
+					entity-item-form-field(
+						v-if="store"
+						:field="getFieldDefinition(index)"
+						:store="store"
+						@change="updateItem(index, $event)"
 					)
 				.actions.ms-1(v-if="!length && valueLength > min")
 					button.btn.btn-sm.btn-danger(
@@ -55,11 +49,10 @@
 
 <script lang="ts">
 import type { PropType } from '@vue/runtime-core';
-import { defineComponent, computed, ref, watch } from '@vue/runtime-core';
+import { inject, defineComponent, computed, ref, watch } from '@vue/runtime-core';
 import DraggableGroup from 'vuedraggable';
-import type { IRegisteredEntity } from '..';
-import EntityManager from '..';
-import { get } from '../../vue-composition-utils';
+import type { IField, IRegisteredEntity } from '..';
+import EntityItemFormField, { storeInjectKey } from '../entity-item-form-field.vue';
 
 let idCounter = 0;
 function uid() {
@@ -68,7 +61,7 @@ function uid() {
 }
 
 export default defineComponent({
-	components: { DraggableGroup },
+	components: { DraggableGroup, EntityItemFormField },
 	props: {
 		modelValue: {
 			type: Array as PropType<unknown[]>,
@@ -137,7 +130,6 @@ export default defineComponent({
 	},
 	emits: ['update:modelValue'],
 	setup(props, { emit }) {
-		const entityManager = get(EntityManager);
 		const keys = ref<number[] | null>(null);
 		const valueLength = computed(() => {
 			if (props.length) {
@@ -187,8 +179,17 @@ export default defineComponent({
 			keys,
 			valueLength,
 			keyedItems,
-			fieldComponent(type: string) {
-				return entityManager.getFieldType(type)?.component;
+			store: inject(storeInjectKey),
+			getFieldDefinition(index: number): Required<IField> {
+				return {
+					type: props.type || 'text',
+					key: `${props.fieldKey}.${index}`,
+					label: '',
+					inlineRelated: false,
+					createProps: {},
+					updateProps: {},
+					props: { ...props.props, disabled: props.disabled },
+				};
 			},
 			updateItem(i: number, v: unknown) {
 				if (props.disabled) {

@@ -13,19 +13,7 @@
 	form(v-else @submit.prevent="saveAndReturn()" :class="{ loading: store.loading }")
 		template(v-for="field in entityMeta.form.fields")
 			.entity-form-field.mb-3(v-if="typeof fixedValues[field.key] === 'undefined'")
-				component(
-					:is="fieldComponent(field.type)"
-					:field-key="field.key"
-					:errors="store.formErrors[field.key]"
-					:model-value="store.formItem[field.key]"
-					:entity-meta="store.entityMeta"
-					:entity-item="store.formItem"
-					:entity-item-id="store.itemId"
-					:related-items="store.relatedItems"
-					v-bind="{ ...field.props, ...field[id ? 'updateProps' : 'createProps'] }"
-					@update:model-value="onFieldInput(field.key, $event)"
-				)
-					template(#label) {{ field.label }}
+				entity-item-form-field(v-bind="{ field, store }")
 		.btn-group.entity-form-actions
 			button.btn.btn-primary(type="submit") {{ trans('saveAndReturn') }}
 			button.btn.btn-outline-primary(type="button" @click.prevent="save()") {{ trans('save') }}
@@ -36,16 +24,16 @@
 import type { PropType } from '@vue/runtime-core';
 import { defineComponent, computed, watchEffect, ref } from '@vue/runtime-core';
 import type { IRegisteredEntity } from '.';
-import EntityManager from '.';
 import EntityItemStore from './stores/item';
 import { get, create, useTranslator } from '../vue-composition-utils';
 import type { IModalAction } from '../modal/modal.vue';
 import ModalDialog from '../modal/modal.vue';
 import NotificationManager from '../notification';
 import { ValidationError } from './adapter';
+import EntityItemFormField from './entity-item-form-field.vue';
 
 export default defineComponent({
-	components: { ModalDialog },
+	components: { ModalDialog, EntityItemFormField },
 	props: {
 		entityMeta: {
 			type: Object as PropType<IRegisteredEntity | null>,
@@ -62,7 +50,6 @@ export default defineComponent({
 	},
 	emits: ['update:id', 'return', 'delete', 'change'],
 	setup(props, { emit }) {
-		const entityManager = get(EntityManager);
 		const notifier = get(NotificationManager);
 		const store = create(EntityItemStore);
 		const initializing = ref(false);
@@ -127,12 +114,6 @@ export default defineComponent({
 					emit('change');
 					emit('return', { id: store.itemId, item: store.formItem });
 				}
-			},
-			fieldComponent(type: string) {
-				return entityManager.getFieldType(type)?.component;
-			},
-			onFieldInput(key: string, value: unknown) {
-				store.formItem[key] = value;
 			},
 			confirmAndDelete() {
 				confirmingDelete.value = true;
