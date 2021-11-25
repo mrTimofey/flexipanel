@@ -31,7 +31,7 @@ function deep(obj: Record<string, unknown>, path: string[]): unknown {
 	for (const prop of path) {
 		current = current[prop] as Record<string, unknown>;
 		if (current == null || typeof current !== 'object') {
-			break;
+			return null;
 		}
 	}
 	return current;
