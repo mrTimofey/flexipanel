@@ -11,8 +11,8 @@
 	.d-flex.justify-content-center.py-5(v-if="initializing")
 		.spinner.spinner-grow.text-primary
 	form(v-else @submit.prevent="saveAndReturn()" :class="{ loading: store.loading }")
-		template(v-for="field in entityMeta.form.fields")
-			.entity-form-field.mb-3(v-if="typeof fixedValues[field.key] === 'undefined'")
+		slot(name="form" :fields="availableFields" :store="store")
+			.entity-form-field.mb-3(v-for="field in availableFields")
 				entity-item-form-field(v-bind="{ field, store }")
 		.btn-group.entity-form-actions
 			button.btn.btn-primary(type="submit") {{ trans('saveAndReturn') }}
@@ -23,7 +23,7 @@
 <script lang="ts">
 import type { PropType } from '@vue/runtime-core';
 import { defineComponent, computed, watchEffect, ref } from '@vue/runtime-core';
-import type { IRegisteredEntity } from '.';
+import type { IField, IRegisteredEntity } from '.';
 import EntityItemStore from './stores/item';
 import { get, create, useTranslator } from '../vue-composition-utils';
 import type { IModalAction } from '../modal/modal.vue';
@@ -83,6 +83,12 @@ export default defineComponent({
 			store,
 			initializing,
 			confirmingDelete,
+			availableFields: computed<Required<IField>[]>(
+				() =>
+					props.entityMeta?.form.fields.filter<Required<IField>>(
+						(field): field is Required<IField> => !field.key || !Object.prototype.hasOwnProperty.call(props.fixedValues, field.key),
+					) || [],
+			),
 			confirmActions: computed<IModalAction[]>(() => [
 				{
 					type: 'danger',
