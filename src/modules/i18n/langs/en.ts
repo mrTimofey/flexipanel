@@ -31,4 +31,5 @@ export default {
 	checkValidationErrors: 'Check validation errors',
 	symbolCount: 'Symbol count',
 	createToProceed: 'Create entity item to proceed',
+	of: 'of',
 };

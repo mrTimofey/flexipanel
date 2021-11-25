@@ -14,12 +14,14 @@ template(v-if="entityMeta && viewType")
 		.flex-grow-0.flex-shrink-0
 			.d-flex.align-items-center.my-2.px-3(v-if="store.hasPagination && realPerPageOptions.length && store.total > 0")
 				span {{ trans('itemsPerPage') }}:
-				field-select.ms-2(
+				field-select.mx-2(
+					required
 					:model-value="store.perPage"
 					:options="realPerPageOptions"
 					:disabled="store.loading"
 					@update:model-value="updatePerPage($event)"
 				)
+				span {{ trans('of') }} {{ store.total }}
 			.px-3.mb-3(v-if="entityView.filters && entityView.filters.length")
 				.row
 					.col(v-for="filter in entityView.filters")
@@ -46,11 +48,11 @@ template(v-if="entityMeta && viewType")
 				template(#actions="{ item }")
 					.d-flex.justify-content-end
 						.btn-group.btn-group-sm
-							a.btn.btn-primary(@click.prevent="onEditClick(item)" :href="itemRoute(item)")
+							a.btn.btn-primary(v-if="store.abilities.edit" @click.prevent="onEditClick(item)" :href="itemRoute(item)")
 								i.fa-solid.fa-pencil
-							button.btn.btn-danger(@click.prevent="confirmAndDelete(item)")
+							button.btn.btn-danger(v-if="store.abilities.delete" @click.prevent="confirmAndDelete(item)")
 								i.fa-solid.fa-trash
-			.p-3(v-if="store.lastPage > 1")
+			.p-3(v-if="store.lastPage > 1 && store.hasPagination")
 				page-nav(
 					:model-value="store.page"
 					:last-page="store.lastPage"

@@ -7,6 +7,7 @@ import type IAdapter from '../adapter';
 interface IJsonApiListResponse {
 	data: IJsonApiItem[];
 	included?: IJsonApiItem[];
+	meta?: Record<string, unknown> & { page?: Record<string, number> };
 }
 
 interface IJsonApiRelationshipData {
@@ -51,8 +52,12 @@ function createValidationError(data: unknown): ValidationError {
 	return new ValidationError(fieldErrors);
 }
 
-function adaptListResponse({ data, included }: IJsonApiListResponse): IListData {
-	return {
+function getFirstNumber(...args: unknown[]): number {
+	return args.find<number>((arg): arg is number => typeof arg === 'number') ?? NaN;
+}
+
+function adaptListResponse({ data, included, meta }: IJsonApiListResponse): IListData {
+	const result: IListData = {
 		items: data.map((item) => {
 			const adapted: Record<string, unknown> = { id: item.id, ...item.attributes };
 			if (!item.relationships || !included?.length) {
@@ -78,8 +83,31 @@ function adaptListResponse({ data, included }: IJsonApiListResponse): IListData 
 			});
 			return adapted;
 		}),
-		// TODO pagination
 	};
+
+	if (!meta) {
+		return result;
+	}
+
+	const total = getFirstNumber(meta.total, meta.totalCount, meta.page?.total, meta.page?.totalCount);
+	if (Number.isNaN(total)) {
+		return result;
+	}
+	result.total = total;
+
+	const offset = getFirstNumber(meta.offset, meta.pageOffset, meta.page?.offset, meta.page?.pageOffset);
+	if (Number.isNaN(offset)) {
+		return result;
+	}
+	result.offset = offset;
+
+	const limit = getFirstNumber(meta.limit, meta.pageLimit, meta.page?.limit, meta.page?.pageLimit);
+	if (Number.isNaN(limit)) {
+		return result;
+	}
+	result.limit = limit;
+
+	return result;
 }
 
 function adaptItemResponse({ data, included }: IJsonApiItemResponse, relatedItems: IItemData['relatedItems'] = {}, path: string[] = []): IItemData {

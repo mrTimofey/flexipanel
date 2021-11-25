@@ -51,7 +51,7 @@ export default class EntityListStore extends EntityBaseStore<IState> {
 			});
 			this.state.list = res.items;
 			this.state.offset = res.offset || -1;
-			this.state.perPage = res.limit || 0;
+			this.state.perPage = res.limit || -1;
 			this.state.page = this.state.perPage > 0 ? Math.ceil(this.state.offset / this.state.perPage) + 1 : 1;
 			this.state.total = res.total || this.state.list.length;
 		} finally {
@@ -117,5 +117,14 @@ export default class EntityListStore extends EntityBaseStore<IState> {
 
 	get hasPagination(): boolean {
 		return this.state.perPage > 0;
+	}
+
+	get abilities(): Record<string, boolean> {
+		// TODO abilities
+		return {
+			create: !!this.entity?.form.fields.length,
+			edit: true,
+			delete: true,
+		};
 	}
 }

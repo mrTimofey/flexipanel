@@ -31,4 +31,5 @@ export default {
 	checkValidationErrors: 'Проверьте правильность заполнения полей',
 	symbolCount: 'Кол-во символов',
 	createToProceed: 'Сохраните элемент, чтобы продолжить',
+	of: 'из',
 };
