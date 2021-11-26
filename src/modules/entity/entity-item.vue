@@ -11,20 +11,20 @@
 	.d-flex.justify-content-center.py-5(v-if="initializing")
 		.spinner.spinner-grow.text-primary
 	form(v-else @submit.prevent="saveAndReturn()" :class="{ loading: store.loading }")
-		slot(name="form" v-bind="{ store, fields: availableFields, fieldComponent: EntityItemFormField }")
-			component(
-				v-if="entityMeta.form.layout"
-				:is="entityMeta.form.layout"
-				v-bind="{ store, fields: availableFields, fieldComponent: EntityItemFormField }"
-			)
-			template(v-else)
-				.mb-3(v-for="field in availableFields")
-					entity-item-form-field(v-bind="{ field, store }")
-		slot(name="actions" v-bind="{ save, saveAndReturn, confirmAndDelete }")
-			.btn-group.entity-form-actions
-				button.btn.btn-primary(type="submit") {{ trans('saveAndReturn') }}
-				button.btn.btn-outline-primary(type="button" @click.prevent="save()") {{ trans('save') }}
-				button.btn.btn-outline-danger(v-if="store.itemId" type="button" @click.prevent="confirmAndDelete()") {{ trans('delete') }}
+		component(
+			:is="entityMeta.form.layout"
+			v-bind="{ store, fields: availableFields, fieldComponent: EntityItemFormField }"
+		)
+			template(#form)
+				slot(name="form" v-bind="{ store, fields: availableFields, fieldComponent: EntityItemFormField }")
+					.mb-3(v-for="field in availableFields")
+						entity-item-form-field(v-bind="{ field, store }")
+			template(#actions)
+				slot(name="actions" v-bind="{ save, saveAndReturn, confirmAndDelete }")
+					.btn-group.entity-form-actions
+						button.btn.btn-primary(type="submit") {{ trans('saveAndReturn') }}
+						button.btn.btn-outline-primary(type="button" @click.prevent="save()") {{ trans('save') }}
+						button.btn.btn-outline-danger(v-if="store.itemId" type="button" @click.prevent="confirmAndDelete()") {{ trans('delete') }}
 </template>
 
 <script lang="ts">

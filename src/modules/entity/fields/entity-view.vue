@@ -18,7 +18,7 @@
 		slot(name="label")
 	.form-field-entity-view-content.border.rounded.shadow-sm.pb-1(v-if="entityItemId")
 		.p-2
-			button.btn.btn-primary.btn-sm(type="button" @click.prevent="editingItem = ''") {{ trans('createEntityItem') }}
+			button.btn.btn-primary.btn-sm(type="button" @click.prevent="editingItem = ''") {{ createButtonText || trans('createEntityItem') }}
 		entity-view(
 			ref="entityViewComponent"
 			:entity-meta="relatedEntityMeta"
@@ -73,6 +73,10 @@ export default defineComponent({
 			default: '',
 		},
 		foreignKey: {
+			type: String,
+			default: '',
+		},
+		createButtonText: {
 			type: String,
 			default: '',
 		},

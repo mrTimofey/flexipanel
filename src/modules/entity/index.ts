@@ -82,6 +82,11 @@ export const fieldDefaults: Partial<IField> = {
 	inlineRelated: false,
 };
 
+export const formDefaults: Partial<IForm> = {
+	layout: defineAsyncComponent(() => import('./forms/simple.vue')),
+	fields: [],
+};
+
 export interface IViewType {
 	component: PossiblyAsyncComponent;
 }
@@ -97,7 +102,7 @@ export interface IFieldType {
 export interface IRegisteredEntity extends Required<IEntityMeta> {
 	slug: string;
 	views: Record<string, Required<IView & { filters: Required<IField>[] }>>;
-	form: IForm & { fields: Required<IField>[] };
+	form: Required<IForm> & { fields: Required<IField>[] };
 }
 
 function fillFields(fields: IField[]) {
@@ -124,11 +129,9 @@ export default class EntityManager {
 			views[key] = { ...viewDefaults, ...view, filters: view.filters ? fillFields(view.filters) : [] } as Required<IView>;
 		});
 		entityWithDefaults.views = views;
-		if (entityWithDefaults.form) {
-			entityWithDefaults.form.fields = fillFields(entityWithDefaults.form.fields);
-		} else {
-			entityWithDefaults.form = { fields: [] };
-		}
+		const form = { ...formDefaults, ...entityWithDefaults.form } as IForm;
+		form.fields = fillFields(form.fields);
+		entityWithDefaults.form = form;
 		this.entities[slug] = entityWithDefaults as IRegisteredEntity;
 		return this;
 	}
