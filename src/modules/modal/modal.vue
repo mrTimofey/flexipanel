@@ -1,7 +1,17 @@
 <template lang="pug">
 teleport(to="body")
-	.modal(style="display:block" @click="onClick")
-		.modal-dialog(:class="{ [`modal-${size}`]: !!size }" @click="markClickAsInside")
+	.modal(
+		style="display:block"
+		@mousedown="onPointerPressStart($event.clientX, $event.clientY, $event)"
+		@touchstart="onPointerPressStart($event.touches[0].clientX, $event.touches[0].clientY, $event)"
+		@mouseup="onPointerPressEnd($event.clientX, $event.clientY)"
+		@touchend="onPointerPressEnd($event.touches[0].clientX, $event.touches[0].clientY)"
+	)
+		.modal-dialog(
+			:class="{ [`modal-${size}`]: !!size }"
+			@mousedown="markPointerEventAsInside($event)"
+			@touchstart="markPointerEventAsInside($event)"
+		)
 			.modal-content
 				slot(name="header")
 					.modal-header(v-if="title")
@@ -23,7 +33,7 @@ import type { PropType } from '@vue/runtime-core';
 import { defineComponent, onMounted, onBeforeUnmount, ref, watch } from '@vue/runtime-core';
 
 const clickInside = Symbol('modalClickInsideMarker');
-type MarkedMouseEvent = MouseEvent & { [clickInside]?: true };
+type MarkedPointerEvent = Event & { [clickInside]?: true };
 
 export type ModalSize = 'sm' | 'lg' | 'xl';
 
@@ -50,6 +60,7 @@ export default defineComponent({
 	emits: ['background-click', 'close-click', 'action-click', 'escape-press', 'close'],
 	setup(props, { emit }) {
 		const firstActionButton = ref<HTMLButtonElement | null>(null);
+		const pointerPosition = { x: -1, y: -1 };
 
 		function onKeyPress(e: KeyboardEvent) {
 			if (e.key === 'Escape' || e.key === 'Esc') {
@@ -70,21 +81,29 @@ export default defineComponent({
 		});
 		return {
 			firstActionButton,
-			markClickAsInside(e: MarkedMouseEvent) {
-				e[clickInside] = true;
-			},
-			onClick(e: MarkedMouseEvent) {
-				if (!e[clickInside]) {
-					emit('background-click');
-					emit('close');
-				}
-			},
 			onCloseClick() {
 				emit('close-click');
 				emit('close');
 			},
 			onActionClick(action: IModalAction, index: number) {
 				emit('action-click', { action, index });
+			},
+			markPointerEventAsInside(e: MarkedPointerEvent) {
+				e[clickInside] = true;
+			},
+			onPointerPressStart(x: number, y: number, e: MarkedPointerEvent) {
+				if (!e[clickInside]) {
+					pointerPosition.x = x;
+					pointerPosition.y = y;
+				}
+			},
+			onPointerPressEnd(x: number, y: number) {
+				if (pointerPosition.x > 0 && Math.abs(pointerPosition.x - x) < 4 && Math.abs(pointerPosition.y - y) < 4) {
+					emit('background-click');
+					emit('close');
+				}
+				pointerPosition.x = -1;
+				pointerPosition.y = -1;
 			},
 		};
 	},
