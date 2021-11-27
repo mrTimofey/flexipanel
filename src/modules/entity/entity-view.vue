@@ -40,8 +40,10 @@ template(v-if="entityMeta && viewType")
 				v-bind="entityView.props"
 				:items="store.items"
 				:loading="store.loading"
+				:loading-items="store.loadingItems"
 				:no-actions="noActions"
 				@item-click="onItemClick($event)"
+				@item-input="onItemInput($event)"
 			)
 				template(#selection="{ item }")
 					slot(name="selection" :item="item" :id="item[idKey]")
@@ -281,6 +283,9 @@ export default defineComponent({
 					perPage: store.perPage,
 					filters: props.filters,
 				});
+			},
+			onItemInput({ item, values }: { item: Record<string, unknown>; values: Record<string, unknown> }) {
+				store.patchItem(item, values);
 			},
 		};
 	},
