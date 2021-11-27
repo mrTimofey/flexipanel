@@ -10,7 +10,11 @@
 			tr(v-for="item in items" :class="{ 'row-loading': loadingItems.has(item) }")
 				td(v-if="selectable")
 					slot(name="selection" :item="item")
-				td.cell-display(v-for="col in columns" @click.prevent="col.type !== 'field' && onItemClick(item)")
+				td.cell-display(
+					v-for="col in columns"
+					@click.prevent="col.type !== 'field' && onItemClick(item)"
+					:class="{ 'p-1': col.type === 'field' }"
+				)
 					component(
 						:is="displayComponent(col.type || defaultDisplayType)"
 						v-bind="displayProps(item, col)"
