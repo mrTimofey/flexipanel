@@ -2,9 +2,9 @@
 page-layout.page-entity-view(v-if="entityMeta")
 	template(#breadcrumbs)
 		li.breadcrumb-item {{ pageTitle }}
-	template(#title) {{ pageTitle }}
-	template(#header)
-		button.btn.btn-primary(@click.prevent="goToCreatePage()") {{ entityMeta.createButtonText || trans('createEntityItem') }}
+	.p-3.d-flex.align-items-center
+		h1.m-0.fs-3.flex-grow-1 {{ pageTitle }}
+		button.btn.btn-sm.btn-primary(@click.prevent="goToCreatePage()") {{ entityMeta.createButtonText || trans('createEntityItem') }}
 	entity-view(
 		:entity-meta="entityMeta"
 		:view="view"

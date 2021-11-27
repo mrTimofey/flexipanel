@@ -4,8 +4,7 @@ page-layout.page-entity-item
 		li.breadcrumb-item
 			router-link(:to="{ name: 'entityView', params: { entity } }") {{ entityTitle }}
 		li.breadcrumb-item {{ pageTitle }}
-	template(#title) {{ pageTitle }}
-	.px-3.pb-3
+	.p-3
 		entity-item(
 			:entity-meta="entityMeta"
 			v-model:id="routeSyncId"
