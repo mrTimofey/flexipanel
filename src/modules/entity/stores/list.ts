@@ -1,4 +1,5 @@
 import type { IRegisteredEntity } from '..';
+import type IAdapter from '../adapter';
 import adapters from '../adapters';
 import EntityBaseStore from './base';
 
@@ -7,6 +8,7 @@ export type ListItem = Record<string, unknown>;
 export interface IState {
 	loading: boolean;
 	list: ListItem[];
+	loadingItems: Set<ListItem>;
 	total: number;
 	perPage: number;
 	offset: number;
@@ -25,12 +27,30 @@ export default class EntityListStore extends EntityBaseStore<IState> {
 	protected getInitialState(): IState {
 		return {
 			loading: false,
+			loadingItems: new Set(),
 			list: [],
 			total: -1,
 			perPage: 0,
 			offset: -1,
 			page: 1,
 		};
+	}
+
+	protected async itemAction(item: ListItem, fn: (args: { entity: IRegisteredEntity; adapter: IAdapter; itemKey: string }) => Promise<unknown>) {
+		if (!this.entity) {
+			return;
+		}
+		const itemKey = (item as unknown as Record<string, string>)[this.entity.itemUrlKey];
+		if (!itemKey) {
+			return;
+		}
+		this.state.loadingItems.add(item);
+		try {
+			const adapter = await this.getAdapter();
+			await fn({ entity: this.entity, adapter, itemKey });
+		} finally {
+			this.state.loadingItems.delete(item);
+		}
 	}
 
 	public async reload({ page = 1, perPage, filters }: IApiOptions = {}): Promise<void> {
@@ -59,21 +79,12 @@ export default class EntityListStore extends EntityBaseStore<IState> {
 		}
 	}
 
+	public patchItem(item: ListItem, newValues: Record<string, unknown>) {
+		return this.itemAction(item, ({ entity, adapter, itemKey }) => adapter.saveItem(entity.apiEndpoint, newValues, itemKey));
+	}
+
 	public async deleteItem(item: ListItem): Promise<void> {
-		if (!this.entity) {
-			return;
-		}
-		const itemKey = (item as unknown as Record<string, string>)[this.entity.itemUrlKey];
-		if (!itemKey) {
-			return;
-		}
-		this.state.loading = true;
-		try {
-			const adapter = await this.getAdapter();
-			await adapter.deleteItem(this.entity.apiEndpoint, itemKey);
-		} finally {
-			this.state.loading = false;
-		}
+		return this.itemAction(item, ({ entity, adapter, itemKey }) => adapter.deleteItem(entity.apiEndpoint, itemKey));
 	}
 
 	public setEntity(entity: IRegisteredEntity | null): void {
@@ -126,5 +137,9 @@ export default class EntityListStore extends EntityBaseStore<IState> {
 			edit: !!this.entity?.form.fields.length,
 			delete: !!this.entity,
 		};
+	}
+
+	get loadingItems(): Set<ListItem> {
+		return this.state.loadingItems;
 	}
 }

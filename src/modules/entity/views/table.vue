@@ -7,13 +7,14 @@
 				th(v-for="{ title } in columns") {{ title }}
 				th(v-if="!noActions")
 		tbody
-			tr(v-for="item in items")
+			tr(v-for="item in items" :class="{ 'row-loading': loadingItems.has(item) }")
 				td(v-if="selectable")
 					slot(name="selection" :item="item")
-				td.cell-display(v-for="field in columns" @click.prevent="onItemClick(item)")
+				td.cell-display(v-for="col in columns" @click.prevent="col.type !== 'field' && onItemClick(item)")
 					component(
-						:is="resolveDisplay(field.type || defaultDisplayType)"
-						v-bind="displayProps(item, field)"
+						:is="displayComponent(col.type || defaultDisplayType)"
+						v-bind="displayProps(item, col)"
+						@input="onInput(item, $event)"
 					)
 				td.p-1(v-if="!noActions")
 					slot(name="actions" :item="item")
@@ -28,7 +29,7 @@ import { get } from '../../vue-composition-utils';
 export interface IColumn {
 	title: string;
 	type?: string;
-	[displayProp: string]: unknown;
+	props?: Record<string, unknown>;
 }
 
 export default defineComponent({
@@ -40,6 +41,10 @@ export default defineComponent({
 		loading: {
 			type: Boolean,
 			default: false,
+		},
+		loadingItems: {
+			type: Object as PropType<Set<unknown>>,
+			default: () => new Set(),
 		},
 		columns: {
 			type: Array as PropType<IColumn[]>,
@@ -58,11 +63,11 @@ export default defineComponent({
 			default: false,
 		},
 	},
-	emits: ['item-click'],
+	emits: ['item-click', 'item-input'],
 	setup(props, { emit }) {
 		const entityManager = get(EntityManager);
 		return {
-			resolveDisplay(displayType: string) {
+			displayComponent(displayType: string) {
 				return entityManager.getDisplayType(displayType)?.component;
 			},
 			displayProps(item: Record<string, unknown>, field: IColumn) {
@@ -70,6 +75,9 @@ export default defineComponent({
 			},
 			onItemClick(item: unknown) {
 				emit('item-click', item);
+			},
+			onInput(item: unknown, values: unknown) {
+				emit('item-input', { item, values });
 			},
 		};
 	},
@@ -83,7 +91,7 @@ export default defineComponent({
 	content ''
 	display block
 	position absolute
-	top -0.5rem
+	top 0
 	right 0
 	bottom @top
 	left @right
@@ -92,4 +100,6 @@ export default defineComponent({
 	z-index 5
 .cell-display
 	cursor pointer
+.row-loading
+	opacity 0.2
 </style>
