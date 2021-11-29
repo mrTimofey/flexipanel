@@ -109,7 +109,7 @@ function fillFields(fields: IField[]) {
 	return fields.slice().map((field) => {
 		const newField = { ...fieldDefaults, ...field };
 		if (newField.key && newField.label == null) {
-			newField.label = newField.key.split(/-_\sA-Z/).join(' ');
+			newField.label = newField.key.split(/[-_\s]+/).join(' ');
 			newField.label = newField.label.substr(0, 1).toUpperCase() + newField.label.substr(1);
 		}
 		return newField;
