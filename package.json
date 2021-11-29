@@ -42,7 +42,7 @@
     "vite-plugin-dts": "^0.9.3",
     "vite-plugin-html": "^2.1.0",
     "vue-eslint-parser": "^8.0.1",
-    "vue-tsc": "^0.29.5"
+    "vue-tsc": "^0.29.6"
   },
   "engines": {
     "node": ">=14",
