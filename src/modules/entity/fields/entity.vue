@@ -7,7 +7,7 @@
 		@close="creating = false"
 	)
 		entity-item(
-			:entity="relatedEntityMeta"
+			:entity-meta="relatedEntityMeta"
 			@return="addItem($event)"
 		)
 	.form-field-entity-label
@@ -36,6 +36,7 @@
 						.me-1 {{ getDisplayValue(element) }}
 						!=' '
 						button.btn-entity-item-remove.rounded(
+							v-if="!required || modelValueArray.length > 1"
 							type="button"
 							@click.prevent.stop="removeItem(index)"
 						)
@@ -43,6 +44,7 @@
 			.ps-1.me-2.d-flex(v-else)
 				span {{ getDisplayValue(modelValueArray[0]) }}
 				button.btn-entity-item-remove.rounded.ms-2(
+					v-if="!required"
 					type="button"
 					@click.prevent.stop="removeItem(0)"
 				)
@@ -133,6 +135,10 @@ export default defineComponent({
 			default: '',
 		},
 		multiple: {
+			type: Boolean,
+			default: false,
+		},
+		required: {
 			type: Boolean,
 			default: false,
 		},
@@ -257,6 +263,7 @@ export default defineComponent({
 	font-size 0.875rem
 	border 1px solid var(--bs-gray-400)
 	border-radius 0.25rem
+	background-color white
 	&:hover, .form-field-entity-wrap.selecting &
 		background-color var(--bs-light)
 	.form-field-entity-wrap.selecting &

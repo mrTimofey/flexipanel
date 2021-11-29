@@ -1,8 +1,18 @@
 <template lang="pug">
+mixin addButton(condition)
+	button.btn.btn-sm.btn-primary.mt-1(
+		v-if=`!length && valueLength < max && ${condition}`
+		type="button"
+		:disabled="disabled"
+		@click.prevent="addItem()"
+	)
+		i.fa-solid.fa-plus
+		!=' {{ addButtonLabel }}'
 .form-field-array
 	.form-field-array-label
 		slot(name="label")
-	draggable-group(
+	+addButton('["both", "top"].includes(addButtonPosition)')
+	draggable-group.form-field-array-items(
 		v-if="keys && valueLength > 0"
 		style="--bs-bg-opacity:0.25"
 		item-key="key"
@@ -13,7 +23,10 @@
 		@change="$event.moved && changePosition($event.moved.oldIndex, $event.moved.newIndex)"
 	)
 		template(#item="{ element: { value }, index }")
-			.d-flex.align-items-center.my-1
+			.d-flex.align-items-center.my-1(
+				:style="tpl(itemStyle, value)"
+				:class="tpl(itemClass, value)"
+			)
 				button.btn.btn-light.btn-sm.drag-action.me-1(
 					v-if="valueLength > 1 && !disabled && sortable"
 					@click.prevent
@@ -34,14 +47,7 @@
 						:disabled="disabled"
 					)
 						i.fa-solid.fa-trash
-	button.btn.btn-sm.btn-primary.mt-1(
-		v-if="!length && valueLength < max"
-		type="button"
-		:disabled="disabled"
-		@click.prevent="addItem()"
-	)
-		i.fa-solid.fa-plus
-		!=' {{ addLabel }}'
+	+addButton('["both", "bottom"].includes(addButtonPosition)')
 	.text-danger(v-if="errors && errors.length")
 		div(v-for="err in errors")
 			small {{ err }}
@@ -52,6 +58,7 @@ import type { PropType } from '@vue/runtime-core';
 import { inject, defineComponent, computed, ref, watch } from '@vue/runtime-core';
 import DraggableGroup from 'vuedraggable';
 import type { IField, IRegisteredEntity } from '..';
+import { useTemplate } from '../../vue-composition-utils';
 import EntityItemFormField, { storeInjectKey } from '../entity-item-form-field.vue';
 
 let idCounter = 0;
@@ -115,9 +122,17 @@ export default defineComponent({
 			type: Number,
 			default: Infinity,
 		},
-		addLabel: {
+		addButtonLabel: {
 			type: String,
 			default: '',
+		},
+		addButtonPosition: {
+			type: String as PropType<'top' | 'bottom' | 'both'>,
+			default: 'bottom',
+		},
+		unshift: {
+			type: Boolean,
+			default: false,
 		},
 		errors: {
 			type: Array as PropType<string[]>,
@@ -126,6 +141,14 @@ export default defineComponent({
 		sortable: {
 			type: Boolean,
 			default: false,
+		},
+		itemStyle: {
+			type: String,
+			default: '',
+		},
+		itemClass: {
+			type: String,
+			default: '',
 		},
 	},
 	emits: ['update:modelValue'],
@@ -176,6 +199,7 @@ export default defineComponent({
 		};
 
 		return {
+			...useTemplate(),
 			keys,
 			valueLength,
 			keyedItems,
@@ -221,9 +245,10 @@ export default defineComponent({
 				}
 				const value = props.modelValue ? [...props.modelValue] : [];
 				const newKeys: number[] = keys.value?.slice() || [];
+				const addOp = props.unshift ? 'unshift' : 'push';
 				do {
-					value.push(props.defaultItemValue);
-					newKeys.push(uid());
+					value[addOp](props.defaultItemValue);
+					newKeys[addOp](uid());
 				} while (value.length <= props.min);
 				keys.value = newKeys;
 				emitInternal(value);
