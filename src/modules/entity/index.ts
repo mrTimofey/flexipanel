@@ -193,6 +193,9 @@ export default class EntityManager {
 		this.registerDisplayType('field', {
 			component: defineAsyncComponent(() => import('./displays/field.vue')),
 		});
+		this.registerDisplayType('boolean', {
+			component: defineAsyncComponent(() => import('./displays/boolean.vue')),
+		});
 		this.registerFieldType('text', {
 			component: defineAsyncComponent(() => import('../form/fields/text.vue')),
 		});
