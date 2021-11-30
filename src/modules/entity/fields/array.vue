@@ -1,6 +1,6 @@
 <template lang="pug">
 mixin addButton(condition)
-	button.btn.btn-sm.btn-primary.mt-1(
+	button.btn.btn-sm.btn-primary.my-1.form-field-array-add-button(
 		v-if=`!length && valueLength < max && ${condition}`
 		type="button"
 		:disabled="disabled"
