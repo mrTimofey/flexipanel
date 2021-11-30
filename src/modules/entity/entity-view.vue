@@ -44,6 +44,7 @@ template(v-if="entityMeta && viewType")
 				:no-actions="noActions"
 				@item-click="onItemClick($event)"
 				@item-input="onItemInput($event)"
+				@item-action-click="onItemActionClick($event)"
 			)
 				template(#selection="{ item }")
 					slot(name="selection" :item="item" :id="item[idKey]")
@@ -121,7 +122,7 @@ export default defineComponent({
 			default: () => ({}),
 		},
 	},
-	emits: ['update:page', 'update:perPage', 'update:filters', 'edit-click', 'item-click'],
+	emits: ['update:page', 'update:perPage', 'update:filters', 'edit-click', 'item-click', 'item-action-click'],
 	setup(props, { emit }) {
 		const store = create(EntityListStore);
 		const entityManager = get(EntityManager);
@@ -228,6 +229,9 @@ export default defineComponent({
 					return;
 				}
 				emit('item-click', { item, id: `${item[idKey.value]}` });
+			},
+			onItemActionClick({ action, item }: { action: string; item: ListItem }): void {
+				emit('item-action-click', { action, item, id: `${item[idKey.value]}` });
 			},
 			itemRoute(item: ListItem): string {
 				if (!props.entityMeta) {

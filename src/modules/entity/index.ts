@@ -8,6 +8,8 @@ export interface IField {
 	label?: string;
 	// entity item object property key (some fields don't require it)
 	key?: string;
+	// hidden field will be sent to API but is never shown on forms
+	hidden?: boolean;
 	// related item object should be used instead of related object id as a value
 	inlineRelated?: boolean;
 	// field type (string, boolean, array...)
@@ -80,6 +82,7 @@ export const fieldDefaults: Partial<IField> = {
 	createProps: {},
 	updateProps: {},
 	inlineRelated: false,
+	hidden: false,
 };
 
 export const formDefaults: Partial<IForm> = {

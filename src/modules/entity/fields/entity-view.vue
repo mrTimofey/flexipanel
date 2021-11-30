@@ -4,13 +4,13 @@
 		v-if="editingItem !== null"
 		size="lg"
 		:title="trans(editingItem ? 'editEntityItem' : 'createEntityItem')"
-		@close="editingItem = null"
+		@close="clearEditingItem()"
 	)
 		entity-item(
 			:entity-meta="relatedEntityMeta"
 			:fixed-values="fixedItemValues"
 			v-model:id="editingItem"
-			@return="editingItem = null"
+			@return="clearEditingItem()"
 			@change="reloadView()"
 			@delete="reloadView()"
 		)
@@ -29,6 +29,7 @@
 			v-model:sort="sort"
 			@edit-click="editingItem = $event.id"
 			@item-click="editingItem = $event.id"
+			@item-action-click="onItemActionClick($event)"
 		)
 	.form-field-entity-view-warning.border.rounded.shadow-sm.px-3.py-2(v-else)
 		.fs-5.text-muted {{ trans('createToProceed') }}
@@ -43,6 +44,7 @@ import ModalDialog from '../../modal/modal.vue';
 import clickOutside from '../../click-outside';
 import { get, useTranslator } from '../../vue-composition-utils';
 import EntityManager from '..';
+import type { ListItem } from '../stores/base';
 
 export default defineComponent({
 	components: { EntityView, ModalDialog, EntityItem },
@@ -76,11 +78,16 @@ export default defineComponent({
 			type: String,
 			default: '',
 		},
+		parentForeignKey: {
+			type: String,
+			default: '',
+		},
 		createButtonText: {
 			type: String,
 			default: '',
 		},
 	},
+	emits: ['list-item-action-click'],
 	setup(props) {
 		const entityViewComponent = ref<typeof EntityView | null>(null);
 		const page = ref<number>(1);
@@ -90,9 +97,17 @@ export default defineComponent({
 		});
 		const sort = ref<Record<string, unknown>>({});
 		const editingItem = ref<string | null>(null);
-		const fixedItemValues = computed(() => ({
-			[props.foreignKey]: props.entityItemId,
-		}));
+		// for tree view when creating a child
+		const editingItemParent = ref<string>('');
+		const fixedItemValues = computed(() => {
+			const values = {
+				[props.foreignKey]: props.entityItemId,
+			};
+			if (editingItemParent.value && props.parentForeignKey) {
+				values[props.parentForeignKey] = editingItemParent.value;
+			}
+			return values;
+		});
 		const entityManager = get(EntityManager);
 		const relatedEntityMeta = computed(() => entityManager.getEntity(props.relatedEntity));
 
@@ -108,6 +123,17 @@ export default defineComponent({
 			entityViewComponent,
 			reloadView() {
 				entityViewComponent.value?.reload();
+			},
+			clearEditingItem() {
+				editingItem.value = null;
+				editingItemParent.value = '';
+			},
+			onItemActionClick(event: { action: string; item: ListItem; id: string }) {
+				if (event.action !== 'createChild') {
+					return;
+				}
+				editingItem.value = '';
+				editingItemParent.value = event.id;
 			},
 		};
 	},

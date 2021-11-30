@@ -7,10 +7,16 @@
 					slot(name="selection" :item="item")
 				.item-display.flex-grow-1.px-2.py-1(@click.prevent="onItemClick(item)")
 					component(:is="displayComponent" v-bind="{ ...displayProps, item }")
+				.p-1(v-if="componentDepthLevel < maxLevel")
+					button.btn.btn-sm.btn-outline-primary(type="button" @click="onCreateChildClick(item)")
+						i.fa-solid.fa-plus
+						!=' '
+						| {{ createChildButtonText }}
 				.p-1(v-if="!noActions")
 					slot(name="actions" :item="item")
 		tree-view.ps-4(
 			v-bind="props"
+			:component-depth-level="componentDepthLevel + 1"
 			:parent-id="getParentId(item)"
 			:loading="false"
 			@item-click="onItemClick($event)"
@@ -80,8 +86,21 @@ export default defineComponent({
 			type: [String, Number] as PropType<string | number>,
 			default: null,
 		},
+		maxLevel: {
+			type: Number,
+			default: 0,
+		},
+		createChildButtonText: {
+			type: String,
+			default: '',
+		},
+		// for internal usage only!
+		componentDepthLevel: {
+			type: Number,
+			default: 1,
+		},
 	},
-	emits: ['item-click'],
+	emits: ['item-click', 'item-action-click'],
 	setup(props, { emit, slots }) {
 		const entityManager = get(EntityManager);
 		const foreignPath = computed<string[]>(() => (Array.isArray(props.itemForeign) ? props.itemForeign : props.itemForeign.split('.')));
@@ -102,6 +121,9 @@ export default defineComponent({
 			},
 			getParentId(item: Record<string, unknown>) {
 				return item[props.itemKey] as string | number;
+			},
+			onCreateChildClick(item: unknown) {
+				emit('item-action-click', { action: 'createChild', item });
 			},
 		};
 	},

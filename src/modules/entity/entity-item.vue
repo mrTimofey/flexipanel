@@ -94,7 +94,7 @@ export default defineComponent({
 			availableFields: computed<Required<IField>[]>(
 				() =>
 					props.entityMeta?.form.fields.filter<Required<IField>>(
-						(field): field is Required<IField> => !field.key || !Object.prototype.hasOwnProperty.call(props.fixedValues, field.key),
+						(field): field is Required<IField> => !field.hidden && (!field.key || !Object.prototype.hasOwnProperty.call(props.fixedValues, field.key)),
 					) || [],
 			),
 			confirmActions: computed<IModalAction[]>(() => [
@@ -113,8 +113,8 @@ export default defineComponent({
 						type: 'success',
 						body: trans('successfullySaved'),
 					});
+					emit('change');
 				}
-				emit('change');
 				if (props.id !== store.itemId) {
 					emit('update:id', store.itemId);
 				}
