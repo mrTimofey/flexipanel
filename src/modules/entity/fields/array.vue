@@ -24,8 +24,8 @@ mixin addButton(condition)
 	)
 		template(#item="{ element: { value }, index }")
 			.d-flex.align-items-center.my-1(
-				:style="tpl(itemStyle, value)"
-				:class="tpl(itemClass, value)"
+				:style="tpl(itemStyle, { value, index })"
+				:class="tpl(itemClass, { value, index })"
 			)
 				button.btn.btn-light.btn-sm.drag-action.me-1(
 					v-if="valueLength > 1 && !disabled && sortable"
