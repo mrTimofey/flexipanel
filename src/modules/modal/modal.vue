@@ -17,7 +17,7 @@ teleport(to="body")
 					.modal-header(v-if="title")
 						h5.modal-title {{ title }}
 						button.btn-close(@click="onCloseClick")
-				.modal-body
+				.modal-body(v-bind="$attrs")
 					slot
 				slot(name="footer")
 					.modal-footer(v-if="actions && actions.length")
@@ -35,7 +35,7 @@ import { defineComponent, onMounted, onBeforeUnmount, ref, watch } from '@vue/ru
 const clickInside = Symbol('modalClickInsideMarker');
 type MarkedPointerEvent = Event & { [clickInside]?: true };
 
-export type ModalSize = 'sm' | 'lg' | 'xl';
+export type ModalSize = 'sm' | 'lg' | 'xl' | 'fullscreen';
 
 export interface IModalAction {
 	type: 'primary' | 'secondary' | 'info' | 'warning' | 'danger' | 'light' | 'dark' | 'success';

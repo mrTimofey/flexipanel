@@ -1,28 +1,35 @@
 <template lang="pug">
 .form-field-entity-view
-	modal-dialog(
+	modal-dialog.bg-light(
 		v-if="editingItem !== null"
-		size="lg"
-		:title="trans(editingItem ? 'editEntityItem' : 'createEntityItem')"
+		:size="itemModalSize"
 		@close="clearEditingItem()"
 	)
-		entity-item(
-			:entity-meta="relatedEntityMeta"
-			:fixed-values="fixedItemValues"
-			v-model:id="editingItem"
-			@return="clearEditingItem()"
-			@change="reloadView()"
-			@delete="reloadView()"
-		)
+		template(#header)
+			.modal-header
+				.container.d-flex.align-items-center
+					h5.modal-title {{ trans(editingItem ? 'editEntityItem' : 'createEntityItem') }}
+					button.btn-close(@click="clearEditingItem()")
+		.container.bg-white.shadow-sm.rounded.p-3.my-2
+			entity-item(
+				:entity-meta="relatedEntityMeta"
+				:fixed-values="fixedItemValues"
+				v-model:id="editingItem"
+				@return="clearEditingItem()"
+				@change="reloadView()"
+				@delete="reloadView()"
+			)
 	.form-field-entity-view-label
 		slot(name="label")
-	.form-field-entity-view-content.border.rounded.shadow-sm.pb-1(v-if="entityItemId")
-		.p-2
+	.form-field-entity-view-content.border.rounded.shadow-sm(v-if="entityItemId")
+		.p-2(v-if="!readonly")
 			button.btn.btn-primary.btn-sm(type="button" @click.prevent="editingItem = ''") {{ createButtonText || trans('createEntityItem') }}
 		entity-view(
 			ref="entityViewComponent"
 			:entity-meta="relatedEntityMeta"
 			:view="view"
+			:no-actions="readonly"
+			:per-page-options="perPageOptions"
 			v-model:page="page"
 			v-model:perPage="perPage"
 			v-model:filters="filters"
@@ -40,6 +47,7 @@ import type { PropType } from '@vue/runtime-core';
 import { defineComponent, ref, computed } from '@vue/runtime-core';
 import EntityView from '../entity-view.vue';
 import EntityItem from '../entity-item.vue';
+import type { ModalSize } from '../../modal/modal.vue';
 import ModalDialog from '../../modal/modal.vue';
 import clickOutside from '../../click-outside';
 import { get, useTranslator } from '../../vue-composition-utils';
@@ -70,6 +78,10 @@ export default defineComponent({
 			type: String,
 			default: '',
 		},
+		itemModalSize: {
+			type: String as PropType<ModalSize>,
+			default: 'lg',
+		},
 		fieldKey: {
 			type: String,
 			default: '',
@@ -86,23 +98,35 @@ export default defineComponent({
 			type: String,
 			default: '',
 		},
+		readonly: {
+			type: Boolean,
+			default: false,
+		},
+		perPageOptions: {
+			type: Array as PropType<number[]>,
+			default: null,
+		},
+		idField: {
+			type: String,
+			default: '',
+		},
 	},
-	emits: ['list-item-action-click'],
 	setup(props) {
 		const entityViewComponent = ref<typeof EntityView | null>(null);
 		const page = ref<number>(1);
 		const perPage = ref<number | undefined>(undefined);
 		const filters = ref<Record<string, unknown>>({
-			[props.foreignKey]: props.entityItemId,
+			[props.foreignKey]: props.idField ? props.entityItem[props.idField] : props.entityItemId,
 		});
 		const sort = ref<Record<string, unknown>>({});
 		const editingItem = ref<string | null>(null);
 		// for tree view when creating a child
 		const editingItemParent = ref<string>('');
 		const fixedItemValues = computed(() => {
-			const values = {
-				[props.foreignKey]: props.entityItemId,
-			};
+			const values: Record<string, unknown> = {};
+			if (props.foreignKey && props.entityItemId) {
+				values[props.foreignKey] = props.idField ? props.entityItem[props.idField] : props.entityItemId;
+			}
 			if (editingItemParent.value && props.parentForeignKey) {
 				values[props.parentForeignKey] = editingItemParent.value;
 			}

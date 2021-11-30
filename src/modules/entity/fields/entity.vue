@@ -2,7 +2,7 @@
 .form-field-entity
 	modal-dialog(
 		v-if="creating && allowCreate"
-		size="lg"
+		:size="itemModalSize"
 		:title="trans('createEntityItem')"
 		@close="creating = false"
 	)
@@ -74,7 +74,7 @@
 							label.d-block
 								input.form-check-input(
 									:type="multiple ? 'checkbox' : 'radio'"
-									:checked="modelValueArray.includes(foreignKey ? data.item[foreignKey] : data.id)"
+									:checked="modelValueArray.includes(idField ? data.item[idField] : data.id)"
 									@change="toggleItem(data)"
 								)
 	.text-danger(v-if="errors && errors.length")
@@ -84,11 +84,12 @@
 
 <script lang="ts">
 import type { PropType } from '@vue/runtime-core';
-import { defineComponent, ref, computed, reactive } from '@vue/runtime-core';
+import { defineComponent, ref, computed, reactive, watch } from '@vue/runtime-core';
 import DraggableGroup from 'vuedraggable';
 import { get, useTemplate, useTranslator } from '../../vue-composition-utils';
 import EntityView from '../entity-view.vue';
 import EntityItem from '../entity-item.vue';
+import type { ModalSize } from '../../modal/modal.vue';
 import ModalDialog from '../../modal/modal.vue';
 import clickOutside from '../../click-outside';
 import type { IRegisteredEntity } from '..';
@@ -110,6 +111,10 @@ export default defineComponent({
 			type: Object as PropType<IRegisteredEntity>,
 			default: null,
 		},
+		entityItem: {
+			type: Object,
+			default: null,
+		},
 		relatedEntity: {
 			type: String,
 			required: true,
@@ -122,13 +127,18 @@ export default defineComponent({
 			type: String,
 			default: '',
 		},
-		foreignKey: {
-			type: String,
-			default: '',
+		// { [API filter key (example: 'parent')]: related items path string to acquire value from (example: 'parent.id') }
+		optionsFilter: {
+			type: Object as PropType<Record<string, string>>,
+			default: null,
 		},
 		displayTemplate: {
 			type: String,
 			default: '{{=it.item.label || it.item.name || it.item.title}} [#{{=it.value}}]',
+		},
+		itemModalSize: {
+			type: String as PropType<ModalSize>,
+			default: 'lg',
 		},
 		placeholder: {
 			type: String,
@@ -179,6 +189,35 @@ export default defineComponent({
 		});
 		const internalRelatedItems = reactive<Map<unknown, unknown>>(new Map());
 
+		watch(
+			() => props.optionsFilter,
+			() => {
+				if (!props.optionsFilter) {
+					filters.value = {};
+					return;
+				}
+				const newFilters: Record<string, unknown> = {};
+				Object.entries(props.optionsFilter).forEach(([key, path]) => {
+					const relationPath = path.split('.');
+					const fieldName = relationPath.pop();
+					if (!fieldName) {
+						return;
+					}
+					let obj = props.entityItem;
+					while (relationPath.length && obj) {
+						const relatedField = relationPath.shift() as string;
+						const relatedId = obj[relatedField];
+						obj = props.relatedItems?.[relatedField]?.[relatedId];
+					}
+					if (obj && obj[fieldName]) {
+						newFilters[key] = obj[fieldName];
+					}
+				});
+				filters.value = newFilters;
+			},
+			{ immediate: true },
+		);
+
 		const emitValue = (newValue: unknown[]) => {
 			if (props.multiple) {
 				emit('update:modelValue', newValue);
@@ -201,7 +240,7 @@ export default defineComponent({
 				selecting.value = false;
 			}
 			creating.value = false;
-			const item = props.foreignKey ? e.item[props.foreignKey] : e.id;
+			const item = props.idField ? e.item[props.idField] : e.id;
 			if (modelValueArray.value.includes(item)) {
 				return;
 			}
@@ -228,7 +267,7 @@ export default defineComponent({
 			removeItem,
 			addItem,
 			toggleItem(e: { id: string; item: Record<string, unknown> }) {
-				const index = modelValueArray.value.indexOf(props.foreignKey ? e.item[props.foreignKey] : e.id);
+				const index = modelValueArray.value.indexOf(props.idField ? e.item[props.idField] : e.id);
 				if (index === -1) {
 					addItem(e);
 				} else {

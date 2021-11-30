@@ -80,6 +80,7 @@ export default defineComponent({
 					type: (field.type && `${field.type}`) || 'text',
 					label: (field.label && `${field.label}`) || '',
 					inlineRelated: false,
+					hidden: false,
 					createProps: {},
 					updateProps: {},
 					props: { ...field.props, disabled: props.disabled },
