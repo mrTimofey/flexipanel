@@ -210,6 +210,7 @@ export default defineComponent({
 					key: `${props.fieldKey}.${index}`,
 					label: '',
 					inlineRelated: false,
+					hidden: false,
 					createProps: {},
 					updateProps: {},
 					props: { ...props.props, disabled: props.disabled },
