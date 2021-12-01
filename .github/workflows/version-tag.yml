@@ -21,6 +21,7 @@ jobs:
       - run: npm run lint
       - run: npm test
   tag-package-version:
+    needs: quality-check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
