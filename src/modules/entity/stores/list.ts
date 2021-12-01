@@ -13,6 +13,7 @@ export interface IState {
 	perPage: number;
 	offset: number;
 	page: number;
+	error: Error | null;
 }
 
 export interface IApiOptions {
@@ -33,6 +34,7 @@ export default class EntityListStore extends EntityBaseStore<IState> {
 			perPage: 0,
 			offset: -1,
 			page: 1,
+			error: null,
 		};
 	}
 
@@ -74,6 +76,8 @@ export default class EntityListStore extends EntityBaseStore<IState> {
 			this.state.perPage = res.limit || -1;
 			this.state.page = this.state.perPage > 0 ? Math.ceil(this.state.offset / this.state.perPage) + 1 : 1;
 			this.state.total = res.total || this.state.list.length;
+		} catch (err) {
+			this.state.error = err instanceof Error ? err : new Error(`${err}`);
 		} finally {
 			this.state.loading = false;
 		}
@@ -141,5 +145,9 @@ export default class EntityListStore extends EntityBaseStore<IState> {
 
 	get loadingItems(): Set<ListItem> {
 		return this.state.loadingItems;
+	}
+
+	get error(): Error | null {
+		return this.state.error;
 	}
 }

@@ -74,8 +74,8 @@ export default defineComponent({
 			displayComponent(displayType: string) {
 				return entityManager.getDisplayType(displayType)?.component;
 			},
-			displayProps(item: Record<string, unknown>, field: IColumn) {
-				return { ...field, item, title: undefined, type: undefined };
+			displayProps(item: Record<string, unknown>, col: IColumn) {
+				return { ...col, item, title: undefined, type: undefined };
 			},
 			onItemClick(item: unknown) {
 				emit('item-click', item);

@@ -58,7 +58,7 @@
 				button.btn.btn-primary.btn-sm(type="button" @click.prevent="creating = true") {{ trans('createEntityItem') }}
 			.entity-select-dropdown-content
 				keep-alive
-					entity-view(
+					entity-view.flex-grow-1(
 						v-if="selecting"
 						no-actions
 						selectable
@@ -303,14 +303,14 @@ export default defineComponent({
 	border 1px solid var(--bs-gray-400)
 	border-radius 0.25rem
 	background-color white
-	&:hover, .form-field-entity-wrap.selecting &
+	&:hover, .form-field-entity-wrap.selecting > &
 		background-color var(--bs-light)
-	.form-field-entity-wrap.selecting &
+	.form-field-entity-wrap.selecting > &
 		border-bottom-left-radius 0
 		border-bottom-right-radius 0
-	.form-field-entity-wrap.has-errors &
+	.form-field-entity-wrap.has-errors > &
 		border-color var(--bs-danger)
-.form-field-entity-wrap:focus-within .entity-selection
+.form-field-entity-wrap:focus-within > .entity-selection
 	border 1px solid #86b7fe
 .entity-select-dropdown
 	position absolute
@@ -320,13 +320,14 @@ export default defineComponent({
 	margin-top -1px
 	min-width 280px
 	z-index 5
-	overflow hidden
+	overflow auto
 	animation entity-dropdown-appear 0.1s ease-out
 	border 1px solid #86b7fe
 	border-top none
 .entity-select-dropdown-content
 	display flex
 	justify-content center
+	min-height 240px
 	max-height 480px
 	width 100%
 .dropdown-toggle

@@ -7,13 +7,14 @@
 					slot(name="selection" :item="item")
 				.item-display.flex-grow-1.px-2.py-1(@click.prevent="onItemClick(item)")
 					component(:is="displayComponent" v-bind="{ ...displayProps, item }")
-				.p-1(v-if="componentDepthLevel < maxLevel")
-					button.btn.btn-sm.btn-outline-primary(type="button" @click="onCreateChildClick(item)")
-						i.fa-solid.fa-plus
-						!=' '
-						| {{ createChildButtonText }}
-				.p-1(v-if="!noActions")
-					slot(name="actions" :item="item")
+				template(v-if="!noActions")
+					.p-1(v-if="componentDepthLevel < maxLevel")
+						button.btn.btn-sm.btn-outline-primary(type="button" @click="onCreateChildClick(item)")
+							i.fa-solid.fa-plus
+							!=' '
+							| {{ createChildButtonText }}
+					.p-1
+						slot(name="actions" :item="item")
 		tree-view.ps-4(
 			v-bind="props"
 			:component-depth-level="componentDepthLevel + 1"
