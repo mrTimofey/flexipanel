@@ -50,33 +50,34 @@
 				)
 					i.fa-solid.fa-trash
 			span.dropdown-toggle
-		.entity-select-dropdown.bg-light.rounded-bottom.pt-2(
+		.entity-select-dropdown-wrap(
 			v-show="selecting"
 			v-click-outside="selecting && !creating ? onClickOutsideSelector : null"
 		)
-			.p-2(v-if="allowCreate")
-				button.btn.btn-primary.btn-sm(type="button" @click.prevent="creating = true") {{ trans('createEntityItem') }}
-			.entity-select-dropdown-content
-				keep-alive
-					entity-view.flex-grow-1(
-						v-if="selecting"
-						no-actions
-						selectable
-						:entity-meta="relatedEntityMeta"
-						:view="view"
-						v-model:page="page"
-						v-model:perPage="perPage"
-						v-model:filters="filters"
-						v-model:sort="sort"
-						@item-click="toggleItem($event)"
-					)
-						template(#selection="data")
-							label.d-block
-								input.form-check-input(
-									:type="multiple ? 'checkbox' : 'radio'"
-									:checked="modelValueArray.includes(idField ? data.item[idField] : data.id)"
-									@change="toggleItem(data)"
-								)
+			.entity-select-dropdown.bg-light.rounded-bottom.pt-2.overflow-auto
+				.p-2(v-if="allowCreate")
+					button.btn.btn-primary.btn-sm(type="button" @click.prevent="creating = true") {{ trans('createEntityItem') }}
+				.entity-select-dropdown-content
+					keep-alive
+						entity-view.flex-grow-1(
+							v-if="selecting"
+							no-actions
+							selectable
+							:entity-meta="relatedEntityMeta"
+							:view="view"
+							v-model:page="page"
+							v-model:perPage="perPage"
+							v-model:filters="filters"
+							v-model:sort="sort"
+							@item-click="toggleItem($event)"
+						)
+							template(#selection="data")
+								label.d-block
+									input.form-check-input(
+										:type="multiple ? 'checkbox' : 'radio'"
+										:checked="modelValueArray.includes(idField ? data.item[idField] : data.id)"
+										@change="toggleItem(data)"
+									)
 	.text-danger(v-if="errors && errors.length")
 		div(v-for="err in errors")
 			small {{ err }}
@@ -312,16 +313,20 @@ export default defineComponent({
 		border-color var(--bs-danger)
 .form-field-entity-wrap:focus-within > .entity-selection
 	border 1px solid #86b7fe
-.entity-select-dropdown
+.entity-select-dropdown-wrap
 	position absolute
 	top 100%
 	left 0
 	right 0
 	margin-top -1px
-	min-width 280px
 	z-index 5
-	overflow auto
 	animation entity-dropdown-appear 0.1s ease-out
+	&:after
+		content ''
+		display block
+		height 5rem
+.entity-select-dropdown
+	min-width 280px
 	border 1px solid #86b7fe
 	border-top none
 .entity-select-dropdown-content
