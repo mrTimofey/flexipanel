@@ -14,7 +14,8 @@
 			entity-item(
 				:entity-meta="relatedEntityMeta"
 				:fixed-values="fixedItemValues"
-				v-model:id="editingItem"
+				:id="editingItem.id"
+				@update:id="editingItem = { id: $event }"
 				@return="clearEditingItem()"
 				@change="reloadView()"
 				@delete="reloadView()"
@@ -23,7 +24,7 @@
 		slot(name="label")
 	.form-field-entity-view-content.border.rounded.shadow-sm(v-if="entityItemId")
 		.p-2(v-if="!readonly")
-			button.btn.btn-primary.btn-sm(type="button" @click.prevent="editingItem = ''") {{ createButtonText || trans('createEntityItem') }}
+			button.btn.btn-primary.btn-sm(type="button" @click.prevent="editingItem = { id: '' }") {{ createButtonText || trans('createEntityItem') }}
 		entity-view(
 			ref="entityViewComponent"
 			:entity-meta="relatedEntityMeta"
@@ -34,8 +35,8 @@
 			v-model:perPage="perPage"
 			v-model:filters="filters"
 			v-model:sort="sort"
-			@edit-click="editingItem = $event.id"
-			@item-click="editingItem = $event.id"
+			@edit-click="editingItem = { id: $event.id }"
+			@item-click="editingItem = { id: $event.id }"
 			@item-action-click="onItemActionClick($event)"
 		)
 	.form-field-entity-view-warning.border.rounded.shadow-sm.px-3.py-2(v-else)
@@ -45,6 +46,7 @@
 <script lang="ts">
 import type { PropType } from '@vue/runtime-core';
 import { defineComponent, ref, computed } from '@vue/runtime-core';
+import { useRoute, useRouter } from 'vue-router';
 import EntityView from '../entity-view.vue';
 import EntityItem from '../entity-item.vue';
 import type { ModalSize } from '../../modal/modal.vue';
@@ -53,6 +55,11 @@ import clickOutside from '../../click-outside';
 import { get, useTranslator } from '../../vue-composition-utils';
 import EntityManager from '..';
 import type { ListItem } from '../stores/base';
+
+interface IItemData {
+	id: string;
+	parent?: string;
+}
 
 export default defineComponent({
 	components: { EntityView, ModalDialog, EntityItem },
@@ -86,6 +93,10 @@ export default defineComponent({
 			type: String,
 			default: '',
 		},
+		fieldIndex: {
+			type: Number,
+			default: -1,
+		},
 		foreignKey: {
 			type: String,
 			default: '',
@@ -112,6 +123,8 @@ export default defineComponent({
 		},
 	},
 	setup(props) {
+		const route = useRoute();
+		const router = useRouter();
 		const entityViewComponent = ref<typeof EntityView | null>(null);
 		const page = ref<number>(1);
 		const perPage = ref<number | undefined>(undefined);
@@ -119,16 +132,32 @@ export default defineComponent({
 			[props.foreignKey]: props.idField ? props.entityItem[props.idField] : props.entityItemId,
 		});
 		const sort = ref<Record<string, unknown>>({});
-		const editingItem = ref<string | null>(null);
-		// for tree view when creating a child
-		const editingItemParent = ref<string>('');
+		const queryKey = () => `${props.fieldKey}.${props.relatedEntity}`;
+		const editingItem = computed<IItemData | null>({
+			set(v) {
+				const query = { ...route.query };
+				if (v === null) {
+					delete query[queryKey()];
+				} else {
+					query[queryKey()] = JSON.stringify(v);
+				}
+				router.replace({ ...route, query });
+			},
+			get() {
+				const key = queryKey();
+				if (route.query[key] === undefined) {
+					return null;
+				}
+				return JSON.parse(`${route.query[queryKey()]}`) as IItemData;
+			},
+		});
 		const fixedItemValues = computed(() => {
 			const values: Record<string, unknown> = {};
 			if (props.foreignKey && props.entityItemId) {
 				values[props.foreignKey] = props.idField ? props.entityItem[props.idField] : props.entityItemId;
 			}
-			if (editingItemParent.value && props.parentForeignKey) {
-				values[props.parentForeignKey] = editingItemParent.value;
+			if (editingItem.value?.parent && props.parentForeignKey) {
+				values[props.parentForeignKey] = editingItem.value?.parent;
 			}
 			return values;
 		});
@@ -150,14 +179,15 @@ export default defineComponent({
 			},
 			clearEditingItem() {
 				editingItem.value = null;
-				editingItemParent.value = '';
 			},
 			onItemActionClick(event: { action: string; item: ListItem; id: string }) {
 				if (event.action !== 'createChild') {
 					return;
 				}
-				editingItem.value = '';
-				editingItemParent.value = event.id;
+				editingItem.value = {
+					id: '',
+					parent: event.id,
+				};
 			},
 		};
 	},
