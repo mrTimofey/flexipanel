@@ -54,7 +54,7 @@
 			v-show="selecting"
 			v-click-outside="selecting && !creating ? onClickOutsideSelector : null"
 		)
-			.entity-select-dropdown.bg-light.rounded-bottom.pt-2.overflow-auto
+			.entity-select-dropdown.bg-white.rounded-bottom.shadow.pt-2.overflow-auto
 				.p-2(v-if="allowCreate")
 					button.btn.btn-primary.btn-sm(type="button" @click.prevent="creating = true") {{ trans('createEntityItem') }}
 				.entity-select-dropdown-content
@@ -304,8 +304,6 @@ export default defineComponent({
 	border 1px solid var(--bs-gray-400)
 	border-radius 0.25rem
 	background-color white
-	&:hover, .form-field-entity-wrap.selecting > &
-		background-color var(--bs-light)
 	.form-field-entity-wrap.selecting > &
 		border-bottom-left-radius 0
 		border-bottom-right-radius 0
