@@ -1,6 +1,10 @@
 <template lang="pug">
 .content(v-if="items && items.length" :class="{ loading }")
 	table.table.table-hover.m-0
+		colgroup
+			col(v-if="selectable")
+			col(v-for="{ width } in columns" :style="{ width }")
+			col(v-if="!noActions")
 		thead
 			tr
 				th(v-if="selectable")
@@ -32,6 +36,7 @@ import { get } from '../../vue-composition-utils';
 
 export interface IColumn {
 	title: string;
+	width?: string;
 	type?: string;
 	props?: Record<string, unknown>;
 }
