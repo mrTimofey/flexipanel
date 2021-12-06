@@ -39,7 +39,13 @@ export default class EntityItemStore extends EntityBaseStore<IState> {
 		}
 		const item: DetailedItem = {};
 		this.keyedFormFields.forEach((field) => {
-			item[field.key] = Object.prototype.hasOwnProperty.call(values, field.key) ? values[field.key] : null;
+			if (Object.prototype.hasOwnProperty.call(values, field.key)) {
+				item[field.key] = values[field.key];
+			} else if (Object.prototype.hasOwnProperty.call(field, 'default')) {
+				item[field.key] = field.default;
+			} else {
+				item[field.key] = null;
+			}
 		});
 		return item;
 	}
