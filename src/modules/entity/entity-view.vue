@@ -12,16 +12,18 @@
 		.spinner.spinner-grow.text-primary
 	.d-flex.flex-column.flex-grow-1(v-else-if="viewComponent && entityView")
 		.flex-grow-0.flex-shrink-0
-			.d-flex.align-items-center.my-2.px-3(v-if="store.hasPagination && realPerPageOptions.length && store.total > 0")
-				span {{ trans('itemsPerPage') }}:
-				field-select.mx-2(
-					required
-					:model-value="store.perPage"
-					:options="realPerPageOptions"
-					:disabled="store.loading"
-					@update:model-value="updatePerPage($event)"
-				)
-				span {{ trans('of') }} {{ store.total }}
+			.d-flex.align-items-center.px-3
+				.d-flex.align-items-center.my-2.me-2(v-if="store.hasPagination && realPerPageOptions.length && store.total > 0")
+					span {{ trans('itemsPerPage') }}:
+					field-select.mx-2(
+						required
+						:model-value="store.perPage"
+						:options="realPerPageOptions"
+						:disabled="store.loading"
+						@update:model-value="updatePerPage($event)"
+					)
+					span {{ trans('of') }} {{ store.total }}
+				slot(name="top-end")
 			.px-3.mb-3(v-if="entityView.filters && entityView.filters.length")
 				.row
 					.col(v-for="filter in entityView.filters")
@@ -32,7 +34,7 @@
 							@update:model-value="onFilterInput(filter.key, $event)"
 						)
 							template(#label) {{ filter.label }}
-		.fs-2.semibold.text-center.text-muted.px-3.py-5(v-if="store.total === 0") {{ store.loading ? `${trans('loading')}...` : trans('noItems') }}
+		.fs-2.semibold.text-center.text-muted.px-3.py-3(v-if="store.total === 0") {{ store.loading ? `${trans('loading')}...` : trans('noItems') }}
 		.flex-shrink-1.overflow-auto(v-else)
 			component(
 				:is="viewComponent"

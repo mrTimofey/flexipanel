@@ -54,6 +54,10 @@ export default defineComponent({
 			type: Object as PropType<Record<string, unknown>>,
 			default: () => ({}),
 		},
+		defaultValues: {
+			type: Object as PropType<Record<string, unknown>>,
+			default: () => ({}),
+		},
 	},
 	emits: ['update:id', 'return', 'delete', 'change'],
 	setup(props, { emit }) {
@@ -69,6 +73,11 @@ export default defineComponent({
 			Object.entries(props.fixedValues).forEach(([key, value]) => {
 				store.formItem[key] = value;
 			});
+			if (!props.id) {
+				Object.entries(props.defaultValues).forEach(([key, value]) => {
+					store.formItem[key] = value;
+				});
+			}
 			initializing.value = false;
 		});
 

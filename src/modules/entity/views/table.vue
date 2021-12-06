@@ -2,10 +2,10 @@
 .content(v-if="items && items.length" :class="{ loading }")
 	table.table.table-hover.m-0
 		colgroup
-			col(v-if="selectable")
+			col(v-if="selectable" style="width:0;white-space:nowrap")
 			col(v-for="{ width } in columns" :style="{ width }")
 			col(v-if="!noActions")
-		thead
+		thead(style="border-top:none")
 			tr
 				th(v-if="selectable")
 				th(v-for="{ title } in columns") {{ title }}
