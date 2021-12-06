@@ -14,6 +14,7 @@
 			entity-item(
 				:entity-meta="relatedEntityMeta"
 				:fixed-values="fixedItemValues"
+				:default-values="defaultItemValues || undefined"
 				:id="editingItem.id"
 				@update:id="editingItem = { id: $event }"
 				@return="clearEditingItem()"
@@ -117,6 +118,12 @@ export default defineComponent({
 			type: Array as PropType<number[]>,
 			default: null,
 		},
+		// fill creation form for the child entity from parent fields
+		// { [child key]: [parent key], ... }
+		itemDefaultsMap: {
+			type: Object as PropType<Record<string, string>>,
+			default: null,
+		},
 		idField: {
 			type: String,
 			default: '',
@@ -161,6 +168,16 @@ export default defineComponent({
 			}
 			return values;
 		});
+		const defaultItemValues = computed<Record<string, unknown> | null>(() => {
+			if (!props.itemDefaultsMap) {
+				return null;
+			}
+			const values: Record<string, unknown> = {};
+			Object.entries(props.itemDefaultsMap).forEach(([childKey, parentKey]) => {
+				values[childKey] = props.entityItem[parentKey];
+			});
+			return values;
+		});
 		const entityManager = get(EntityManager);
 		const relatedEntityMeta = computed(() => entityManager.getEntity(props.relatedEntity));
 
@@ -172,6 +189,7 @@ export default defineComponent({
 			filters,
 			sort,
 			fixedItemValues,
+			defaultItemValues,
 			editingItem,
 			entityViewComponent,
 			reloadView() {
