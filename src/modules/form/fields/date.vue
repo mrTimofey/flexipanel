@@ -61,4 +61,6 @@ input.empty:not(:focus)
 	&::before
 		color var(--bs-gray-600)
 		content attr(placeholder)
+input
+	width 170px
 </style>

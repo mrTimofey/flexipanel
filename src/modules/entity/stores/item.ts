@@ -41,7 +41,7 @@ export default class EntityItemStore extends EntityBaseStore<IState> {
 		this.keyedFormFields.forEach((field) => {
 			if (Object.prototype.hasOwnProperty.call(values, field.key)) {
 				item[field.key] = values[field.key];
-			} else if (Object.prototype.hasOwnProperty.call(field, 'default')) {
+			} else if (field.default !== undefined) {
 				item[field.key] = field.default;
 			} else {
 				item[field.key] = null;

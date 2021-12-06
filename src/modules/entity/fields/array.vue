@@ -211,6 +211,7 @@ export default defineComponent({
 					label: '',
 					inlineRelated: false,
 					hidden: false,
+					default: undefined,
 					createProps: {},
 					updateProps: {},
 					props: { ...props.props, disabled: props.disabled },

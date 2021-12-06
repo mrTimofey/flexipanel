@@ -3,7 +3,7 @@
 	.form-field-object-label
 		slot(name="label")
 	.form-field-object-fields
-		.form-field-object-item(v-for="(_, k) in fields")
+		.form-field-object-item(v-for="(field, k) in fields" :style="field.style")
 			entity-item-form-field(
 				v-if="store"
 				:field="getFieldDefinition(k)"
@@ -81,6 +81,7 @@ export default defineComponent({
 					label: (field.label && `${field.label}`) || '',
 					inlineRelated: false,
 					hidden: false,
+					default: undefined,
 					createProps: {},
 					updateProps: {},
 					props: { ...field.props, disabled: props.disabled },

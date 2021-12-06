@@ -83,6 +83,7 @@ export const fieldDefaults: Partial<IField> = {
 	props: {},
 	createProps: {},
 	updateProps: {},
+	default: undefined,
 	inlineRelated: false,
 	hidden: false,
 };
