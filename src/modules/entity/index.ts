@@ -14,6 +14,8 @@ export interface IField {
 	inlineRelated?: boolean;
 	// field type (string, boolean, array...)
 	type?: string;
+	// default value for new items
+	default?: unknown;
 	// field component properties (based on type)
 	props?: Record<string, unknown>;
 	// properties for creating only
@@ -207,6 +209,9 @@ export default class EntityManager {
 		});
 		this.registerFieldType('select', {
 			component: defineAsyncComponent(() => import('../form/fields/select.vue')),
+		});
+		this.registerFieldType('radio', {
+			component: defineAsyncComponent(() => import('../form/fields/radio.vue')),
 		});
 		this.registerFieldType('integer', {
 			component: defineAsyncComponent(() => import('../form/fields/integer.vue')),
