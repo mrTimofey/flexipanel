@@ -329,7 +329,6 @@ export default defineComponent({
 	border-top none
 .entity-select-dropdown-content
 	display flex
-	justify-content center
 	min-height 240px
 	max-height 480px
 	width 100%
