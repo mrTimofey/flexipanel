@@ -2,9 +2,8 @@
 page-layout.page-entity-view(v-if="entityMeta")
 	template(#breadcrumbs)
 		li.breadcrumb-item {{ pageTitle }}
-	.p-3.d-flex.align-items-center
+	.px-3.pt-3
 		h1.m-0.fs-3.flex-grow-1 {{ pageTitle }}
-		button.btn.btn-sm.btn-primary(@click.prevent="goToCreatePage()") {{ entityMeta.createButtonText || trans('createEntityItem') }}
 	entity-view(
 		:entity-meta="entityMeta"
 		:view="view"
@@ -14,6 +13,9 @@ page-layout.page-entity-view(v-if="entityMeta")
 		@item-click="goToEditPage($event.id)"
 		@edit-click="goToEditPage($event.id)"
 	)
+		template(#top-end)
+			.my-2
+				button.btn.btn-sm.btn-primary(@click.prevent="goToCreatePage()") {{ entityMeta.createButtonText || trans('createEntityItem') }}
 </template>
 
 <script lang="ts">

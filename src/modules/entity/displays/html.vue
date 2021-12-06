@@ -1,5 +1,5 @@
 <template lang="pug">
-div(v-html="template ? tpl(template, item) : item[prop]")
+.entity-view-display-html(v-html="template ? tpl(template, item) : item[prop]")
 </template>
 
 <script lang="ts">
@@ -26,3 +26,10 @@ export default defineComponent({
 	},
 });
 </script>
+
+<style lang="stylus" scoped>
+.entity-view-display-html
+	::v-deep(img), ::v-deep(svg)
+		max-width 100%
+		max-height 100%
+</style>

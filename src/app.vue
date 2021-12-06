@@ -1,19 +1,18 @@
 <template lang="pug">
-.container-fluid.bg-light(v-if="auth.isAuthorized")
-	.row
-		aside.col.bg-white.shadow-sm
-			.text-center.fs-5.fw-semibold.p-3.border-bottom
-				router-link.text-decoration-none.link-dark(:to="appHomeLink") {{ appTitle }}
-			.py-2.ps-3.pe-2.border-bottom
-				.row.align-items-center
-					.col
-						.fw-bold {{ auth.userName || 'Admin' }}
-					.col-auto.text-end
-						button.btn.btn-sm.btn-primary(@click.prevent="auth.logout()" :title="trans('logout')")
-							i.fa-solid.fa-right-from-bracket
-			main-nav(:items="mainNavItems")
-		main.col.p-3
-			router-view
+.bg-light.d-flex(v-if="auth.isAuthorized")
+	aside.bg-white.shadow-sm
+		.text-center.fs-5.fw-semibold.p-3.border-bottom
+			router-link.text-decoration-none.link-dark(:to="appHomeLink") {{ appTitle }}
+		.py-2.ps-3.pe-2.border-bottom
+			.row.align-items-center
+				.col
+					.fw-bold {{ auth.userName || 'Admin' }}
+				.col-auto.text-end
+					button.btn.btn-sm.btn-primary(@click.prevent="auth.logout()" :title="trans('logout')")
+						i.fa-solid.fa-right-from-bracket
+		main-nav(:items="mainNavItems")
+	main.p-3.flex-grow-1
+		router-view
 .auth-container.bg-dark.bg-gradient(v-else)
 	.auth-form.bg-light.shadow-3.rounded
 		.p-3.fs-5.fw-semibold.text-center.border-bottom {{ appTitle }}
