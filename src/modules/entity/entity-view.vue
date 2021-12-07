@@ -39,6 +39,7 @@
 			component(
 				:is="viewComponent"
 				:selectable="selectable"
+				:sortable="sortable"
 				v-bind="entityView.props"
 				:items="store.items"
 				:loading="store.loading"
@@ -84,6 +85,10 @@ import type { IModalAction } from '../modal/modal.vue';
 import ModalDialog from '../modal/modal.vue';
 import NotificationManager from '../notification';
 
+function isPositionChangeEvent(event: { action: string }): event is { action: string; oldIndex: number; newIndex: number } {
+	return event.action === 'itemPositionChange';
+}
+
 export default defineComponent({
 	components: { PageNav, FieldSelect, ModalDialog },
 	props: {
@@ -122,6 +127,10 @@ export default defineComponent({
 		sort: {
 			type: Object as PropType<Record<string, unknown>>,
 			default: () => ({}),
+		},
+		sortable: {
+			type: Boolean,
+			default: false,
 		},
 	},
 	emits: ['update:page', 'update:perPage', 'update:filters', 'edit-click', 'item-click', 'item-action-click'],
@@ -232,8 +241,12 @@ export default defineComponent({
 				}
 				emit('item-click', { item, id: `${item[idKey.value]}` });
 			},
-			onItemActionClick({ action, item }: { action: string; item: ListItem }): void {
-				emit('item-action-click', { action, item, id: `${item[idKey.value]}` });
+			onItemActionClick(event: { action: string; item: ListItem; [otherArgs: string]: unknown }): void {
+				if (isPositionChangeEvent(event)) {
+					store.moveItem(event.oldIndex, event.newIndex);
+				} else {
+					emit('item-action-click', { ...event, id: `${event.item[idKey.value]}` });
+				}
 			},
 			itemRoute(item: ListItem): string {
 				if (!props.entityMeta) {

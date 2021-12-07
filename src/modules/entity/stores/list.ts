@@ -87,6 +87,13 @@ export default class EntityListStore extends EntityBaseStore<IState> {
 		return this.itemAction(item, ({ entity, adapter, itemKey }) => adapter.saveItem(entity.apiEndpoint, newValues, itemKey));
 	}
 
+	public moveItem(from: number, to: number) {
+		const item = this.items[from];
+		this.items.splice(from, 1);
+		this.items.splice(to, 0, item);
+		return this.itemAction(item, ({ entity, adapter, itemKey }) => adapter.saveItem(entity.apiEndpoint, { position: to }, itemKey));
+	}
+
 	public async deleteItem(item: ListItem): Promise<void> {
 		return this.itemAction(item, ({ entity, adapter, itemKey }) => adapter.deleteItem(entity.apiEndpoint, itemKey));
 	}

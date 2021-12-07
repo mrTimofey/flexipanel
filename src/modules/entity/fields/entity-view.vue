@@ -32,6 +32,7 @@
 			:view="view"
 			:no-actions="readonly"
 			:per-page-options="perPageOptions"
+			:sortable="sortable"
 			v-model:page="page"
 			v-model:perPage="perPage"
 			v-model:filters="filters"
@@ -128,8 +129,13 @@ export default defineComponent({
 			type: String,
 			default: '',
 		},
+		sortable: {
+			type: Boolean,
+			default: false,
+		},
 	},
-	setup(props) {
+	emits: ['item-action'],
+	setup(props, { emit }) {
 		const route = useRoute();
 		const router = useRouter();
 		const entityViewComponent = ref<typeof EntityView | null>(null);
@@ -198,14 +204,15 @@ export default defineComponent({
 			clearEditingItem() {
 				editingItem.value = null;
 			},
-			onItemActionClick(event: { action: string; item: ListItem; id: string }) {
-				if (event.action !== 'createChild') {
-					return;
+			onItemActionClick(event: { action: string; item: ListItem; id: string; [otherArgs: string]: unknown }) {
+				if (event.action === 'createChild') {
+					editingItem.value = {
+						id: '',
+						parent: event.id,
+					};
+				} else {
+					emit('item-action', event);
 				}
-				editingItem.value = {
-					id: '',
-					parent: event.id,
-				};
 			},
 		};
 	},

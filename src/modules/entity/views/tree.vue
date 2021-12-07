@@ -1,38 +1,55 @@
 <template lang="pug">
 .content(v-if="currentLevelItems.length" :class="{ loading, root: !parentId }")
-	template(v-for="item in currentLevelItems")
-		.tree-view-item-wrap
-			.tree-view-item.d-flex.align-items-center.rounded.shadow-sm.border.border-light
-				.ps-1(v-if="selectable")
-					slot(name="selection" :item="item")
-				.item-display.flex-grow-1.px-2.py-1(@click.prevent="onItemClick(item)")
-					component(:is="displayComponent" v-bind="{ ...displayProps, item }")
-				template(v-if="!noActions")
-					.p-1(v-if="componentDepthLevel < maxLevel")
-						button.btn.btn-sm.btn-outline-primary(type="button" @click="onCreateChildClick(item)")
-							i.fa-solid.fa-plus
-							!=' '
-							| {{ createChildButtonText }}
-					.p-1
-						slot(name="actions" :item="item")
-		tree-view.ps-4(
-			v-bind="props"
-			:component-depth-level="componentDepthLevel + 1"
-			:parent-id="getParentId(item)"
-			:loading="false"
-			@item-click="onItemClick($event)"
-		)
-			template(
-				v-for="(_, slot) of slots"
-				#[slot]=`// @ts-ignore
-							scope`
-			)
-				slot(:name="slot" v-bind="scope")
+	draggable-group.form-field-array-items(
+		handle="[data-move-handle]"
+		:item-key="itemKey"
+		:model-value="currentLevelItems"
+		:disabled="!sortable"
+		@change="$event.moved && onPositionChange($event.moved.oldIndex, $event.moved.newIndex)"
+	)
+		template(#item="{ element: item }")
+			.tree-view-item-wrap(:class="{ loading: loadingItems.has(item) }")
+				.tree-view-item-data
+					.tree-view-item.d-flex.align-items-center.rounded.shadow-sm.border.border-light
+						.ps-1(v-if="sortable")
+							button.btn.btn-light.btn-sm.drag-action(
+								@click.prevent
+								data-move-handle
+								:disabled="currentLevelItems.length < 2"
+							)
+								i.fa-solid.fa-arrows-alt-v
+						.ps-1(v-if="selectable")
+							slot(name="selection" :item="item")
+						.item-display.flex-grow-1.px-2.py-1(@click.prevent="onItemClick(item)")
+							component(:is="displayComponent" v-bind="{ ...displayProps, item }")
+						template(v-if="!noActions")
+							.p-1(v-if="componentDepthLevel < maxLevel")
+								button.btn.btn-sm.btn-outline-primary(type="button" @click="onCreateChildClick(item)")
+									i.fa-solid.fa-plus
+									!=' '
+									| {{ createChildButtonText }}
+							.p-1
+								slot(name="actions" :item="item")
+				tree-view.ps-4(
+					v-bind="props"
+					:component-depth-level="componentDepthLevel + 1"
+					:parent-id="getParentId(item)"
+					:loading="false"
+					@item-click="onItemClick($event)"
+					@item-action-click="onItemActionClick($event)"
+				)
+					template(
+						v-for="(_, slot) of slots"
+						#[slot]=`// @ts-ignore
+									scope`
+					)
+						slot(:name="slot" v-bind="scope")
 </template>
 
 <script lang="ts">
 import type { PropType } from '@vue/runtime-core';
 import { defineComponent, computed } from '@vue/runtime-core';
+import DraggableGroup from 'vuedraggable';
 import EntityManager from '..';
 import { get } from '../../vue-composition-utils';
 
@@ -50,6 +67,7 @@ function deep(obj: Record<string, unknown>, path: string[]): unknown {
 
 export default defineComponent({
 	name: 'TreeView',
+	components: { DraggableGroup },
 	props: {
 		items: {
 			type: Array as PropType<Record<string, unknown>[]>,
@@ -58,6 +76,10 @@ export default defineComponent({
 		loading: {
 			type: Boolean,
 			default: false,
+		},
+		loadingItems: {
+			type: Object as PropType<Set<unknown>>,
+			default: () => new Set(),
 		},
 		displayType: {
 			type: String,
@@ -100,6 +122,10 @@ export default defineComponent({
 			type: Number,
 			default: 1,
 		},
+		sortable: {
+			type: Boolean,
+			default: false,
+		},
 	},
 	emits: ['item-click', 'item-action-click'],
 	setup(props, { emit, slots }) {
@@ -117,14 +143,29 @@ export default defineComponent({
 			props,
 			currentLevelItems,
 			displayComponent: computed(() => entityManager.getDisplayType(props.displayType)?.component),
-			onItemClick(item: unknown) {
+			onItemClick(item: Record<string, unknown>) {
 				emit('item-click', item);
 			},
 			getParentId(item: Record<string, unknown>) {
 				return item[props.itemKey] as string | number;
 			},
-			onCreateChildClick(item: unknown) {
+			onCreateChildClick(item: Record<string, unknown>) {
 				emit('item-action-click', { action: 'createChild', item });
+			},
+			onPositionChange(oldIndex: number, newIndex: number) {
+				const realOldIndex = props.items.indexOf(currentLevelItems.value[oldIndex]);
+				const realNewIndex = props.items.indexOf(currentLevelItems.value[newIndex]);
+				if (realOldIndex === -1 || realNewIndex === -1) {
+					return;
+				}
+				emit('item-action-click', {
+					action: 'itemPositionChange',
+					oldIndex: realOldIndex,
+					newIndex: realNewIndex,
+				});
+			},
+			onItemActionClick(event: unknown) {
+				emit('item-action-click', event);
 			},
 		};
 	},
@@ -147,7 +188,7 @@ export default defineComponent({
 		opacity 0.8
 		background white
 		z-index 5
-.tree-view-item-wrap
+.tree-view-item-data
 	margin-bottom 0.5rem
 .tree-view-item
 	background white
@@ -156,7 +197,10 @@ export default defineComponent({
 	cursor pointer
 	&:hover
 		background var(--bs-light)
-.content:not(.root) > .tree-view-item-wrap
+.tree-view-item-wrap
+	&.loading
+		opacity 0.2
+.content:not(.root) > .form-field-array-items > .tree-view-item-wrap
 	position relative
 	&:before
 		content ''
