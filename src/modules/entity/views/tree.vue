@@ -2,6 +2,9 @@
 .content(v-if="currentLevelItems.length" :class="{ loading, root: !parentId }")
 	draggable-group.form-field-array-items(
 		handle="[data-move-handle]"
+		tag="transition-group"
+		:animation="200"
+		:component-data="{ tag: 'div' }"
 		:item-key="itemKey"
 		:model-value="currentLevelItems"
 		:disabled="!sortable"
@@ -188,6 +191,9 @@ export default defineComponent({
 		opacity 0.8
 		background white
 		z-index 5
+	::v-deep(.sortable-ghost)
+		opacity 0.8
+		animation tree-view-item-moving-pulse 1s infinite
 .tree-view-item-data
 	margin-bottom 0.5rem
 .tree-view-item
@@ -216,4 +222,9 @@ export default defineComponent({
 		height calc(100% + 0.75rem + 2px)
 		margin-bottom -2px
 		pointer-events none
+@keyframes tree-view-item-moving-pulse
+	0%
+		opacity 0.8
+	50%
+		opacity 0.4
 </style>

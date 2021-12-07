@@ -10,6 +10,7 @@ component(
 	:related-items="store.relatedItems"
 	v-bind="{ ...field.props, ...field[store.itemId ? 'updateProps' : 'createProps'] }"
 	@update:model-value="onChange ? onChange($event) : store.updateFormFieldValue(field.key, $event)"
+	@update-field="store.updateFormFieldValue($event.key, $event.value, !!$event.immediate)"
 )
 	template(#label) {{ field.label }}
 </template>

@@ -33,6 +33,7 @@
 			:no-actions="readonly"
 			:per-page-options="perPageOptions"
 			:sortable="sortable"
+			:selectable="selectable"
 			v-model:page="page"
 			v-model:perPage="perPage"
 			v-model:filters="filters"
@@ -41,6 +42,8 @@
 			@item-click="editingItem = { id: $event.id }"
 			@item-action-click="onItemActionClick($event)"
 		)
+			template(#selection="bindings")
+				slot(name="selection" v-bind="bindings")
 	.form-field-entity-view-warning.border.rounded.shadow-sm.px-3.py-2(v-else)
 		.fs-5.text-muted {{ trans('createToProceed') }}
 </template>
@@ -55,6 +58,7 @@ import type { ModalSize } from '../../modal/modal.vue';
 import ModalDialog from '../../modal/modal.vue';
 import clickOutside from '../../click-outside';
 import { get, useTranslator } from '../../vue-composition-utils';
+import type { IRegisteredEntity } from '..';
 import EntityManager from '..';
 import type { ListItem } from '../stores/base';
 
@@ -79,6 +83,10 @@ export default defineComponent({
 			type: Object as PropType<Record<string, Record<string, Record<string, unknown>>>>,
 			default: () => ({}),
 		},
+		entityMeta: {
+			type: Object as PropType<IRegisteredEntity>,
+			default: null,
+		},
 		entityItem: {
 			type: Object,
 			default: null,
@@ -94,10 +102,6 @@ export default defineComponent({
 		fieldKey: {
 			type: String,
 			default: '',
-		},
-		fieldIndex: {
-			type: Number,
-			default: -1,
 		},
 		foreignKey: {
 			type: String,
@@ -130,6 +134,10 @@ export default defineComponent({
 			default: '',
 		},
 		sortable: {
+			type: Boolean,
+			default: false,
+		},
+		selectable: {
 			type: Boolean,
 			default: false,
 		},

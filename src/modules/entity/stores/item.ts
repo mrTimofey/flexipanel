@@ -141,9 +141,12 @@ export default class EntityItemStore extends EntityBaseStore<IState> {
 		}
 	}
 
-	public updateFormFieldValue(key: string, value: unknown): this {
+	public async updateFormFieldValue(key: string, value: unknown, immediate = false) {
 		this.formItem[key] = value;
-		return this;
+		if (immediate && this.entity) {
+			const adapter = await this.getAdapter();
+			adapter.saveItem(this.entity.apiEndpoint, { [key]: value }, this.itemId);
+		}
 	}
 
 	get loading(): IState['loading'] {
