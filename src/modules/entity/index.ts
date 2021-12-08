@@ -208,6 +208,9 @@ export default class EntityManager {
 		this.registerFieldType('date', {
 			component: defineAsyncComponent(() => import('../form/fields/date.vue')),
 		});
+		this.registerFieldType('datetime', {
+			component: defineAsyncComponent(() => import('../form/fields/datetime.vue')),
+		});
 		this.registerFieldType('select', {
 			component: defineAsyncComponent(() => import('../form/fields/select.vue')),
 		});
@@ -216,6 +219,9 @@ export default class EntityManager {
 		});
 		this.registerFieldType('integer', {
 			component: defineAsyncComponent(() => import('../form/fields/integer.vue')),
+		});
+		this.registerFieldType('float', {
+			component: defineAsyncComponent(() => import('../form/fields/float.vue')),
 		});
 		this.registerFieldType('boolean', {
 			component: defineAsyncComponent(() => import('../form/fields/boolean.vue')),
