@@ -6,7 +6,7 @@
   "homepage": "https://github.com/mrTimofey/flexipanel",
   "repository": "https://github.com/mrTimofey/flexipanel.git",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite dev",
     "build": "vite build",
     "serve": "vite preview",
     "lint": "eslint ./ && vue-tsc --noEmit",
