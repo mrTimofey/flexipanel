@@ -235,6 +235,9 @@ export default class EntityManager {
 		this.registerFieldType('inline-svg', {
 			component: defineAsyncComponent(() => import('../form/fields/inline-svg.vue')),
 		});
+		this.registerFieldType('editorjs', {
+			component: defineAsyncComponent(() => import('../form/fields/editorjs.vue')),
+		});
 		this.registerFieldType('entity', {
 			component: defineAsyncComponent(() => import('./fields/entity.vue')),
 		});
