@@ -23,10 +23,43 @@
 import type { PropType } from 'vue';
 import { computed, defineComponent, watchEffect } from 'vue';
 
+type FormatterFn = {
+	modelToInternal(value: unknown): string | null;
+	internalToModel(value: string): unknown;
+};
+
+const dateFormatters = {
+	sql: {
+		modelToInternal(value) {
+			if (typeof value === 'string') {
+				return value;
+			}
+			return null;
+		},
+		internalToModel(value) {
+			return value;
+		},
+	} as FormatterFn,
+	timestamp: {
+		modelToInternal(value) {
+			if (typeof value === 'number') {
+				const date = new Date(value * 1000);
+				// normalize timezone to make the date time
+				date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
+				return date.toISOString().replace('T', ' ').substring(0, 19);
+			}
+			return null;
+		},
+		internalToModel(value) {
+			return new Date(value).getTime() / 1000;
+		},
+	} as FormatterFn,
+};
+
 export default defineComponent({
 	props: {
 		modelValue: {
-			type: String,
+			type: [Number, String],
 			default: '',
 		},
 		placeholder: {
@@ -45,25 +78,32 @@ export default defineComponent({
 			type: Array as PropType<string[]>,
 			default: null,
 		},
+		formatter: {
+			type: String as PropType<keyof typeof dateFormatters | FormatterFn>,
+			default: 'sql',
+		},
 	},
 	emits: ['update:modelValue'],
 	setup(props, { emit }) {
+		const formatter = computed<FormatterFn>(() => (typeof props.formatter === 'string' ? dateFormatters[props.formatter] : props.formatter));
 		const time = computed<string>({
 			get() {
-				return props.modelValue ? props.modelValue.substring(11, 16) : '';
+				const value = formatter.value.modelToInternal(props.modelValue);
+				return value ? value.substring(11, 16) : '';
 			},
 			set(v) {
-				const dateValue = props.modelValue ? props.modelValue.substring(0, 10) : new Date().toISOString().substring(0, 10);
-				emit('update:modelValue', `${dateValue} ${(v || '00:00').substring(0, 5)}:00`);
+				const dateValue = (formatter.value.modelToInternal(props.modelValue) || new Date().toISOString()).substring(0, 10);
+				emit('update:modelValue', formatter.value.internalToModel(`${dateValue} ${(v || '00:00').substring(0, 5)}:00`));
 			},
 		});
 		const date = computed<string>({
 			get() {
-				return props.modelValue ? props.modelValue.substring(0, 10) : '';
+				const value = formatter.value.modelToInternal(props.modelValue);
+				return value ? value.substring(0, 10) : '';
 			},
 			set(v) {
-				const timeValue = props.modelValue ? props.modelValue.substring(11, 16) : '';
-				emit('update:modelValue', v ? `${v} ${timeValue || '00:00'}:00` : '');
+				const timeValue = (formatter.value.modelToInternal(props.modelValue) || new Date().toISOString()).substring(11, 16);
+				emit('update:modelValue', v ? formatter.value.internalToModel(`${v} ${timeValue}:00`) : '');
 			},
 		});
 		watchEffect(() => {
@@ -72,7 +112,7 @@ export default defineComponent({
 			}
 			const now = new Date();
 			now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-			emit('update:modelValue', now.toISOString().replace('T', ' ').substring(0, 19));
+			emit('update:modelValue', formatter.value.internalToModel(now.toISOString().replace('T', ' ').substring(0, 19)));
 		});
 		return {
 			date,
