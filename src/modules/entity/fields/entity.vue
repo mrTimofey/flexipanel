@@ -55,7 +55,7 @@
 			v-click-outside="selecting && !creating ? onClickOutsideSelector : null"
 		)
 			.entity-select-dropdown.bg-white.rounded-bottom.shadow.pt-2.overflow-auto
-				.p-2(v-if="allowCreate")
+				.py-2.px-3(v-if="allowCreate")
 					button.btn.btn-primary.btn-sm(type="button" @click.prevent="creating = true") {{ trans('createEntityItem') }}
 				.entity-select-dropdown-content
 					keep-alive
