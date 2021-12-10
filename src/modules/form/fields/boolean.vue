@@ -10,8 +10,8 @@
 		)
 		span.form-check-label
 			slot(name="label")
-		.invalid-feedback(v-if="errors && errors.length")
-			div(v-for="err in errors") {{ err }}
+	.invalid-feedback.d-block(v-if="errors && errors.length")
+		div(v-for="err in errors") {{ err }}
 </template>
 
 <script lang="ts">

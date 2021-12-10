@@ -66,7 +66,7 @@ export default class EntityItemStore extends EntityBaseStore<IState> {
 			});
 	}
 
-	async reloadOriginalItem(): Promise<void> {
+	public async reloadOriginalItem(): Promise<void> {
 		this.state.originalItem = {};
 		if (!this.entity || !this.itemId) {
 			return;

@@ -10,21 +10,41 @@
 	) {{ trans('areYouSure') }}?
 	.d-flex.justify-content-center.py-5(v-if="initializing")
 		.spinner.spinner-grow.text-primary
-	form(v-else @submit.prevent="saveAndReturn()" :class="{ loading: store.loading }")
+	.entity-form-layout(v-else)
 		component(
 			:is="entityMeta.form.layout"
-			v-bind="{ store, fields: availableFields, fieldComponent: EntityItemFormField }"
+			v-bind="{ store, formId, fields: availableFields, fieldComponent: EntityItemFormField }"
+			@submit="saveAndReturn()"
 		)
 			template(#form)
-				slot(name="form" v-bind="{ store, fields: availableFields, fieldComponent: EntityItemFormField }")
-					.mb-3(v-for="field in availableFields")
-						entity-item-form-field(v-bind="{ field, store }")
+				slot(name="form" v-bind="{ store, formId, fields: availableFields, fieldComponent: EntityItemFormField }")
+					form(@submit.prevent="saveAndReturn()" :id="formId")
+						.mb-3(v-for="field in availableFields")
+							entity-item-form-field(v-bind="{ field, store }")
 			template(#actions)
 				slot(name="actions" v-bind="{ save, saveAndReturn, confirmAndDelete }")
 					.btn-group.entity-form-actions
-						button.btn.btn-primary(type="submit") {{ trans('saveAndReturn') }}
-						button.btn.btn-outline-primary(type="button" @click.prevent="save()") {{ trans('save') }}
-						button.btn.btn-outline-danger(v-if="store.itemId" type="button" @click.prevent="confirmAndDelete()") {{ trans('delete') }}
+						//- show "save and return" button only when @return is handled
+						template(v-if="onReturn")
+							button.btn.btn-primary(
+								type="submit"
+								:form="formId"
+							) {{ trans('saveAndReturn') }}
+							button.btn.btn-outline-primary(
+								type="button"
+								@click.prevent="save()"
+							) {{ trans('save') }}
+						button.btn.btn-primary(
+							v-else
+							type="submit"
+							:form="formId"
+							@click.prevent="save()"
+						) {{ trans('save') }}
+						button.btn.btn-outline-danger(
+							v-if="store.itemId"
+							type="button"
+							@click.prevent="confirmAndDelete()"
+						) {{ trans('delete') }}
 </template>
 
 <script lang="ts">
@@ -38,6 +58,12 @@ import ModalDialog from '../modal/modal.vue';
 import NotificationManager from '../notification';
 import { ValidationError } from './adapter';
 import EntityItemFormField from './entity-item-form-field.vue';
+
+let guidCounter = 0;
+function guid() {
+	guidCounter += 1;
+	return `entity-item-${guidCounter}`;
+}
 
 export default defineComponent({
 	components: { ModalDialog, EntityItemFormField },
@@ -58,6 +84,14 @@ export default defineComponent({
 			type: Object as PropType<Record<string, unknown>>,
 			default: () => ({}),
 		},
+		formId: {
+			type: String,
+			default: () => guid(),
+		},
+		// eslint-disable-next-line vue/require-default-prop
+		onReturn: Function,
+		// eslint-disable-next-line vue/require-default-prop
+		onDelete: Function,
 	},
 	emits: ['update:id', 'return', 'delete', 'change'],
 	setup(props, { emit }) {
@@ -122,7 +156,7 @@ export default defineComponent({
 						type: 'success',
 						body: trans('successfullySaved'),
 					});
-					emit('change');
+					emit('change', { id: store.itemId, item: store.formItem });
 				}
 				if (props.id !== store.itemId) {
 					emit('update:id', store.itemId);
@@ -134,7 +168,7 @@ export default defineComponent({
 						type: 'success',
 						body: trans('successfullySaved'),
 					});
-					emit('change');
+					emit('change', { id: store.itemId, item: store.formItem });
 					emit('return', { id: store.itemId, item: store.formItem });
 				}
 			},
