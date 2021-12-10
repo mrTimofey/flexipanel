@@ -2,6 +2,7 @@
 .form-field-text
 	slot(name="label")
 	input.form-control.form-control-sm(
+		ref="input"
 		:disabled="disabled"
 		:placeholder="placeholder"
 		:value="modelValue"
@@ -16,7 +17,7 @@
 
 <script lang="ts">
 import type { PropType } from '@vue/runtime-core';
-import { defineComponent, computed } from '@vue/runtime-core';
+import { defineComponent, computed, ref, watch } from '@vue/runtime-core';
 import { useTranslator } from '../../vue-composition-utils';
 
 export default defineComponent({
@@ -41,11 +42,26 @@ export default defineComponent({
 			type: Number,
 			default: 0,
 		},
+		autofocus: {
+			type: Boolean,
+			default: false,
+		},
 	},
 	emits: ['update:modelValue'],
 	setup(props, { emit }) {
+		const input = ref<HTMLInputElement | null>(null);
+		watch(
+			input,
+			() => {
+				if (input.value && props.autofocus) {
+					input.value.focus();
+				}
+			},
+			{ immediate: true },
+		);
 		return {
 			...useTranslator(),
+			input,
 			onInput(e: Event) {
 				const value = (e.target as HTMLInputElement).value.trim();
 				if (value !== props.modelValue) {

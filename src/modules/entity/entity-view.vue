@@ -26,11 +26,12 @@
 				slot(name="top-end")
 			.px-3.mb-3(v-if="entityView.filters && entityView.filters.length")
 				.row
-					.col(v-for="filter in entityView.filters")
+					.col(v-for="(filter, i) in entityView.filters")
 						component(
 							:is="fieldComponent(filter.type)"
 							v-bind="filter.props"
 							:model-value="filters[filter.key]"
+							:autofocus="i === 0"
 							@update:model-value="onFilterInput(filter.key, $event)"
 						)
 							template(#label) {{ filter.label }}
