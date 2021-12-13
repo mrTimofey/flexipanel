@@ -11,15 +11,25 @@
 		type="color"
 		:value="colorValue"
 		:disabled="disabled"
+		:list="listId"
 		@input="emitValue"
 	)
+	datalist(v-if="listId" :id="listId")
+		option(v-for="color in options") {{ color }}
 </template>
 
 <script lang="ts">
+import type { PropType } from 'vue';
 import { computed, defineComponent } from 'vue';
 import { useTranslator } from '../../vue-composition-utils';
 import FieldCheckbox from './boolean.vue';
-// noinspection JSUnusedGlobalSymbols
+
+let guidCounter = 0;
+function guid() {
+	guidCounter += 1;
+	return `form-field-color-${guidCounter}`;
+}
+
 export default defineComponent({
 	components: { FieldCheckbox },
 	props: {
@@ -38,6 +48,14 @@ export default defineComponent({
 		disabled: {
 			type: Boolean,
 			default: false,
+		},
+		options: {
+			type: Array as PropType<string[]>,
+			default: null,
+		},
+		listId: {
+			type: String,
+			default: () => guid(),
 		},
 	},
 	emits: ['update:modelValue'],
