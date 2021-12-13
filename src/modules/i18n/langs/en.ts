@@ -32,4 +32,6 @@ export default {
 	symbolCount: 'Symbol count',
 	createToProceed: 'Create entity item to proceed',
 	of: 'of',
+	color: 'Color',
+	noColor: 'Color is not set',
 };

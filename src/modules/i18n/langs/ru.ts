@@ -32,4 +32,6 @@ export default {
 	symbolCount: 'Кол-во символов',
 	createToProceed: 'Сохраните элемент, чтобы продолжить',
 	of: 'из',
+	color: 'Цвет',
+	noColor: 'Цвет не выбран',
 };
