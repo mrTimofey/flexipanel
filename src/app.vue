@@ -19,10 +19,11 @@
 		.p-4
 			auth-form
 notification-root
+dialog-root
 </template>
 
 <script lang="ts">
-import { defineComponent, watchEffect, computed } from '@vue/runtime-core';
+import { defineComponent, watchEffect, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { get, useTranslator } from './modules/vue-composition-utils';
 import AppConfig from './modules/app-config';
@@ -30,7 +31,8 @@ import MainNav from './components/main-nav/index.vue';
 import AuthForm from './components/auth-form.vue';
 import Meta from './modules/meta';
 import AuthStore from './modules/auth/store';
-import { NotificationRoot } from './modules/notification';
+import NotificationRoot from './modules/notification/notifications.vue';
+import DialogRoot from './modules/modal/dialogs.vue';
 
 export default defineComponent({
 	name: 'App',
@@ -38,6 +40,7 @@ export default defineComponent({
 		MainNav,
 		AuthForm,
 		NotificationRoot,
+		DialogRoot,
 	},
 	setup() {
 		const config = get(AppConfig);

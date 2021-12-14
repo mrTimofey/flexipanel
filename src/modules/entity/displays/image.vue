@@ -3,7 +3,7 @@ img(:src="item[prop]" alt="")
 </template>
 
 <script lang="ts">
-import { defineComponent } from '@vue/runtime-core';
+import { defineComponent } from 'vue';
 import { useTemplate } from '../../vue-composition-utils';
 
 export default defineComponent({

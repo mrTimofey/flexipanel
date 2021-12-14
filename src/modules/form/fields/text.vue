@@ -16,8 +16,8 @@
 </template>
 
 <script lang="ts">
-import type { PropType } from '@vue/runtime-core';
-import { defineComponent, computed, ref, watch } from '@vue/runtime-core';
+import type { PropType } from 'vue';
+import { defineComponent, computed, ref, watch } from 'vue';
 import { useTranslator } from '../../vue-composition-utils';
 
 export default defineComponent({

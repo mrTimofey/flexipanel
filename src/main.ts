@@ -1,4 +1,4 @@
-import { createApp } from '@vue/runtime-dom';
+import { createApp } from 'vue';
 import type { Router, RouteRecordRaw } from 'vue-router';
 import { createRouter, createWebHistory } from 'vue-router';
 import Container from 'mini-ioc';

@@ -1,7 +1,4 @@
 import ReactiveStore from '../reactive-store';
-import NotificationRoot from './notifications.vue';
-
-export { NotificationRoot };
 
 const timeoutKey = Symbol('timeout');
 

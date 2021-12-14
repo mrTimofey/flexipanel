@@ -71,8 +71,8 @@
 </template>
 
 <script lang="ts">
-import type { PropType } from '@vue/runtime-core';
-import { defineComponent, computed, watch, ref } from '@vue/runtime-core';
+import type { PropType } from 'vue';
+import { defineComponent, computed, watch, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import type { IRegisteredEntity } from '.';
 import EntityManager from '.';
@@ -82,7 +82,7 @@ import { get, create, debounce } from '../vue-composition-utils';
 import PageNav from './pagination.vue';
 import FieldSelect from '../form/fields/select.vue';
 import Translator from '../i18n';
-import type { IModalAction } from '../modal/modal.vue';
+import type { IModalAction } from '../modal';
 import ModalDialog from '../modal/modal.vue';
 import NotificationManager from '../notification';
 

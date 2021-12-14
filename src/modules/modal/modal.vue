@@ -29,18 +29,12 @@ teleport(to="body")
 						) {{ action.title }}
 </template>
 <script lang="ts">
-import type { PropType } from '@vue/runtime-core';
-import { defineComponent, onMounted, onBeforeUnmount, ref, watch } from '@vue/runtime-core';
+import type { PropType } from 'vue';
+import { defineComponent, onMounted, onBeforeUnmount, ref, watch } from 'vue';
+import type { IModalAction, ModalSize } from '.';
 
 const clickInside = Symbol('modalClickInsideMarker');
 type MarkedPointerEvent = Event & { [clickInside]?: true };
-
-export type ModalSize = 'sm' | 'lg' | 'xl' | 'fullscreen';
-
-export interface IModalAction {
-	type: 'primary' | 'secondary' | 'info' | 'warning' | 'danger' | 'light' | 'dark' | 'success';
-	title: string;
-}
 
 export default defineComponent({
 	props: {

@@ -13,8 +13,8 @@
 </template>
 
 <script lang="ts">
-import type { PropType } from '@vue/runtime-core';
-import { inject, defineComponent } from '@vue/runtime-core';
+import type { PropType } from 'vue';
+import { inject, defineComponent } from 'vue';
 import type { IField, IRegisteredEntity } from '..';
 import EntityItemFormField, { storeInjectKey } from '../entity-item-form-field.vue';
 

@@ -24,7 +24,7 @@ form(@submit.prevent="onSubmit()" :class="{ loading: auth.isAuthenticating }")
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted } from '@vue/runtime-core';
+import { defineComponent, ref, onMounted } from 'vue';
 import { get, useTranslator } from '../modules/vue-composition-utils';
 import AuthStore from '../modules/auth/store';
 

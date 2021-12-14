@@ -11,8 +11,8 @@ component.nav-item(
 </template>
 
 <script lang="ts">
-import type { PropType } from '@vue/runtime-core';
-import { defineComponent } from '@vue/runtime-core';
+import type { PropType } from 'vue';
+import { defineComponent } from 'vue';
 import type { RouteLocationRaw, RouterLinkProps } from 'vue-router';
 import { RouterLink } from 'vue-router';
 

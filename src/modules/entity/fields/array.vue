@@ -54,8 +54,8 @@ mixin addButton(condition)
 </template>
 
 <script lang="ts">
-import type { PropType } from '@vue/runtime-core';
-import { inject, defineComponent, computed, ref, watch } from '@vue/runtime-core';
+import type { PropType } from 'vue';
+import { inject, defineComponent, computed, ref, watch } from 'vue';
 import DraggableGroup from 'vuedraggable';
 import type { IField, IRegisteredEntity } from '..';
 import { useTemplate } from '../../vue-composition-utils';

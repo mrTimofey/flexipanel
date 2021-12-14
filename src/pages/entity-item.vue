@@ -13,7 +13,7 @@ page-layout.page-entity-item
 </template>
 
 <script lang="ts">
-import { defineComponent, computed, watchEffect } from '@vue/runtime-core';
+import { defineComponent, computed, watchEffect } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import EntityManager from '../modules/entity';
 import Meta from '../modules/meta';

@@ -1,6 +1,6 @@
 import { computed, ref } from '@vue/reactivity';
-import type { PropType, SetupContext } from '@vue/runtime-core';
-import { defineComponent } from '@vue/runtime-core';
+import type { PropType, SetupContext } from 'vue';
+import { defineComponent } from 'vue';
 import HttpClient from '../../http';
 import NotificationManager from '../../notification';
 import { get, useTemplate, useTranslator } from '../../vue-composition-utils';

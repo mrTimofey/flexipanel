@@ -13,8 +13,8 @@
 </template>
 
 <script lang="ts">
-import type { PropType } from '@vue/runtime-core';
-import { defineComponent, computed } from '@vue/runtime-core';
+import type { PropType } from 'vue';
+import { defineComponent, computed } from 'vue';
 import type { OptionsProp } from './select-utils';
 import { normalizeOptions } from './select-utils';
 

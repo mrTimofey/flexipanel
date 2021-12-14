@@ -17,7 +17,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, watchEffect } from '@vue/runtime-core';
+import { defineComponent, ref, watchEffect } from 'vue';
 import NavItem from './item.vue';
 import NavItemIcon from './item-icon.vue';
 import NavItemBadge from './item-badge.vue';

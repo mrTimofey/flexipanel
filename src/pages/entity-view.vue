@@ -19,7 +19,7 @@ page-layout.page-entity-view(v-if="entityMeta")
 </template>
 
 <script lang="ts">
-import { defineComponent, computed, watchEffect } from '@vue/runtime-core';
+import { defineComponent, computed, watchEffect } from 'vue';
 import { useRouter } from 'vue-router';
 import { get, useRouteQueryParam, useTranslator } from '../modules/vue-composition-utils';
 import EntityView from '../modules/entity/entity-view.vue';

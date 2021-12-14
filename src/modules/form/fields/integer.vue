@@ -14,8 +14,8 @@
 </template>
 
 <script lang="ts">
-import type { PropType } from '@vue/runtime-core';
-import { defineComponent } from '@vue/runtime-core';
+import type { PropType } from 'vue';
+import { defineComponent } from 'vue';
 
 export default defineComponent({
 	props: {

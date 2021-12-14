@@ -84,13 +84,13 @@
 </template>
 
 <script lang="ts">
-import type { PropType } from '@vue/runtime-core';
-import { defineComponent, ref, computed, reactive, watch } from '@vue/runtime-core';
+import type { PropType } from 'vue';
+import { defineComponent, ref, computed, reactive, watch } from 'vue';
 import DraggableGroup from 'vuedraggable';
 import { get, useTemplate, useTranslator } from '../../vue-composition-utils';
 import EntityView from '../entity-view.vue';
 import EntityItem from '../entity-item.vue';
-import type { ModalSize } from '../../modal/modal.vue';
+import type { ModalSize } from '../../modal';
 import ModalDialog from '../../modal/modal.vue';
 import clickOutside from '../../click-outside';
 import type { IRegisteredEntity } from '..';
@@ -101,7 +101,8 @@ export default defineComponent({
 	directives: { clickOutside },
 	props: {
 		modelValue: {
-			type: [String, Number, Boolean, Object, Array] as PropType<unknown | unknown[]>,
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			type: [String, Number, Boolean, Object, Array] as PropType<any | any[]>,
 			default: null,
 		},
 		fieldKey: {

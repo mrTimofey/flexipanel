@@ -48,10 +48,10 @@
 </template>
 
 <script lang="ts">
-import type { PropType } from '@vue/runtime-core';
-import { defineComponent, ref, computed } from '@vue/runtime-core';
+import type { PropType } from 'vue';
+import { defineComponent, ref, computed } from 'vue';
 import { useTranslator } from '../../vue-composition-utils';
-import type { IModalAction } from '../../modal/modal.vue';
+import type { IModalAction } from '../../modal';
 import ModalDialog from '../../modal/modal.vue';
 import FieldTextarea from './textarea.vue';
 

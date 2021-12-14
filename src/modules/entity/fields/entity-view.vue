@@ -49,12 +49,12 @@
 </template>
 
 <script lang="ts">
-import type { PropType } from '@vue/runtime-core';
-import { defineComponent, ref, computed } from '@vue/runtime-core';
+import type { PropType } from 'vue';
+import { defineComponent, ref, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import EntityView from '../entity-view.vue';
 import EntityItem from '../entity-item.vue';
-import type { ModalSize } from '../../modal/modal.vue';
+import type { ModalSize } from '../../modal';
 import ModalDialog from '../../modal/modal.vue';
 import clickOutside from '../../click-outside';
 import { get, useTranslator } from '../../vue-composition-utils';

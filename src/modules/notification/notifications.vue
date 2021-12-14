@@ -17,7 +17,7 @@ transition-group.toast-container.position-fixed.start-0.end-0.top-0.my-4.mx-auto
 </template>
 
 <script lang="ts">
-import { defineComponent } from '@vue/runtime-core';
+import { defineComponent } from 'vue';
 import NotificationManager from '.';
 import { get } from '../vue-composition-utils';
 

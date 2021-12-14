@@ -14,7 +14,6 @@
 		component(
 			:is="entityMeta.form.layout"
 			v-bind="{ store, formId, fields: availableFields, fieldComponent: EntityItemFormField }"
-			@submit="saveAndReturn()"
 		)
 			template(#form)
 				slot(name="form" v-bind="{ store, formId, fields: availableFields, fieldComponent: EntityItemFormField }")
@@ -38,7 +37,6 @@
 							v-else
 							type="submit"
 							:form="formId"
-							@click.prevent="save()"
 						) {{ trans('save') }}
 						button.btn.btn-outline-danger(
 							v-if="store.itemId"
@@ -48,12 +46,12 @@
 </template>
 
 <script lang="ts">
-import type { PropType } from '@vue/runtime-core';
-import { defineComponent, computed, watchEffect, ref } from '@vue/runtime-core';
+import type { PropType } from 'vue';
+import { defineComponent, computed, watchEffect, ref } from 'vue';
 import type { IField, IRegisteredEntity } from '.';
 import EntityItemStore from './stores/item';
 import { get, create, useTranslator } from '../vue-composition-utils';
-import type { IModalAction } from '../modal/modal.vue';
+import type { IModalAction } from '../modal';
 import ModalDialog from '../modal/modal.vue';
 import NotificationManager from '../notification';
 import { ValidationError } from './adapter';

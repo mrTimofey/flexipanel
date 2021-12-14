@@ -1,5 +1,5 @@
-import type { WritableComputedRef } from '@vue/runtime-core';
-import { inject, computed } from '@vue/runtime-core';
+import type { WritableComputedRef } from 'vue';
+import { inject, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { injectKey } from 'mini-ioc-vue';
 import type { AnyClass } from 'mini-ioc';

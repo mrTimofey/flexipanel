@@ -16,8 +16,8 @@ component(
 </template>
 
 <script lang="ts">
-import type { InjectionKey, PropType, ComputedRef } from '@vue/runtime-core';
-import { defineComponent, provide, computed } from '@vue/runtime-core';
+import type { InjectionKey, PropType, ComputedRef } from 'vue';
+import { defineComponent, provide, computed } from 'vue';
 import type { IField } from '.';
 import EntityManager from '.';
 import { get } from '../vue-composition-utils';

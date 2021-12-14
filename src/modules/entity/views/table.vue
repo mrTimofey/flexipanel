@@ -29,8 +29,8 @@
 </template>
 
 <script lang="ts">
-import type { PropType } from '@vue/runtime-core';
-import { defineComponent } from '@vue/runtime-core';
+import type { PropType } from 'vue';
+import { defineComponent } from 'vue';
 import EntityManager from '..';
 import { get } from '../../vue-composition-utils';
 

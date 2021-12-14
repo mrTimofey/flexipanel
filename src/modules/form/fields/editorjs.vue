@@ -7,8 +7,8 @@
 </template>
 
 <script lang="ts">
-import type { PropType } from '@vue/runtime-core';
-import { defineComponent, ref, watch } from '@vue/runtime-core';
+import type { PropType } from 'vue';
+import { defineComponent, ref, watch } from 'vue';
 import type { EditorConfig, OutputData } from '@editorjs/editorjs';
 import EditorJS from '@editorjs/editorjs';
 

@@ -1,4 +1,4 @@
-import { reactive } from '@vue/runtime-core';
+import { reactive } from 'vue';
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 export default abstract class ReactiveStore<T extends object> {

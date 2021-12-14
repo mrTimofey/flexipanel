@@ -10,7 +10,7 @@ component(
 </template>
 
 <script lang="ts">
-import { defineComponent, computed } from '@vue/runtime-core';
+import { defineComponent, computed } from 'vue';
 import EntityManager from '..';
 import { get, debounce } from '../../vue-composition-utils';
 

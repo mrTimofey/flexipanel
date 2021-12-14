@@ -23,8 +23,8 @@
 </template>
 
 <script lang="ts">
-import type { PropType } from '@vue/runtime-core';
-import { defineComponent } from '@vue/runtime-core';
+import type { PropType } from 'vue';
+import { defineComponent } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 import NavGroup from './group.vue';
