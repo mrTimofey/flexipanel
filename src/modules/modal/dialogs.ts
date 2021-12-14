@@ -9,7 +9,7 @@ interface IState {
 	actions: IModalAction[];
 }
 
-export default class ModalDialogStore extends ReactiveStore<IState> {
+export default class ModalDialog extends ReactiveStore<IState> {
 	constructor(protected trans = inject(Translator)) {
 		super();
 	}

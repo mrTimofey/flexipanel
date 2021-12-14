@@ -12,13 +12,13 @@ modal-dialog(
 <script lang="ts">
 import { defineComponent } from 'vue';
 import ModalDialog from './modal.vue';
-import ModalDialogStore from './dialogs';
+import Store from './dialogs';
 import { get } from '../vue-composition-utils';
 
 export default defineComponent({
 	components: { ModalDialog },
 	setup() {
-		const store = get(ModalDialogStore);
+		const store = get(Store);
 		return {
 			store,
 		};

@@ -1,13 +1,5 @@
 <template lang="pug">
 .entity-form(v-if="entityMeta?.form" :class="{ loading: store.loading }")
-	modal-dialog(
-		v-if="confirmingDelete"
-		@close="confirmingDelete = false"
-		@action-click="onDeleteConfirm($event.index === 0)"
-		size="sm"
-		:title="trans('deleteItem')"
-		:actions="confirmActions"
-	) {{ trans('areYouSure') }}?
 	.d-flex.justify-content-center.py-5(v-if="initializing")
 		.spinner.spinner-grow.text-primary
 	.entity-form-layout(v-else)
@@ -51,11 +43,10 @@ import { defineComponent, computed, watchEffect, ref } from 'vue';
 import type { IField, IRegisteredEntity } from '.';
 import EntityItemStore from './stores/item';
 import { get, create, useTranslator } from '../vue-composition-utils';
-import type { IModalAction } from '../modal';
-import ModalDialog from '../modal/modal.vue';
 import NotificationManager from '../notification';
 import { ValidationError } from './adapter';
 import EntityItemFormField from './entity-item-form-field.vue';
+import ModalDialog from '../modal/dialogs';
 
 let guidCounter = 0;
 function guid() {
@@ -64,7 +55,7 @@ function guid() {
 }
 
 export default defineComponent({
-	components: { ModalDialog, EntityItemFormField },
+	components: { EntityItemFormField },
 	props: {
 		entityMeta: {
 			type: Object as PropType<IRegisteredEntity | null>,
@@ -95,8 +86,8 @@ export default defineComponent({
 	setup(props, { emit }) {
 		const notifier = get(NotificationManager);
 		const store = create(EntityItemStore);
+		const modalDialog = get(ModalDialog);
 		const initializing = ref(false);
-		const confirmingDelete = ref(false);
 		const { trans } = useTranslator();
 
 		watchEffect(async () => {
@@ -131,23 +122,12 @@ export default defineComponent({
 			trans,
 			store,
 			initializing,
-			confirmingDelete,
 			availableFields: computed<Required<IField>[]>(
 				() =>
 					props.entityMeta?.form.fields.filter<Required<IField>>(
 						(field): field is Required<IField> => !field.hidden && (!field.key || !Object.prototype.hasOwnProperty.call(props.fixedValues, field.key)),
 					) || [],
 			),
-			confirmActions: computed<IModalAction[]>(() => [
-				{
-					type: 'danger',
-					title: trans('yes'),
-				},
-				{
-					type: 'secondary',
-					title: trans('no'),
-				},
-			]),
 			async save() {
 				if ((await handleErrors(() => store.save())) && !store.hasErrors) {
 					notifier.push({
@@ -170,12 +150,12 @@ export default defineComponent({
 					emit('return', { id: store.itemId, item: store.formItem });
 				}
 			},
-			confirmAndDelete() {
-				confirmingDelete.value = true;
-			},
-			async onDeleteConfirm(yes: boolean) {
-				confirmingDelete.value = false;
-				if (yes && (await handleErrors(() => store.destroy()))) {
+			async confirmAndDelete() {
+				const confirmed = await modalDialog.confirm(trans('areYouSure'), trans('deleteItem'));
+				if (!confirmed) {
+					return;
+				}
+				if (await handleErrors(() => store.destroy())) {
 					emit('delete');
 					emit('return');
 				}

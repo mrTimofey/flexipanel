@@ -1,13 +1,5 @@
 <template lang="pug">
 .form-field-entity-view(v-if="entityMeta && viewType")
-	modal-dialog(
-		v-if="confirmDeleteTarget"
-		@close="confirmDeleteTarget = null"
-		@action-click="onDeleteConfirm($event.index === 0)"
-		size="sm"
-		:title="trans('deleteItem')"
-		:actions="confirmActions"
-	) {{ trans('areYouSure') }}?
 	.d-flex.justify-content-center.py-5(v-if="initialLoading")
 		.spinner.spinner-grow.text-primary
 	.d-flex.flex-column.flex-grow-1(v-else-if="viewComponent && entityView")
@@ -78,12 +70,10 @@ import type { IRegisteredEntity } from '.';
 import EntityManager from '.';
 import type { ListItem } from './stores/list';
 import EntityListStore from './stores/list';
-import { get, create, debounce } from '../vue-composition-utils';
+import { get, create, debounce, useTranslator } from '../vue-composition-utils';
 import PageNav from './pagination.vue';
 import FieldSelect from '../form/fields/select.vue';
-import Translator from '../i18n';
-import type { IModalAction } from '../modal';
-import ModalDialog from '../modal/modal.vue';
+import ModalDialog from '../modal/dialogs';
 import NotificationManager from '../notification';
 
 function isPositionChangeEvent(event: { action: string }): event is { action: string; oldIndex: number; newIndex: number } {
@@ -91,7 +81,7 @@ function isPositionChangeEvent(event: { action: string }): event is { action: st
 }
 
 export default defineComponent({
-	components: { PageNav, FieldSelect, ModalDialog },
+	components: { PageNav, FieldSelect },
 	props: {
 		entityMeta: {
 			type: Object as PropType<IRegisteredEntity | null>,
@@ -139,7 +129,8 @@ export default defineComponent({
 		const store = create(EntityListStore);
 		const entityManager = get(EntityManager);
 		const notifier = get(NotificationManager);
-		const translator = get(Translator);
+		const modalDialog = get(ModalDialog);
+		const { trans } = useTranslator();
 		const router = useRouter();
 		const entityView = computed(() => {
 			if (!props.entityMeta) {
@@ -153,7 +144,6 @@ export default defineComponent({
 		const viewComponent = computed(() => viewType.value?.component);
 		const realPerPageOptions = computed(() => props.perPageOptions || entityView.value?.perPageOptions || []);
 		const idKey = computed(() => props.entityMeta?.itemUrlKey || 'id');
-		const confirmDeleteTarget = ref<ListItem | null>(null);
 		const initialLoading = ref(false);
 
 		async function reloadInitialState() {
@@ -209,19 +199,8 @@ export default defineComponent({
 			initialLoading,
 			store,
 			realPerPageOptions,
-			confirmDeleteTarget,
 			idKey,
-			confirmActions: computed<IModalAction[]>(() => [
-				{
-					type: 'danger',
-					title: translator.get('yes'),
-				},
-				{
-					type: 'secondary',
-					title: translator.get('no'),
-				},
-			]),
-			trans: (key: string) => translator.get(key),
+			trans,
 			updatePage(page: number): void {
 				store.reload({ page, perPage: store.perPage });
 				emit('update:page', page);
@@ -261,28 +240,26 @@ export default defineComponent({
 					},
 				}).href;
 			},
-			confirmAndDelete(item: ListItem): void {
-				confirmDeleteTarget.value = item;
-			},
-			onDeleteConfirm(yes: boolean): void {
-				if (yes && confirmDeleteTarget.value) {
-					store
-						.deleteItem(confirmDeleteTarget.value)
-						.then(() =>
-							store.reload({
-								page: store.page,
-								perPage: store.perPage,
-								filters: props.filters,
-							}),
-						)
-						.catch((err) => {
-							notifier.push({
-								type: 'error',
-								body: `${err}`,
-							});
-						});
+			async confirmAndDelete(item: ListItem) {
+				const confirmed = await modalDialog.confirm(trans('areYouSure'), trans('deleteItem'));
+				if (!confirmed) {
+					return;
 				}
-				confirmDeleteTarget.value = null;
+				store
+					.deleteItem(item)
+					.then(() =>
+						store.reload({
+							page: store.page,
+							perPage: store.perPage,
+							filters: props.filters,
+						}),
+					)
+					.catch((err) => {
+						notifier.push({
+							type: 'error',
+							body: `${err}`,
+						});
+					});
 			},
 			fieldComponent(type: string) {
 				return entityManager.getFieldType(type)?.component;
