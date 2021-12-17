@@ -24,6 +24,16 @@ export class ValidationError extends TypeError {
 	constructor(public fieldErrors: Record<string, string[]>, message = 'Validation error') {
 		super(message);
 	}
+
+	get fieldErrorsText() {
+		return Object.entries(this.fieldErrors)
+			.map(([, messages]) => messages.join('; '))
+			.join('. ');
+	}
+
+	toString() {
+		return this.fieldErrorsText;
+	}
 }
 
 export default interface IAdapter {
