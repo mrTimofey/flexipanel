@@ -208,6 +208,9 @@ export default class EntityManager {
 		this.registerFieldType('date', {
 			component: defineAsyncComponent(() => import('../form/fields/date.vue')),
 		});
+		this.registerFieldType('time', {
+			component: defineAsyncComponent(() => import('../form/fields/time.vue')),
+		});
 		this.registerFieldType('datetime', {
 			component: defineAsyncComponent(() => import('../form/fields/datetime.vue')),
 		});
