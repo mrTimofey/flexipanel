@@ -6,6 +6,7 @@ import type { AnyClass } from 'mini-ioc';
 import type Container from 'mini-ioc';
 import TemplateEngine from './template';
 import Translator from './i18n';
+import EntityManager from './entity';
 
 export function getContainer(): Container {
 	const injected = inject(injectKey) as Container;
@@ -88,4 +89,13 @@ export function debounce<T extends unknown[]>(fn: (...args: T) => unknown, delay
 			fn(...args);
 		}, delay);
 	};
+}
+
+export function requireEntityMeta(key: string) {
+	const entityManager = get(EntityManager);
+	const meta = entityManager.getEntity(key);
+	if (!meta) {
+		throw new Error(`Entity ${key} not found`);
+	}
+	return meta;
 }
