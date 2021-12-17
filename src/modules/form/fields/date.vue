@@ -40,13 +40,13 @@ export default defineComponent({
 		return {
 			dateValue: computed({
 				get() {
-					return props.modelValue ? props.modelValue.substr(0, 10) : '';
+					return props.modelValue ? props.modelValue.substring(0, 10) : '';
 				},
 				set(v: string) {
 					if (!v && props.modelValue) {
 						emit('update:modelValue', null);
 					} else if (v !== props.modelValue) {
-						emit('update:modelValue', v.substr(0, 10));
+						emit('update:modelValue', v.substring(0, 10));
 					}
 				},
 			}),
