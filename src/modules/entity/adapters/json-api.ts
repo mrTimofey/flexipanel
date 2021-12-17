@@ -117,7 +117,8 @@ function adaptItemResponse({ data, included }: IJsonApiItemResponse, relatedItem
 	};
 
 	function addRelatedItem(key: string, item: { type: string; id: string }) {
-		if (path.length > 3) {
+		// TODO something less stupid to prevent infinite cyclic links
+		if (path.length > 10) {
 			return;
 		}
 		const fieldPath = path.map((str) => `${str}.`).join('') + key;
