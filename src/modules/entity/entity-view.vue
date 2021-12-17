@@ -27,7 +27,7 @@
 							@update:model-value="onFilterInput(filter.key, $event)"
 						)
 							template(#label) {{ filter.label }}
-		.fs-2.semibold.text-center.text-muted.px-3.py-3(v-if="store.total === 0") {{ store.loading ? `${trans('loading')}...` : trans('noItems') }}
+		.fs-2.semibold.text-center.text-muted.px-3.py-3(v-if="store.total === 0") {{ store.loading ? (loadingText || `${trans('loading')}...`) : (emptyText || trans('noItems')) }}
 		.flex-shrink-1.overflow-auto(v-else)
 			component(
 				:is="viewComponent"
@@ -122,6 +122,14 @@ export default defineComponent({
 		sortable: {
 			type: Boolean,
 			default: false,
+		},
+		loadingText: {
+			type: String,
+			default: '',
+		},
+		emptyText: {
+			type: String,
+			default: '',
 		},
 	},
 	emits: ['update:page', 'update:perPage', 'update:filters', 'edit-click', 'item-click', 'item-action-click'],
