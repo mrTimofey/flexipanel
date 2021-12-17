@@ -9,7 +9,7 @@
 		)
 			template(#form)
 				slot(name="form" v-bind="{ store, formId, fields: availableFields, fieldComponent: EntityItemFormField }")
-					form(@submit.prevent="saveAndReturn()" :id="formId")
+					form(@submit.prevent="onReturn ? saveAndReturn() : save()" :id="formId")
 						.mb-3(v-for="field in availableFields")
 							entity-item-form-field(v-bind="{ field, store }")
 			template(#actions)
@@ -31,7 +31,7 @@
 							:form="formId"
 						) {{ trans('save') }}
 						button.btn.btn-outline-danger(
-							v-if="store.itemId"
+							v-if="store.itemId && !deleteDisabled"
 							type="button"
 							@click.prevent="confirmAndDelete()"
 						) {{ trans('delete') }}
@@ -77,15 +77,23 @@ export default defineComponent({
 			type: String,
 			default: () => guid(),
 		},
+		deleteDisabled: {
+			type: Boolean,
+			default: false,
+		},
+		sharedStore: {
+			type: Object as PropType<EntityItemStore>,
+			default: null,
+		},
 		// eslint-disable-next-line vue/require-default-prop
 		onReturn: Function,
 		// eslint-disable-next-line vue/require-default-prop
 		onDelete: Function,
 	},
-	emits: ['update:id', 'return', 'delete', 'change'],
+	emits: ['update:id', 'return', 'delete', 'change', 'update', 'create'],
 	setup(props, { emit }) {
+		const store = props.sharedStore || create(EntityItemStore);
 		const notifier = get(NotificationManager);
-		const store = create(EntityItemStore);
 		const modalDialog = get(ModalDialog);
 		const initializing = ref(false);
 		const { trans } = useTranslator();
@@ -135,9 +143,12 @@ export default defineComponent({
 						body: trans('successfullySaved'),
 					});
 					emit('change', { id: store.itemId, item: store.formItem });
-				}
-				if (props.id !== store.itemId) {
-					emit('update:id', store.itemId);
+					if (props.id === store.itemId) {
+						emit('update');
+					} else {
+						emit('create');
+						emit('update:id', store.itemId);
+					}
 				}
 			},
 			async saveAndReturn() {
