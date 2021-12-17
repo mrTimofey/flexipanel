@@ -95,7 +95,7 @@ export function requireEntityMeta(key: string) {
 	const entityManager = get(EntityManager);
 	const meta = entityManager.getEntity(key);
 	if (!meta) {
-		throw new Error(`Entity ${key} not found`);
+		throw new TypeError(`requireEntityMeta: Entity ${key} not found`);
 	}
 	return meta;
 }
