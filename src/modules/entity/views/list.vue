@@ -2,6 +2,7 @@
 .content(v-if="items && items.length" :class="{ loading }")
 	ul.list-group.list-group-flush
 		li.list-group-item.list-group-item-action.p-0(v-for="item in items")
+			slot(name="item-before" :item="item")
 			.d-flex.align-items-center
 				.ps-2(v-if="selectable")
 					slot(name="selection" :item="item")
@@ -9,6 +10,7 @@
 					component(:is="displayComponent" v-bind="{ ...displayProps, item }")
 				.pe-2(v-if="!noActions")
 					slot(name="actions" :item="item")
+			slot(name="item-after" :item="item")
 </template>
 
 <script lang="ts">
