@@ -273,6 +273,9 @@ export default defineComponent({
 				}
 				emit('update:filters', filters);
 			},
+			onItemInput({ item, values }: { item: Record<string, unknown>; values: Record<string, unknown> }) {
+				store.patchItem(item, values);
+			},
 			// external API
 			reload() {
 				store.reload({
@@ -280,9 +283,6 @@ export default defineComponent({
 					perPage: store.perPage,
 					filters: props.filters,
 				});
-			},
-			onItemInput({ item, values }: { item: Record<string, unknown>; values: Record<string, unknown> }) {
-				store.patchItem(item, values);
 			},
 		};
 	},
