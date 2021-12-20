@@ -56,33 +56,35 @@ function getFirstNumber(...args: unknown[]): number {
 	return args.find<number>((arg): arg is number => typeof arg === 'number') ?? NaN;
 }
 
-function adaptListResponse({ data, included, meta }: IJsonApiListResponse): IListData {
-	const result: IListData = {
-		items: data.map((item) => {
-			const adapted: Record<string, unknown> = { id: item.id, ...item.attributes };
-			if (!item.relationships || !included?.length) {
-				return adapted;
-			}
-			Object.entries(item.relationships).forEach(([key, value]) => {
-				if (Array.isArray(value.data)) {
-					const itemValue: Record<string, unknown>[] = [];
-					value.data.forEach((relation) => {
-						const includedItem = included.find(({ type, id }) => id === relation.id && type === relation.type);
-						if (includedItem) {
-							itemValue.push({ id: includedItem.id, ...includedItem.attributes });
-						}
-					});
-					adapted[key] = itemValue;
-				} else if (value.data) {
-					const relation = value.data;
-					const relatedItem = included.find(({ type, id }) => id === relation.id && type === relation.type);
-					adapted[key] = relatedItem ? { id: relatedItem.id, ...relatedItem.attributes } : null;
-				} else {
-					adapted[key] = null;
+function mixAttrsAndRelations(item: IJsonApiItem, included: IJsonApiListResponse['included'], depth = 0): Record<string, unknown> {
+	const mixed: Record<string, unknown> = { id: item.id, ...item.attributes };
+	if (!item.relationships || !included?.length || depth > 10) {
+		return mixed;
+	}
+	Object.entries(item.relationships).forEach(([key, value]) => {
+		if (Array.isArray(value.data)) {
+			const itemValue: Record<string, unknown>[] = [];
+			value.data.forEach((relation) => {
+				const includedItem = included.find(({ type, id }) => id === relation.id && type === relation.type);
+				if (includedItem) {
+					itemValue.push(mixAttrsAndRelations(includedItem, included, depth + 1));
 				}
 			});
-			return adapted;
-		}),
+			mixed[key] = itemValue;
+		} else if (value.data) {
+			const relation = value.data;
+			const includedItem = included.find(({ type, id }) => id === relation.id && type === relation.type);
+			mixed[key] = includedItem ? mixAttrsAndRelations(includedItem, included, depth + 1) : null;
+		} else {
+			mixed[key] = null;
+		}
+	});
+	return mixed;
+}
+
+function adaptListResponse({ data, included, meta }: IJsonApiListResponse): IListData {
+	const result: IListData = {
+		items: data.map((item) => mixAttrsAndRelations(item, included)),
 	};
 
 	if (!meta) {

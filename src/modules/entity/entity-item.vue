@@ -8,7 +8,7 @@
 			v-bind="{ store, formId, fields: availableFields, fieldComponent: EntityItemFormField }"
 		)
 			template(#form)
-				slot(name="form" v-bind="{ store, formId, fields: availableFields, fieldComponent: EntityItemFormField }")
+				slot(name="form" v-bind="{ store, formId, save, saveAndReturn, fields: availableFields, fieldComponent: EntityItemFormField }")
 					form(@submit.prevent="onReturn ? saveAndReturn() : save()" :id="formId")
 						.mb-3(v-for="field in availableFields")
 							entity-item-form-field(v-bind="{ field, store }")

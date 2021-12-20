@@ -1,6 +1,6 @@
 <template lang="pug">
 component(
-	:is="fieldComponent(field.type)"
+	:is="getFieldComponent(field.type)"
 	:field-key="field.key"
 	:errors="store.formErrors[field.key]"
 	:model-value="fieldValue"
@@ -8,7 +8,7 @@ component(
 	:entity-item="store.formItem"
 	:entity-item-id="store.itemId"
 	:related-items="store.relatedItems"
-	v-bind="{ ...field.props, ...field[store.itemId ? 'updateProps' : 'createProps'] }"
+	v-bind="{ ...field.props, ...field[store.itemId ? 'updateProps' : 'createProps'], ...fieldProps }"
 	@update:model-value="onChange ? onChange($event) : store.updateFormFieldValue(field.key, $event)"
 	@update-field="store.updateFormFieldValue($event.key, $event.value, !!$event.immediate)"
 )
@@ -52,6 +52,14 @@ export default defineComponent({
 			type: Function as PropType<(value: unknown) => unknown>,
 			default: null,
 		},
+		fieldComponent: {
+			type: Object,
+			default: null,
+		},
+		fieldProps: {
+			type: Object,
+			default: null,
+		},
 	},
 	setup(props) {
 		const entityManager = get(EntityManager);
@@ -60,8 +68,8 @@ export default defineComponent({
 			computed(() => props.store),
 		);
 		return {
-			fieldComponent(type: string) {
-				return entityManager.getFieldType(type)?.component;
+			getFieldComponent(type: string) {
+				return props.fieldComponent || entityManager.getFieldType(type)?.component;
 			},
 			fieldValue: computed(() => deep(props.store.formItem, props.field.key.split('.'))),
 		};
