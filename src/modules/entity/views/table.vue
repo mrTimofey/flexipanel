@@ -2,35 +2,50 @@
 .content(v-if="items && items.length" :class="{ loading }")
 	table.table.table-hover.m-0
 		colgroup
+			col(v-if="sortable" style="width:0;white-space:nowrap")
 			col(v-if="selectable" style="width:0;white-space:nowrap")
 			col(v-for="{ width } in columns" :style="{ width }")
 			col(v-if="!noActions")
 		thead(style="border-top:none")
 			tr
+				th(v-if="sortable")
 				th(v-if="selectable")
 				th(v-for="{ title } in columns") {{ title }}
 				th(v-if="!noActions")
-		tbody
-			tr(v-for="item in items" :class="{ 'row-loading': loadingItems.has(item) }")
-				td(v-if="selectable")
-					slot(name="selection" :item="item")
-				td.cell-display(
-					v-for="col in columns"
-					@click.prevent="col.type !== 'field' && onItemClick(item)"
-					:class="{ 'p-1': col.type === 'field' }"
-				)
-					component(
-						:is="displayComponent(col.type || defaultDisplayType)"
-						v-bind="displayProps(item, col)"
-						@input="onInput(item, $event)"
+		draggable-group.form-field-array-items(
+			handle="[data-move-handle]"
+			tag="tbody"
+			:item-key="itemKey"
+			:animation="200"
+			:model-value="items"
+			:disabled="!sortable"
+			@change="$event.moved && onPositionChange($event.moved.oldIndex, $event.moved.newIndex)"
+		)
+			template(#item="{ element: item }")
+				tr(:class="{ 'row-loading': loadingItems.has(item) }")
+					td.bg-light(v-if="sortable" data-move-handle style="cursor:pointer")
+						.px-2
+							i.fa-solid.fa-arrows-alt-v
+					td(v-if="selectable")
+						slot(name="selection" :item="item")
+					td.cell-display(
+						v-for="col in columns"
+						@click.prevent="col.type !== 'field' && onItemClick(item)"
+						:class="{ 'p-1': col.type === 'field' }"
 					)
-				td.p-1(v-if="!noActions")
-					slot(name="actions" :item="item")
+						component(
+							:is="displayComponent(col.type || defaultDisplayType)"
+							v-bind="displayProps(item, col)"
+							@input="onInput(item, $event)"
+						)
+					td.p-1(v-if="!noActions")
+						slot(name="actions" :item="item")
 </template>
 
 <script lang="ts">
 import type { PropType } from 'vue';
 import { defineComponent } from 'vue';
+import DraggableGroup from 'vuedraggable';
 import EntityManager from '..';
 import { get } from '../../vue-composition-utils';
 
@@ -42,6 +57,7 @@ export interface IColumn {
 }
 
 export default defineComponent({
+	components: { DraggableGroup },
 	props: {
 		items: {
 			type: Array as PropType<Record<string, unknown>[]>,
@@ -71,8 +87,16 @@ export default defineComponent({
 			type: Boolean,
 			default: false,
 		},
+		sortable: {
+			type: Boolean,
+			default: false,
+		},
+		itemKey: {
+			type: String,
+			default: 'id',
+		},
 	},
-	emits: ['item-click', 'item-input'],
+	emits: ['item-click', 'item-input', 'item-action-click'],
 	setup(props, { emit }) {
 		const entityManager = get(EntityManager);
 		return {
@@ -87,6 +111,13 @@ export default defineComponent({
 			},
 			onInput(item: unknown, values: unknown) {
 				emit('item-input', { item, values });
+			},
+			onPositionChange(oldIndex: number, newIndex: number) {
+				emit('item-action-click', {
+					action: 'itemPositionChange',
+					oldIndex,
+					newIndex,
+				});
 			},
 		};
 	},
