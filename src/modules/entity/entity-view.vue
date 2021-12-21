@@ -43,20 +43,20 @@
 				@item-action-click="onItemActionClick($event)"
 			)
 				template(#item-before="bindings")
-					slot(name="item-before" v-bind="bindings")
+					slot(name="item-before" v-bind="bindings" :reload="reload")
 				template(#item-after="bindings")
-					slot(name="item-after" v-bind="bindings")
+					slot(name="item-after" v-bind="bindings" :reload="reload")
 				template(#selection="{ item }")
-					slot(name="selection" :item="item" :id="item[idKey]")
+					slot(name="selection" :item="item" :id="item[idKey]" :reload="reload")
 				template(#actions="{ item }")
 					.d-flex.justify-content-end
 						.btn-group.btn-group-sm
-							slot(name="actions-before" :item="item" :id="item[idKey]")
+							slot(name="actions-before" :item="item" :id="item[idKey]" :reload="reload")
 							a.btn.btn-primary(v-if="store.abilities.edit" @click.prevent="onEditClick(item)" :href="itemRoute(item)")
 								i.fa-solid.fa-pencil
 							button.btn.btn-danger(v-if="store.abilities.delete" @click.prevent="confirmAndDelete(item)")
 								i.fa-solid.fa-trash
-							slot(name="actions-after" :item="item" :id="item[idKey]")
+							slot(name="actions-after" :item="item" :id="item[idKey]" :reload="reload")
 			.p-3(v-if="store.lastPage > 1 && store.hasPagination")
 				page-nav(
 					:model-value="store.page"
