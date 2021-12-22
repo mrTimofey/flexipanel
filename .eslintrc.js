@@ -43,7 +43,7 @@ module.exports = {
 		'no-unused-expressions': 0,
 		'no-use-before-define': 0,
 		'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 0,
-		'prefer-destructuring': 1,
+		'prefer-destructuring': 0,
 		curly: [2, 'all'],
 		'class-methods-use-this': 0,
 		'lines-between-class-members': [2, 'always', { exceptAfterSingleLine: true }],
