@@ -51,10 +51,11 @@ export default defineComponent({
 	setup(props, { emit }) {
 		const input = ref<HTMLInputElement | null>(null);
 		watch(
-			input,
+			[input, () => props.autofocus],
 			() => {
 				if (input.value && props.autofocus) {
 					input.value.focus();
+					input.value.select();
 				}
 			},
 			{ immediate: true },

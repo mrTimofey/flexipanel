@@ -23,7 +23,7 @@
 							:is="fieldComponent(filter.type)"
 							v-bind="filter.props"
 							:model-value="filters[filter.key]"
-							:autofocus="i === 0"
+							:autofocus="isActivated && i === 0"
 							@update:model-value="onFilterInput(filter.key, $event)"
 						)
 							template(#label) {{ filter.label }}
@@ -70,7 +70,7 @@
 
 <script lang="ts">
 import type { PropType } from 'vue';
-import { defineComponent, computed, watch, ref } from 'vue';
+import { onDeactivated, onActivated, defineComponent, computed, watch, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import type { IRegisteredEntity } from '.';
 import EntityManager from '.';
@@ -159,6 +159,15 @@ export default defineComponent({
 		const realPerPageOptions = computed(() => props.perPageOptions || entityView.value?.perPageOptions || []);
 		const idKey = computed(() => props.entityMeta?.itemUrlKey || 'id');
 		const initialLoading = ref(false);
+		const isActivated = ref(false);
+
+		onActivated(() => {
+			isActivated.value = true;
+		});
+
+		onDeactivated(() => {
+			isActivated.value = false;
+		});
 
 		async function reloadInitialState() {
 			if (store.loading || !entityView.value) {
@@ -214,6 +223,7 @@ export default defineComponent({
 			store,
 			realPerPageOptions,
 			idKey,
+			isActivated,
 			trans,
 			updatePage(page: number): void {
 				store.reload({ page, perPage: store.perPage });

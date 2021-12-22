@@ -18,14 +18,16 @@
 				:id="editingItem.id"
 				@update:id="editingItem = { id: $event }"
 				@return="clearEditingItem()"
-				@change="reloadView()"
-				@delete="reloadView()"
+				@change="reload()"
+				@delete="reload()"
 			)
 	.form-field-entity-view-label
 		slot(name="label")
 	.form-field-entity-view-content.border.rounded.shadow-sm(v-if="entityItemId")
-		.p-2(v-if="!readonly")
-			button.btn.btn-primary.btn-sm(type="button" @click.prevent="editingItem = { id: '' }") {{ createButtonText || trans('createEntityItem') }}
+		.btn-group.btn-group-sm.p-2(v-if="!readonly")
+			slot(name="actions-before")
+			button.btn.btn-primary(type="button" @click.prevent="editingItem = { id: '' }") {{ createButtonText || trans('createEntityItem') }}
+			slot(name="actions-after")
 		entity-view(
 			ref="entityViewComponent"
 			:entity-meta="relatedEntityMeta"
@@ -206,9 +208,6 @@ export default defineComponent({
 			defaultItemValues,
 			editingItem,
 			entityViewComponent,
-			reloadView() {
-				entityViewComponent.value?.reload();
-			},
 			clearEditingItem() {
 				editingItem.value = null;
 			},
@@ -221,6 +220,11 @@ export default defineComponent({
 				} else {
 					emit('item-action', event);
 				}
+			},
+
+			// public API
+			reload() {
+				entityViewComponent.value?.reload();
 			},
 		};
 	},
