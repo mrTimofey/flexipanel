@@ -129,6 +129,10 @@ export default defineComponent({
 			type: Boolean,
 			default: false,
 		},
+		context: {
+			type: Object,
+			default: null,
+		},
 	},
 	emits: ['item-click', 'item-action-click'],
 	setup(props, { emit, slots }) {

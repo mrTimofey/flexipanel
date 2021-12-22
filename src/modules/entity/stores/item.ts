@@ -43,7 +43,7 @@ export default class EntityItemStore extends EntityBaseStore<IState> {
 				item[field.key] = values[field.key];
 			} else if (field.default !== undefined) {
 				item[field.key] = field.default;
-			} else {
+			} else if ((field.updateOnly && this.itemId) || (field.createOnly && !this.itemId)) {
 				item[field.key] = null;
 			}
 		});

@@ -16,6 +16,7 @@ import Store from './dialogs';
 import { get } from '../vue-composition-utils';
 
 export default defineComponent({
+	name: 'ModalDialogsContainer',
 	components: { ModalDialog },
 	setup() {
 		const store = get(Store);

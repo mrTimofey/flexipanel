@@ -97,6 +97,7 @@ import type { IRegisteredEntity } from '..';
 import EntityManager from '..';
 
 export default defineComponent({
+	name: 'EntityField',
 	components: { EntityView, ModalDialog, EntityItem, DraggableGroup },
 	directives: { clickOutside },
 	props: {
@@ -166,6 +167,10 @@ export default defineComponent({
 			type: Array as PropType<string[]>,
 			default: null,
 		},
+		context: {
+			type: Object,
+			default: null,
+		},
 	},
 	emits: ['update:modelValue'],
 	setup(props, { emit }) {
@@ -208,8 +213,8 @@ export default defineComponent({
 					let obj = props.entityItem;
 					while (relationPath.length && obj) {
 						const relatedField = relationPath.shift() as string;
-						const relatedId = obj[relatedField];
-						obj = props.relatedItems?.[relatedField]?.[relatedId];
+						const relatedObjectOrId = obj[relatedField] || props.context[relatedField];
+						obj = typeof relatedObjectOrId === 'object' && relatedObjectOrId ? relatedObjectOrId : props.relatedItems?.[relatedField]?.[relatedObjectOrId];
 					}
 					if (obj && obj[fieldName]) {
 						newFilters[key] = obj[fieldName];
@@ -280,6 +285,12 @@ export default defineComponent({
 				selecting.value = false;
 			},
 			getDisplayValue(value: unknown) {
+				if (typeof value === 'object' && value !== null) {
+					return tpl(props.displayTemplate, {
+						value: (value as Record<string, unknown>)[props.idField || 'id'],
+						item: value,
+					});
+				}
 				const valueString = `${value}`;
 				return tpl(props.displayTemplate, {
 					value,

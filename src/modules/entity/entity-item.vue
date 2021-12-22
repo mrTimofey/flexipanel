@@ -133,7 +133,10 @@ export default defineComponent({
 			availableFields: computed<Required<IField>[]>(
 				() =>
 					props.entityMeta?.form.fields.filter<Required<IField>>(
-						(field): field is Required<IField> => !field.hidden && (!field.key || !Object.prototype.hasOwnProperty.call(props.fixedValues, field.key)),
+						(field): field is Required<IField> =>
+							!field.hidden &&
+							(props.id ? !field.createOnly : !field.updateOnly) &&
+							(!field.key || !Object.prototype.hasOwnProperty.call(props.fixedValues, field.key)),
 					) || [],
 			),
 			async save() {

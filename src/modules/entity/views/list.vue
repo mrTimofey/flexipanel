@@ -25,6 +25,7 @@ export interface IColumn {
 }
 
 export default defineComponent({
+	name: 'ListView',
 	props: {
 		items: {
 			type: Array as PropType<Record<string, unknown>[]>,
@@ -49,6 +50,10 @@ export default defineComponent({
 		selectable: {
 			type: Boolean,
 			default: false,
+		},
+		context: {
+			type: Object,
+			default: null,
 		},
 	},
 	emits: ['item-click'],

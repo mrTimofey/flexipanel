@@ -28,11 +28,12 @@
 						)
 							template(#label) {{ filter.label }}
 		.fs-2.semibold.text-center.text-muted.px-3.py-3(v-if="store.total === 0") {{ store.loading ? (loadingText || `${trans('loading')}...`) : (emptyText || trans('noItems')) }}
-		.flex-shrink-1.overflow-auto(v-else)
+		.flex-shrink-1(v-else)
 			component(
 				:is="viewComponent"
 				:selectable="selectable"
 				:sortable="sortable"
+				:context="context"
 				v-bind="entityView.props"
 				:items="store.items"
 				:loading="store.loading"
@@ -136,6 +137,10 @@ export default defineComponent({
 		emptyText: {
 			type: String,
 			default: '',
+		},
+		context: {
+			type: Object,
+			default: null,
 		},
 	},
 	emits: ['update:page', 'update:perPage', 'update:filters', 'edit-click', 'item-click', 'item-action-click'],
@@ -265,7 +270,7 @@ export default defineComponent({
 				}).href;
 			},
 			async confirmAndDelete(item: ListItem) {
-				const confirmed = await modalDialog.confirm(trans('areYouSure'), trans('deleteItem'));
+				const confirmed = await modalDialog.confirm(`${trans('areYouSure')}?`, trans('deleteItem'));
 				if (!confirmed) {
 					return;
 				}
@@ -298,7 +303,12 @@ export default defineComponent({
 				emit('update:filters', filters);
 			},
 			onItemInput({ item, values }: { item: Record<string, unknown>; values: Record<string, unknown> }) {
-				store.patchItem(item, values);
+				store.patchItem(item, values).catch((err) => {
+					notifier.push({
+						type: 'error',
+						body: `${err}`,
+					});
+				});
 			},
 			// external API
 			reload() {

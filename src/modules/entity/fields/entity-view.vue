@@ -24,10 +24,12 @@
 	.form-field-entity-view-label
 		slot(name="label")
 	.form-field-entity-view-content.border.rounded.shadow-sm(v-if="entityItemId")
-		.btn-group.btn-group-sm.p-2(v-if="!readonly")
-			slot(name="actions-before")
-			button.btn.btn-primary(type="button" @click.prevent="editingItem = { id: '' }") {{ createButtonText || trans('createEntityItem') }}
-			slot(name="actions-after")
+		slot(name="actions")
+			.btn-group.btn-group-sm.p-2(v-if="!readonly")
+				slot(name="actions-before")
+				button.btn.btn-primary(type="button" @click.prevent="editingItem = { id: '' }") {{ createButtonText || trans('createEntityItem') }}
+				slot(name="actions-after")
+		slot(name="view-before")
 		entity-view(
 			ref="entityViewComponent"
 			:entity-meta="relatedEntityMeta"
@@ -46,6 +48,7 @@
 		)
 			template(#selection="bindings")
 				slot(name="selection" v-bind="bindings")
+		slot(name="view-after")
 	.form-field-entity-view-warning.border.rounded.shadow-sm.px-3.py-2(v-else)
 		.fs-5.text-muted {{ trans('createToProceed') }}
 </template>
@@ -230,5 +233,3 @@ export default defineComponent({
 	},
 });
 </script>
-
-<style lang="stylus" scoped></style>

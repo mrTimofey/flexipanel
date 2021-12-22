@@ -69,7 +69,7 @@ export default defineComponent({
 				if (Number.isNaN(props.modelValue)) {
 					return;
 				}
-				if (props.modelValue !== 0 && !props.modelValue) {
+				if (props.modelValue !== 0 && !props.modelValue && props.modelValue !== props.default) {
 					emit('update:modelValue', props.default);
 				} else if (props.modelValue < props.min) {
 					emit('update:modelValue', props.min);

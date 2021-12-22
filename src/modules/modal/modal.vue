@@ -23,20 +23,20 @@ teleport(to="body")
 					.modal-footer(v-if="actions && actions.length")
 						button.btn(
 							v-for="(action, index) in actions"
-							:ref="index === 0 ? 'firstActionButton' : undefined"
 							:class="`btn-${action.type}`"
 							@click.prevent="onActionClick(action, index)"
 						) {{ action.title }}
 </template>
 <script lang="ts">
 import type { PropType } from 'vue';
-import { defineComponent, onMounted, onBeforeUnmount, ref, watch } from 'vue';
+import { defineComponent, onMounted, onBeforeUnmount } from 'vue';
 import type { IModalAction, ModalSize } from '.';
 
 const clickInside = Symbol('modalClickInsideMarker');
 type MarkedPointerEvent = Event & { [clickInside]?: true };
 
 export default defineComponent({
+	name: 'ModalDialog',
 	props: {
 		size: {
 			type: String as PropType<ModalSize>,
@@ -53,7 +53,6 @@ export default defineComponent({
 	},
 	emits: ['background-click', 'close-click', 'action-click', 'escape-press', 'close'],
 	setup(props, { emit }) {
-		const firstActionButton = ref<HTMLButtonElement | null>(null);
 		const pointerPosition = { x: -1, y: -1 };
 
 		function onKeyPress(e: KeyboardEvent) {
@@ -68,13 +67,7 @@ export default defineComponent({
 		onBeforeUnmount(() => {
 			window.removeEventListener('keydown', onKeyPress);
 		});
-		// focus first action on modal open
-		const stopWatchFirstActionButton = watch(firstActionButton, () => {
-			firstActionButton.value?.focus();
-			stopWatchFirstActionButton();
-		});
 		return {
-			firstActionButton,
 			onCloseClick() {
 				emit('close-click');
 				emit('close');

@@ -38,18 +38,18 @@ export default class EntityListStore extends EntityBaseStore<IState> {
 		};
 	}
 
-	protected async itemAction(item: ListItem, fn: (args: { entity: IRegisteredEntity; adapter: IAdapter; itemKey: string }) => Promise<unknown>) {
+	protected async itemAction<T = unknown>(item: ListItem, fn: (args: { entity: IRegisteredEntity; adapter: IAdapter; itemKey: string }) => Promise<T>): Promise<T | null> {
 		if (!this.entity) {
-			return;
+			return null;
 		}
 		const itemKey = (item as unknown as Record<string, string>)[this.entity.itemUrlKey];
 		if (!itemKey) {
-			return;
+			return null;
 		}
 		this.state.loadingItems.add(item);
 		try {
 			const adapter = await this.getAdapter();
-			await fn({ entity: this.entity, adapter, itemKey });
+			return await fn({ entity: this.entity, adapter, itemKey });
 		} finally {
 			this.state.loadingItems.delete(item);
 		}
@@ -83,8 +83,16 @@ export default class EntityListStore extends EntityBaseStore<IState> {
 		}
 	}
 
-	public patchItem(item: ListItem, newValues: Record<string, unknown>) {
-		return this.itemAction(item, ({ entity, adapter, itemKey }) => adapter.saveItem(entity.apiEndpoint, newValues, itemKey));
+	public async patchItem(item: ListItem, newValues: Record<string, unknown>) {
+		const result = await this.itemAction(item, ({ entity, adapter, itemKey }) => adapter.saveItem(entity.apiEndpoint, newValues, itemKey));
+		if (!result?.item) {
+			return;
+		}
+		Object.keys(item).forEach((key) => {
+			if (Object.prototype.hasOwnProperty.call(result.item, key)) {
+				item[key] = Object.prototype.hasOwnProperty.call(result.relatedItems, key) ? result.relatedItems[key][`${result.item[key]}`] : result.item[key];
+			}
+		});
 	}
 
 	public moveItem(from: number, to: number) {
@@ -95,7 +103,7 @@ export default class EntityListStore extends EntityBaseStore<IState> {
 	}
 
 	public async deleteItem(item: ListItem): Promise<void> {
-		return this.itemAction(item, ({ entity, adapter, itemKey }) => adapter.deleteItem(entity.apiEndpoint, itemKey));
+		await this.itemAction(item, ({ entity, adapter, itemKey }) => adapter.deleteItem(entity.apiEndpoint, itemKey));
 	}
 
 	public setEntity(entity: IRegisteredEntity | null): void {

@@ -22,6 +22,10 @@ export interface IField {
 	createProps?: Record<string, unknown>;
 	// properties for update only
 	updateProps?: Record<string, unknown>;
+	// show field on create form only
+	createOnly?: boolean;
+	// show field on update form only
+	updateOnly?: boolean;
 }
 
 export interface IView {

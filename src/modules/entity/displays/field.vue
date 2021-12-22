@@ -5,6 +5,7 @@ component(
 	:model-value="item[prop]"
 	:field-key="prop"
 	:entity-item="item"
+	:context="context || undefined"
 	@update:model-value="onUpdate($event)"
 )
 </template>
@@ -15,6 +16,7 @@ import EntityManager from '..';
 import { get, debounce } from '../../vue-composition-utils';
 
 export default defineComponent({
+	name: 'FieldDisplay',
 	props: {
 		item: {
 			type: Object,
@@ -31,6 +33,10 @@ export default defineComponent({
 		fieldProps: {
 			type: Object,
 			default: () => ({}),
+		},
+		context: {
+			type: Object,
+			default: null,
 		},
 	},
 	emits: ['input'],

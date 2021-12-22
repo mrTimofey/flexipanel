@@ -57,6 +57,7 @@ export interface IColumn {
 }
 
 export default defineComponent({
+	name: 'TableView',
 	components: { DraggableGroup },
 	props: {
 		items: {
@@ -95,6 +96,10 @@ export default defineComponent({
 			type: String,
 			default: 'id',
 		},
+		context: {
+			type: Object,
+			default: null,
+		},
 	},
 	emits: ['item-click', 'item-input', 'item-action-click'],
 	setup(props, { emit }) {
@@ -104,7 +109,7 @@ export default defineComponent({
 				return entityManager.getDisplayType(displayType)?.component;
 			},
 			displayProps(item: Record<string, unknown>, col: IColumn) {
-				return { ...col, item, title: undefined, type: undefined };
+				return { ...col, item, title: undefined, type: undefined, context: props.context };
 			},
 			onItemClick(item: unknown) {
 				emit('item-click', item);
