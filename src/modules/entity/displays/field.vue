@@ -6,7 +6,7 @@ component(
 	:field-key="prop"
 	:entity-item="item"
 	:context="context || undefined"
-	@update:model-value="onUpdate($event)"
+	@update:model-value="debounceAwareEmit($event)"
 )
 </template>
 
@@ -38,15 +38,24 @@ export default defineComponent({
 			type: Object,
 			default: null,
 		},
+		debounce: {
+			type: [Boolean, Number],
+			default: false,
+		},
 	},
 	emits: ['input'],
 	setup(props, { emit }) {
 		const entityManager = get(EntityManager);
+		const debounceAwareEmit = computed<(value: unknown) => void>(() => {
+			const fn = (value: unknown) => {
+				emit('input', { [props.prop]: value });
+			};
+			return props.debounce ? debounce(fn, typeof props.debounce === 'number' ? props.debounce : undefined) : fn;
+		});
+
 		return {
 			fieldComponent: computed(() => entityManager.getFieldType(props.fieldType)?.component),
-			onUpdate: debounce((value) => {
-				emit('input', { [props.prop]: value });
-			}),
+			debounceAwareEmit,
 		};
 	},
 });
