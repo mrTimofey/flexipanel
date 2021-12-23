@@ -13,7 +13,7 @@
 						.mb-3(v-for="field in availableFields")
 							entity-item-form-field(v-bind="{ field, store, context }")
 			template(#actions)
-				slot(name="actions" v-bind="{ save, saveAndReturn, confirmAndDelete }")
+				slot(name="actions" v-bind="{ save, saveAndReturn, confirmAndDelete, formId }")
 					.btn-group.entity-form-actions
 						//- show "save and return" button only when @return is handled
 						template(v-if="onReturn")

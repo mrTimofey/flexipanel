@@ -50,12 +50,10 @@
 			v-show="selecting"
 			v-click-outside="selecting && !creating ? onClickOutsideSelector : null"
 		)
-			.entity-select-dropdown.bg-white.rounded.shadow.overflow-auto
-				.py-2.px-3(v-if="allowCreate")
-					button.btn.btn-primary.btn-sm(type="button" @click.prevent="creating = true") {{ trans('createEntityItem') }}
+			.entity-select-dropdown.bg-white.rounded.shadow
 				.d-flex.border-bottom(v-if="showClearOption")
 					button.btn.btn-sm.btn-light.flex-grow-1.rounded-0.text-start(type="button" @click.prevent.stop="clear()") {{ trans('clearField') }}
-				.entity-select-dropdown-content
+				.entity-select-dropdown-content.overflow-auto
 					keep-alive
 						entity-view.flex-grow-1(
 							v-if="selecting"
@@ -63,19 +61,21 @@
 							selectable
 							:entity-meta="relatedEntityMeta"
 							:view="view"
+							:per-page="perPage"
+							:per-page-options="[]"
 							v-model:page="page"
-							v-model:perPage="perPage"
 							v-model:filters="filters"
 							v-model:sort="sort"
 							@item-click="toggleItem($event)"
 						)
 							template(#selection="data")
-								label.d-block
+								label.d-block(@click.prevent="toggleItem(data)")
 									input.form-check-input(
 										:type="multiple ? 'checkbox' : 'radio'"
 										:checked="modelValueIds.includes(idField ? data.item[idField] : data.id)"
-										@click="toggleItem(data)"
 									)
+				.p-1.d-flex(v-if="allowCreate")
+					button.btn.btn-primary.btn-sm.flex-grow-1(type="button" @click.prevent="creating = true") {{ trans('createEntityItem') }}
 	.text-danger(v-if="errors && errors.length")
 		div(v-for="err in errors")
 			small {{ err }}
@@ -128,6 +128,10 @@ export default defineComponent({
 			type: String,
 			default: '',
 		},
+		perPage: {
+			type: Number,
+			default: 25,
+		},
 		// { [API filter key (example: 'parent')]: related items path string to acquire value from (example: 'parent.id') }
 		optionsFilter: {
 			type: Object as PropType<Record<string, string>>,
@@ -178,7 +182,6 @@ export default defineComponent({
 	setup(props, { emit }) {
 		const { tpl } = useTemplate();
 		const page = ref<number>(1);
-		const perPage = ref<number | undefined>(undefined);
 		const filters = ref<Record<string, unknown>>({});
 		const sort = ref<Record<string, unknown>>({});
 		const selecting = ref(false);
@@ -275,7 +278,6 @@ export default defineComponent({
 			...useTranslator(),
 			relatedEntityMeta,
 			page,
-			perPage,
 			filters,
 			sort,
 			selecting,

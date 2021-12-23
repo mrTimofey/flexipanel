@@ -16,18 +16,18 @@
 					)
 					span {{ trans('of') }} {{ store.total }}
 				slot(name="top-end")
-			.px-3.mb-3(v-if="entityView.filters && entityView.filters.length")
-				.row
-					.col(v-for="(filter, i) in entityView.filters")
-						component(
-							:is="fieldComponent(filter.type)"
-							v-bind="filter.props"
-							:model-value="filters[filter.key]"
-							:autofocus="isActivated && i === 0"
-							@update:model-value="onFilterInput(filter.key, $event)"
-						)
-							template(#label) {{ filter.label }}
-		.fs-2.semibold.text-center.text-muted.px-3.py-3(v-if="store.total === 0") {{ store.loading ? (loadingText || `${trans('loading')}...`) : (emptyText || trans('noItems')) }}
+			.px-2.my-2.position-relative(v-if="entityView.filters && entityView.filters.length" style="z-index:6")
+				component(
+					v-for="(filter, i) in entityView.filters"
+					:key="filter.key"
+					:is="fieldComponent(filter.type)"
+					v-bind="filter.props"
+					:model-value="filters[filter.key]"
+					:autofocus="isActivated && i === 0"
+					@update:model-value="onFilterInput(filter.key, $event)"
+				)
+					template(#label) {{ filter.label }}
+		.fs-5.semibold.text-center.text-muted.px-3.py-4(v-if="store.total === 0") {{ store.loading ? (loadingText || `${trans('loading')}...`) : (emptyText || trans('noItems')) }}
 		.flex-shrink-1(v-else)
 			component(
 				:is="viewComponent"
