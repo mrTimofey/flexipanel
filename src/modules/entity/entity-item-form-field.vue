@@ -3,6 +3,7 @@ component(
 	:is="getFieldComponent(field.type)"
 	:field-key="field.key"
 	:errors="store.formErrors[field.key]"
+	:context="context"
 	:model-value="fieldValue"
 	:entity-meta="store.entityMeta"
 	:entity-item="store.formItem"
@@ -47,6 +48,10 @@ export default defineComponent({
 		store: {
 			type: Object as PropType<EntityItemStore>,
 			required: true,
+		},
+		context: {
+			type: Object,
+			default: null,
 		},
 		onChange: {
 			type: Function as PropType<(value: unknown) => unknown>,

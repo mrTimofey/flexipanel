@@ -11,7 +11,7 @@
 				slot(name="form" v-bind="{ store, formId, save, saveAndReturn, fields: availableFields, fieldComponent: EntityItemFormField }")
 					form(@submit.prevent="onReturn ? saveAndReturn() : save()" :id="formId")
 						.mb-3(v-for="field in availableFields")
-							entity-item-form-field(v-bind="{ field, store }")
+							entity-item-form-field(v-bind="{ field, store, context }")
 			template(#actions)
 				slot(name="actions" v-bind="{ save, saveAndReturn, confirmAndDelete }")
 					.btn-group.entity-form-actions
@@ -83,6 +83,10 @@ export default defineComponent({
 		},
 		sharedStore: {
 			type: Object as PropType<EntityItemStore>,
+			default: null,
+		},
+		context: {
+			type: Object,
 			default: null,
 		},
 		// eslint-disable-next-line vue/require-default-prop
