@@ -34,4 +34,5 @@ export default {
 	of: 'of',
 	color: 'Color',
 	noColor: 'Color is not set',
+	clearField: 'Clear field',
 };

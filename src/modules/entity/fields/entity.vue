@@ -20,20 +20,17 @@
 		tabindex="0"
 		:class="{ selecting, 'has-errors': !!errors }"
 	)
-		.entity-selection.ps-1.pe-3.py-1(
-			style="font-size:0.875rem"
-			@click.prevent="selecting = true"
-		)
-			.px-1.text-muted(v-if="modelValueArray.length === 0") {{ placeholder || trans('nothingSelected') }}
-			draggable-group.list-unstyled.m-0.d-flex(
+		.entity-selection.ps-1.pe-3.pt-1(@click.prevent="selecting = true")
+			.px-1.pb-1.text-muted(v-if="modelValueArray.length === 0") {{ placeholder || trans('nothingSelected') }}
+			draggable-group.list-unstyled.m-0.d-flex.flex-wrap(
 				v-else-if="multiple"
 				tag="ul"
 				v-model="modelValueArray"
 				:item-key="getModelItemKey"
 			)
 				template(#item="{ element, index }")
-					li.ps-1.me-1.d-flex.bg-secondary.rounded(style="--bs-bg-opacity:0.25;cursor:move")
-						.me-1 {{ getDisplayValue(element) }}
+					li.ps-1.me-1.mb-1.d-flex.bg-secondary.rounded(style="--bs-bg-opacity:0.25;cursor:move")
+						.me-1(v-html="getDisplayValue(element)")
 						!=' '
 						button.btn-entity-item-remove.rounded(
 							v-if="!required || modelValueArray.length > 1"
@@ -41,22 +38,23 @@
 							@click.prevent.stop="removeItem(index)"
 						)
 							i.fa-solid.fa-trash
-			.ps-1.me-2.d-flex(v-else)
-				span {{ getDisplayValue(modelValueArray[0]) }}
+			.ps-1.pb-1.me-1.d-flex(v-else)
+				span(v-html="getDisplayValue(modelValueArray[0])")
 				button.btn-entity-item-remove.rounded.ms-2(
 					v-if="!required"
 					type="button"
 					@click.prevent.stop="removeItem(0)"
 				)
 					i.fa-solid.fa-trash
-			span.dropdown-toggle
 		.entity-select-dropdown-wrap(
 			v-show="selecting"
 			v-click-outside="selecting && !creating ? onClickOutsideSelector : null"
 		)
-			.entity-select-dropdown.bg-white.rounded-bottom.shadow.pt-2.overflow-auto
+			.entity-select-dropdown.bg-white.rounded.shadow.overflow-auto
 				.py-2.px-3(v-if="allowCreate")
 					button.btn.btn-primary.btn-sm(type="button" @click.prevent="creating = true") {{ trans('createEntityItem') }}
+				.d-flex.border-bottom(v-if="showClearOption")
+					button.btn.btn-sm.btn-light.flex-grow-1.rounded-0.text-start(type="button" @click.prevent.stop="clear()") {{ trans('clearField') }}
 				.entity-select-dropdown-content
 					keep-alive
 						entity-view.flex-grow-1(
@@ -75,8 +73,8 @@
 								label.d-block
 									input.form-check-input(
 										:type="multiple ? 'checkbox' : 'radio'"
-										:checked="modelValueArray.includes(idField ? data.item[idField] : data.id)"
-										@change="toggleItem(data)"
+										:checked="modelValueIds.includes(idField ? data.item[idField] : data.id)"
+										@click="toggleItem(data)"
 									)
 	.text-danger(v-if="errors && errors.length")
 		div(v-for="err in errors")
@@ -155,6 +153,10 @@ export default defineComponent({
 			type: Boolean,
 			default: false,
 		},
+		showClearOption: {
+			type: Boolean,
+			default: false,
+		},
 		allowCreate: {
 			type: Boolean,
 			default: false,
@@ -193,6 +195,20 @@ export default defineComponent({
 			set(newValue) {
 				emit('update:modelValue', newValue);
 			},
+		});
+		const modelValueIds = computed<(string | number)[]>(() => {
+			if (!modelValueArray.value.length) {
+				return modelValueArray.value as (string | number)[];
+			}
+			if (['string', 'number'].includes(typeof modelValueArray.value[0])) {
+				return modelValueArray.value as (string | number)[];
+			}
+			return modelValueArray.value.map((item) => {
+				if (typeof item === 'object' && item !== null) {
+					return `${(item as Record<string, unknown>)[props.idField || 'id']}` || '';
+				}
+				return '';
+			});
 		});
 		const internalRelatedItems = reactive<Map<unknown, unknown>>(new Map());
 
@@ -265,6 +281,7 @@ export default defineComponent({
 			selecting,
 			creating,
 			modelValueArray,
+			modelValueIds,
 			onBlur(e: FocusEvent) {
 				// hide selector if there is no focus within the element
 				if (!(e.currentTarget as Node)?.contains(e.relatedTarget as Node)) {
@@ -280,6 +297,12 @@ export default defineComponent({
 				} else {
 					removeItem(index);
 				}
+			},
+			clear() {
+				if (modelValueArray.value.length > 0) {
+					emitValue([]);
+				}
+				selecting.value = false;
 			},
 			onClickOutsideSelector() {
 				selecting.value = false;
@@ -311,11 +334,17 @@ export default defineComponent({
 	&:focus
 		outline 0
 .entity-selection
+	position relative
+	z-index 1
 	cursor pointer
 	font-size 0.875rem
 	border 1px solid var(--bs-gray-400)
 	border-radius 0.25rem
 	background-color white
+	background-image url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e")
+	background-repeat no-repeat
+	background-position right 0.25rem center
+	background-size 16px 12px
 	.form-field-entity-wrap.selecting > &
 		border-bottom-left-radius 0
 		border-bottom-right-radius 0
@@ -325,10 +354,9 @@ export default defineComponent({
 	border 1px solid #86b7fe
 .entity-select-dropdown-wrap
 	position absolute
-	top 100%
+	top 0
 	left 0
 	right 0
-	margin-top -1px
 	z-index 5
 	animation entity-dropdown-appear 0.1s ease-out
 	&:after
@@ -338,7 +366,6 @@ export default defineComponent({
 .entity-select-dropdown
 	min-width 280px
 	border 1px solid #86b7fe
-	border-top none
 .entity-select-dropdown-content
 	display flex
 	min-height 240px

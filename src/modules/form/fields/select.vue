@@ -72,3 +72,9 @@ export default defineComponent({
 	},
 });
 </script>
+
+<style lang="stylus" scoped>
+.form-select
+	background-position right 0.25rem center
+	padding-right 1.25rem
+</style>
