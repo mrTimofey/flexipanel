@@ -33,11 +33,12 @@
 						@click.prevent="col.type !== 'field' && onItemClick(item)"
 						:class="{ 'p-1': col.type === 'field' }"
 					)
-						component(
-							:is="displayComponent(col.type || defaultDisplayType)"
-							v-bind="displayProps(item, col)"
-							@input="onInput(item, $event)"
-						)
+						slot(name="view-display" v-bind="{ item, col }")
+							component(
+								:is="displayComponent(col.type || defaultDisplayType)"
+								v-bind="displayProps(item, col)"
+								@input="onInput(item, $event)"
+							)
 					td.p-1(v-if="!noActions")
 						slot(name="actions" :item="item")
 </template>

@@ -43,6 +43,8 @@
 				@item-input="onItemInput($event)"
 				@item-action-click="onItemActionClick($event)"
 			)
+				template(#view-display="bindings")
+					slot(name="view-display" v-bind="bindings" :reload="reload")
 				template(#item-before="bindings")
 					slot(name="item-before" v-bind="bindings" :reload="reload")
 				template(#item-after="bindings")
