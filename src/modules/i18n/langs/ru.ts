@@ -34,4 +34,5 @@ export default {
 	of: 'из',
 	color: 'Цвет',
 	noColor: 'Цвет не выбран',
+	clearField: 'Очистить поле',
 };
