@@ -34,7 +34,7 @@
 				:selectable="selectable"
 				:sortable="sortable"
 				:context="context"
-				v-bind="entityView.props"
+				v-bind="{ ...entityView.props, ...viewProps }"
 				:items="store.items"
 				:loading="store.loading"
 				:loading-items="store.loadingItems"
@@ -99,6 +99,10 @@ export default defineComponent({
 		view: {
 			type: String,
 			default: '',
+		},
+		viewProps: {
+			type: Object,
+			default: null,
 		},
 		noActions: {
 			type: Boolean,

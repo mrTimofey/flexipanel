@@ -4,13 +4,13 @@
 		colgroup
 			col(v-if="sortable" style="width:0;white-space:nowrap")
 			col(v-if="selectable" style="width:0;white-space:nowrap")
-			col(v-for="{ width } in columns" :style="{ width }")
+			col(v-for="col in visibleColumns" :style="{ width: col.width }")
 			col(v-if="!noActions")
 		thead(style="border-top:none")
 			tr
 				th(v-if="sortable")
 				th(v-if="selectable")
-				th(v-for="{ title } in columns") {{ title }}
+				th(v-for="{ title } in visibleColumns") {{ title }}
 				th(v-if="!noActions")
 		draggable-group.form-field-array-items(
 			handle="[data-move-handle]"
@@ -29,7 +29,7 @@
 					td(v-if="selectable")
 						slot(name="selection" :item="item")
 					td.cell-display(
-						v-for="col in columns"
+						v-for="col in visibleColumns"
 						@click.prevent="col.type !== 'field' && onItemClick(item)"
 						:class="{ 'p-1': col.type === 'field' }"
 					)
@@ -45,16 +45,15 @@
 
 <script lang="ts">
 import type { PropType } from 'vue';
-import { defineComponent } from 'vue';
+import { computed, defineComponent } from 'vue';
 import DraggableGroup from 'vuedraggable';
 import EntityManager from '..';
 import { get } from '../../vue-composition-utils';
 
-export interface IColumn {
+export interface IColumn extends Record<string, unknown> {
 	title: string;
 	width?: string;
 	type?: string;
-	props?: Record<string, unknown>;
 }
 
 export default defineComponent({
@@ -76,6 +75,10 @@ export default defineComponent({
 		columns: {
 			type: Array as PropType<IColumn[]>,
 			required: true,
+		},
+		hiddenColumns: {
+			type: Set as PropType<Set<IColumn>>,
+			default: () => new Set(),
 		},
 		defaultDisplayType: {
 			type: String,
@@ -106,6 +109,7 @@ export default defineComponent({
 	setup(props, { emit }) {
 		const entityManager = get(EntityManager);
 		return {
+			visibleColumns: computed(() => (props.hiddenColumns.size > 0 ? props.columns.filter((col) => !props.hiddenColumns.has(col)) : props.columns)),
 			displayComponent(displayType: string) {
 				return entityManager.getDisplayType(displayType)?.component;
 			},
