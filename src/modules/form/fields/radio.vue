@@ -1,15 +1,22 @@
 <template lang="pug">
 .form-field-select
 	slot(name="label")
-	label.form-check(v-for="option in normalizedOptions")
-		input.form-check-input(
-			type="radio"
-			:disabled="disabled"
-			:checked="option.value === modelValue"
-			@change="selectOption(option)"
-		)
-		!=' '
-		span.form-check-label {{ option.label }}
+	template(v-if="theme === 'input-list'")
+		label.form-check(v-for="option in normalizedOptions" @click.prevent="selectOption(option)")
+			input.form-check-input(
+				type="radio"
+				:disabled="disabled"
+				:checked="option.value === modelValue"
+			)
+			!=' '
+			span.form-check-label {{ option.label }}
+	template(v-else-if="theme === 'toggle'")
+		.btn-group.btn-group-sm
+			.btn.btn-outline-primary(
+				v-for="option in normalizedOptions"
+				:class="{ active: option.value === modelValue }"
+				@click.prevent="selectOption(option)"
+			) {{ option.label }}
 	.invalid-feedback(v-if="errors && errors.length")
 		div(v-for="err in errors") {{ err }}
 </template>
@@ -46,6 +53,10 @@ export default defineComponent({
 			type: Array as PropType<string[]>,
 			default: null,
 		},
+		theme: {
+			type: String,
+			default: 'input-list',
+		},
 	},
 	emits: ['update:modelValue'],
 	setup(props, { emit }) {
@@ -53,6 +64,9 @@ export default defineComponent({
 		return {
 			normalizedOptions,
 			selectOption(option: IOption) {
+				if (props.modelValue === option.value) {
+					return;
+				}
 				emit('update:modelValue', option.value);
 			},
 		};
