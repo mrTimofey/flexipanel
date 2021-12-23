@@ -214,6 +214,8 @@ export default defineComponent({
 					default: undefined,
 					createProps: {},
 					updateProps: {},
+					updateOnly: false,
+					createOnly: false,
 					props: { ...props.props, disabled: props.disabled },
 				};
 			},

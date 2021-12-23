@@ -84,6 +84,8 @@ export default defineComponent({
 					default: undefined,
 					createProps: {},
 					updateProps: {},
+					updateOnly: false,
+					createOnly: false,
 					props: { ...field.props, disabled: props.disabled },
 				};
 			},
