@@ -10,7 +10,7 @@
 		:disabled="!sortable"
 		@change="$event.moved && onPositionChange($event.moved.oldIndex, $event.moved.newIndex)"
 	)
-		template(#item="{ element: item }")
+		template(#item="{ element: item, index }")
 			.tree-view-item-wrap(:class="{ loading: loadingItems.has(item) }")
 				.tree-view-item-data
 					.tree-view-item.d-flex.align-items-center.rounded.shadow-sm.border.border-light
@@ -25,7 +25,7 @@
 							slot(name="selection" :item="item")
 						.item-display.flex-grow-1.px-2.py-1(@click.prevent="onItemClick(item)")
 							slot(name="view-display" v-bind="{ item, displayType, displayProps }")
-								component(:is="displayComponent" v-bind="{ ...displayProps, item }")
+								component(:is="displayComponent" v-bind="{ ...displayProps, item, index }")
 						template(v-if="!noActions")
 							.p-1(v-if="componentDepthLevel < maxLevel")
 								button.btn.btn-sm.btn-outline-primary(type="button" @click="onCreateChildClick(item)")

@@ -194,6 +194,9 @@ export default class EntityManager {
 		this.registerDisplayType('html', {
 			component: defineAsyncComponent(() => import('./displays/html.vue')),
 		});
+		this.registerDisplayType('index', {
+			component: defineAsyncComponent(() => import('./displays/index.vue')),
+		});
 		this.registerDisplayType('image', {
 			component: defineAsyncComponent(() => import('./displays/image.vue')),
 		});

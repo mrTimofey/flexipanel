@@ -21,7 +21,7 @@
 			:disabled="!sortable"
 			@change="$event.moved && onPositionChange($event.moved.oldIndex, $event.moved.newIndex)"
 		)
-			template(#item="{ element: item }")
+			template(#item="{ element: item, index }")
 				tr(:class="{ 'row-loading': loadingItems.has(item) }")
 					td.bg-light(v-if="sortable" data-move-handle style="cursor:pointer")
 						.px-2
@@ -36,7 +36,7 @@
 						slot(name="view-display" v-bind="{ item, col }")
 							component(
 								:is="displayComponent(col.type || defaultDisplayType)"
-								v-bind="displayProps(item, col)"
+								v-bind="displayProps(item, index, col)"
 								@input="onInput(item, $event)"
 							)
 					td.p-1(v-if="!noActions")
@@ -109,8 +109,8 @@ export default defineComponent({
 			displayComponent(displayType: string) {
 				return entityManager.getDisplayType(displayType)?.component;
 			},
-			displayProps(item: Record<string, unknown>, col: IColumn) {
-				return { ...col, item, title: undefined, type: undefined, context: props.context };
+			displayProps(item: Record<string, unknown>, index: number, col: IColumn) {
+				return { ...col, item, index, title: undefined, type: undefined, context: props.context };
 			},
 			onItemClick(item: unknown) {
 				emit('item-click', item);
