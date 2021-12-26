@@ -132,8 +132,15 @@ export default defineComponent({
 			type: Number,
 			default: 25,
 		},
-		// { [API filter key (example: 'parent')]: related items path string to acquire value from (example: 'parent.id') }
+		// Static filters.
 		optionsFilter: {
+			type: Object as PropType<Record<string, unknown>>,
+			default: null,
+		},
+		// Context aware dynamic filters.
+		// { [API filter key (example: 'parent')]: object property path string to acquire value from (example: 'parent.id') }
+		// Property lookup works with entityItem, relatedItems, context
+		optionsFilterMap: {
 			type: Object as PropType<Record<string, string>>,
 			default: null,
 		},
@@ -216,29 +223,27 @@ export default defineComponent({
 		const internalRelatedItems = reactive<Map<unknown, unknown>>(new Map());
 
 		watch(
-			() => props.optionsFilter,
+			[() => props.optionsFilterMap, () => props.optionsFilter],
 			() => {
-				if (!props.optionsFilter) {
-					filters.value = {};
-					return;
+				const newFilters: Record<string, unknown> = props.optionsFilter ? { ...props.optionsFilter } : {};
+				if (props.optionsFilterMap) {
+					Object.entries(props.optionsFilterMap).forEach(([key, path]) => {
+						const relationPath = path.split('.');
+						const fieldName = relationPath.pop();
+						if (!fieldName) {
+							return;
+						}
+						let obj = props.entityItem;
+						while (relationPath.length && obj) {
+							const relatedField = relationPath.shift() as string;
+							const relatedObjectOrId = obj[relatedField] || props.context[relatedField];
+							obj = typeof relatedObjectOrId === 'object' && relatedObjectOrId ? relatedObjectOrId : props.relatedItems?.[relatedField]?.[relatedObjectOrId];
+						}
+						if (obj && obj[fieldName]) {
+							newFilters[key] = obj[fieldName];
+						}
+					});
 				}
-				const newFilters: Record<string, unknown> = {};
-				Object.entries(props.optionsFilter).forEach(([key, path]) => {
-					const relationPath = path.split('.');
-					const fieldName = relationPath.pop();
-					if (!fieldName) {
-						return;
-					}
-					let obj = props.entityItem;
-					while (relationPath.length && obj) {
-						const relatedField = relationPath.shift() as string;
-						const relatedObjectOrId = obj[relatedField] || props.context[relatedField];
-						obj = typeof relatedObjectOrId === 'object' && relatedObjectOrId ? relatedObjectOrId : props.relatedItems?.[relatedField]?.[relatedObjectOrId];
-					}
-					if (obj && obj[fieldName]) {
-						newFilters[key] = obj[fieldName];
-					}
-				});
 				filters.value = newFilters;
 			},
 			{ immediate: true },
