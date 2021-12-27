@@ -1,12 +1,18 @@
 <template lang="pug">
 modal-dialog(
 	v-if="store.body"
-	@close="store.answer()"
-	@action-click="store.answer($event.index)"
-	size="sm"
+	@close="store.closeWithAnswer()"
+	@action-click="store.closeWithAnswer($event.index)"
+	:size="store.size"
 	:title="store.title"
 	:actions="store.actions"
-) {{ store.body }}
+)
+	template(v-if="typeof store.body === 'string'") {{ store.body }}
+	component(
+		v-else
+		:is="store.body"
+		v-bind="store.props"
+	)
 </template>
 
 <script lang="ts">
