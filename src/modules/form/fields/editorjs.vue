@@ -63,6 +63,14 @@ export default defineComponent({
 							emit('update:modelValue', data);
 						});
 					},
+					onReady() {
+						editor?.on('change', () => {
+							editor?.save().then((data) => {
+								justEmitted = true;
+								emit('update:modelValue', data);
+							});
+						});
+					},
 					// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 					// @ts-ignore enum object is undefined because of esbuild so hardcode the value
 					logLevel: 'ERROR',
