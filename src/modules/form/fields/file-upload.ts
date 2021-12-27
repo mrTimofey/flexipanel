@@ -1,6 +1,6 @@
 import { computed, ref } from '@vue/reactivity';
 import type { PropType, SetupContext } from 'vue';
-import { defineComponent } from 'vue';
+import { watch, defineComponent } from 'vue';
 import HttpClient from '../../http';
 import NotificationManager from '../../notification';
 import { get, useTemplate, useTranslator } from '../../vue-composition-utils';
@@ -24,8 +24,18 @@ function useFileUpload<T extends ['update:modelValue'] = ['update:modelValue']>(
 	const http = get(HttpClient);
 	const notifier = get(NotificationManager);
 	const uploaded = computed<boolean>(() => typeof props.modelValue === 'string' && props.modelValue !== '');
+	const fileUrl = ref('');
 	const uploadStatus = ref(UploadStatus.Idle);
 	const uploadProgress = ref(0);
+
+	// TODO computed doesn't work, investigate
+	watch(
+		() => props.modelValue,
+		() => {
+			fileUrl.value = typeof props.modelValue === 'string' ? tpl(props.urlTemplate, props.modelValue) : '';
+		},
+		{ immediate: true },
+	);
 
 	return {
 		...useTranslator(),
@@ -33,7 +43,7 @@ function useFileUpload<T extends ['update:modelValue'] = ['update:modelValue']>(
 		uploadStatus,
 		uploadProgress,
 		uploaded,
-		fileUrl: computed(() => tpl(props.urlTemplate, props.modelValue)),
+		fileUrl,
 		async onFileChange(e: Event) {
 			uploadProgress.value = 0;
 			uploadStatus.value = UploadStatus.Idle;
@@ -53,6 +63,7 @@ function useFileUpload<T extends ['update:modelValue'] = ['update:modelValue']>(
 					},
 				});
 				emit('update:modelValue', res.body);
+				target.value = '';
 			} catch (err) {
 				notifier.push({
 					type: 'error',
