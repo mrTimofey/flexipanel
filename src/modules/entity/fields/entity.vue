@@ -361,6 +361,8 @@ export default defineComponent({
 		background-size 16px 12px
 		background-repeat no-repeat
 		background-color white
+		border-top-right-radius 0.25rem
+		border-bottom-right-radius 0.25rem
 	.form-field-entity-wrap.selecting > &
 		border-bottom-left-radius 0
 		border-bottom-right-radius 0
