@@ -19,10 +19,10 @@
 						style="--bs-bg-opacity:0.25"
 					)
 				.btn.btn-danger.btn-sm.position-absolute.top-0.start-0.m-2(@click="clearValue()" :disabled="disabled")
-					i.fa-solid.fa-trash
+					i.fas.fa-trash
 			.btn-group(v-else)
 				.btn.btn-danger(@click="clearValue()" :disabled="disabled")
-					i.fa-solid.fa-trash
+					i.fas.fa-trash
 				.btn(:class="errors ? 'btn-outline-danger' : 'btn-light'") {{ uploadMessage || trans('uploadMessage') }}
 		label.btn(
 			v-else
@@ -36,7 +36,7 @@
 				:accept="accept"
 				:disabled="disabled"
 			)
-			i.fa-solid.fa-upload
+			i.fas.fa-upload
 			!=' '
 			| {{ placeholder || trans('chooseFile') }}
 	.text-danger(v-if="errors && errors.length")

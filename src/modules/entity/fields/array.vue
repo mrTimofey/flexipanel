@@ -6,7 +6,7 @@ mixin addButton(condition)
 		:disabled="disabled"
 		@click.prevent="addItem()"
 	)
-		i.fa-solid.fa-plus
+		i.fas.fa-plus
 		!=' {{ addButtonLabel }}'
 .form-field-array
 	.form-field-array-label
@@ -32,7 +32,7 @@ mixin addButton(condition)
 					@click.prevent
 					data-move-handle
 				)
-					i.fa-solid.fa-arrows-alt-v
+					i.fas.fa-arrows-alt-v
 				.flex-grow-1
 					entity-item-form-field(
 						v-if="store"
@@ -46,7 +46,7 @@ mixin addButton(condition)
 						@click.prevent="removeItem(index)"
 						:disabled="disabled"
 					)
-						i.fa-solid.fa-trash
+						i.fas.fa-trash
 	+addButton('["both", "bottom"].includes(addButtonPosition)')
 	.text-danger(v-if="errors && errors.length")
 		div(v-for="err in errors")

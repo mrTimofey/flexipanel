@@ -7,10 +7,10 @@
 	)
 		template(#header)
 			.modal-header
-				.container.d-flex.align-items-center
-					h5.modal-title {{ trans(editingItem ? 'editEntityItem' : 'createEntityItem') }}
+				.modal-entity-item-container.d-flex.align-items-center.flex-grow-1
+					h5.modal-title.flex-grow-1 {{ trans(editingItem ? 'editEntityItem' : 'createEntityItem') }}
 					button.btn-close(@click="clearEditingItem()")
-		.container.bg-white.shadow-sm.rounded.p-3.my-2
+		.modal-entity-item-container.bg-white.shadow-sm.rounded.p-3.my-2
 			entity-item(
 				:entity-meta="relatedEntityMeta"
 				:fixed-values="fixedItemValues"
@@ -233,3 +233,9 @@ export default defineComponent({
 	},
 });
 </script>
+
+<style lang="stylus" scoped>
+.modal-entity-item-container
+	max-width 1320px
+	margin 0 auto
+</style>

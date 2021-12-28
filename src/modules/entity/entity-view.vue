@@ -55,10 +55,11 @@
 					.d-flex.justify-content-end
 						.btn-group.btn-group-sm
 							slot(name="actions-before" :item="item" :id="item[idKey]" :reload="reload")
-							a.btn.btn-primary(v-if="store.abilities.edit" @click.prevent="onEditClick(item)" :href="itemRoute(item)")
-								i.fa-solid.fa-pencil
-							button.btn.btn-danger(v-if="store.abilities.delete" @click.prevent="confirmAndDelete(item)")
-								i.fa-solid.fa-trash
+							slot(name="actions" v-bind="{ item, id: item[idKey], reload, onEditClick: () => onEditClick(item), confirmAndDelete: () => confirmAndDelete(item) }")
+								a.btn.btn-primary(v-if="store.abilities.edit" @click.prevent="onEditClick(item)" :href="itemRoute(item)")
+									i.fas.fa-pencil
+								button.btn.btn-danger(v-if="store.abilities.delete" @click.prevent="confirmAndDelete(item)")
+									i.fas.fa-trash
 							slot(name="actions-after" :item="item" :id="item[idKey]" :reload="reload")
 			.p-3(v-if="store.lastPage > 1 && store.hasPagination")
 				page-nav(

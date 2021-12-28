@@ -21,12 +21,12 @@ export default defineComponent({
 		return {
 			iconClass: computed(() => {
 				if (props.item[props.prop] === true) {
-					return 'fa-solid fa-check text-success';
+					return 'fas fa-check text-success';
 				}
 				if (props.item[props.prop] === false) {
-					return 'fa-solid fa-times text-muted';
+					return 'fas fa-times text-muted';
 				}
-				return 'fa-solid fa-question';
+				return 'fas fa-question';
 			}),
 		};
 	},

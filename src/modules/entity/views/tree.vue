@@ -20,7 +20,7 @@
 								data-move-handle
 								:disabled="currentLevelItems.length < 2"
 							)
-								i.fa-solid.fa-arrows-alt-v
+								i.fas.fa-arrows-alt-v
 						.ps-1(v-if="selectable")
 							slot(name="selection" :item="item")
 						.item-display.flex-grow-1.px-2.py-1(@click.prevent="onItemClick(item)")
@@ -29,7 +29,7 @@
 						template(v-if="!noActions")
 							.p-1(v-if="componentDepthLevel < maxLevel")
 								button.btn.btn-sm.btn-outline-primary(type="button" @click="onCreateChildClick(item)")
-									i.fa-solid.fa-plus
+									i.fas.fa-plus
 									!=' '
 									| {{ createChildButtonText }}
 							.p-1

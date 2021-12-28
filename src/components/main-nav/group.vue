@@ -7,7 +7,7 @@
 	)
 		template(#before)
 			slot(name="before")
-				nav-item-icon.caret.fa-solid.fa-angle-right
+				nav-item-icon.caret.fas.fa-angle-right
 		template(#default)
 			slot
 		template(#after)

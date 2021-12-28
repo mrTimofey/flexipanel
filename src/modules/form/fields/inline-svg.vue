@@ -23,7 +23,7 @@
 				@change="onFileChange($event)"
 				:disabled="disabled"
 			)
-			i.fa-solid.fa-file
+			i.fas.fa-file
 			!=' '
 			span.ps-1 {{ trans('svgFile') }}
 		button.btn(
@@ -31,7 +31,7 @@
 			:class="errors ? 'btn-outline-danger' : 'btn-outline-primary'"
 			@click.prevent="openEditCodeModal()"
 		)
-			i.fa-solid.fa-pencil
+			i.fas.fa-pencil
 			!=' '
 			span.ps-1 {{ trans('svgCode') }}
 		button.btn.btn-danger(
@@ -39,7 +39,7 @@
 			type="button"
 			@click.prevent="clearValue()"
 		)
-			i.fa-solid.fa-trash
+			i.fas.fa-trash
 	.form-field-inline-svg-contents.d-flex(v-if="modelValue")
 		.p-1.border.rounded(v-html="modelValue")
 	.text-danger(v-if="errors && errors.length")

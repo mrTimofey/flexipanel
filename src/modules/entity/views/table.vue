@@ -25,7 +25,7 @@
 				tr(:class="{ 'row-loading': loadingItems.has(item) }")
 					td.bg-light(v-if="sortable" data-move-handle style="cursor:pointer")
 						.px-2
-							i.fa-solid.fa-arrows-alt-v
+							i.fas.fa-arrows-alt-v
 					td(v-if="selectable")
 						slot(name="selection" :item="item")
 					td.cell-display(

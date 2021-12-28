@@ -37,7 +37,7 @@
 							type="button"
 							@click.prevent.stop="removeItem(index)"
 						)
-							i.fa-solid.fa-trash
+							i.fas.fa-trash
 			.ps-1.pb-1.me-1.d-flex(v-else)
 				span(v-html="getDisplayValue(modelValueArray[0])")
 				button.btn-entity-item-remove.rounded.ms-2(
@@ -45,7 +45,7 @@
 					type="button"
 					@click.prevent.stop="removeItem(0)"
 				)
-					i.fa-solid.fa-trash
+					i.fas.fa-trash
 		.entity-select-dropdown-wrap(
 			v-show="selecting"
 			v-click-outside="selecting && !creating ? onClickOutsideSelector : null"
@@ -348,10 +348,19 @@ export default defineComponent({
 	border 1px solid var(--bs-gray-400)
 	border-radius 0.25rem
 	background-color white
-	background-image url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e")
-	background-repeat no-repeat
-	background-position right 0.25rem center
-	background-size 16px 12px
+	&::after
+		content ''
+		display block
+		position absolute
+		top 0
+		right 0
+		bottom 0
+		width 1.5rem
+		background-image url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e")
+		background-position right 0.25rem center
+		background-size 16px 12px
+		background-repeat no-repeat
+		background-color white
 	.form-field-entity-wrap.selecting > &
 		border-bottom-left-radius 0
 		border-bottom-right-radius 0

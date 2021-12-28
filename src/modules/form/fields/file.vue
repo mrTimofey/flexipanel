@@ -10,7 +10,7 @@
 		)
 	.form-field-file-actions.btn-group(v-else)
 		.btn.btn-danger(v-if="modelValue" @click="clearValue()" :disabled="disabled")
-			i.fa-solid.fa-trash
+			i.fas.fa-trash
 		label.btn(
 			v-else
 			:disabled="disabled"
@@ -23,7 +23,7 @@
 				:accept="accept"
 				:disabled="disabled"
 			)
-			i.fa-solid.fa-upload
+			i.fas.fa-upload
 			!=' '
 			| {{ placeholder || trans('chooseFile') }}
 		a.btn(
@@ -32,7 +32,7 @@
 			:class="errors ? 'btn-outline-danger' : 'btn-light'"
 			:href="fileUrl"
 		)
-			i.fa-solid.fa-download
+			i.fas.fa-download
 			!=' '
 			| {{ valueLabel || modelValue }}
 		.btn(
