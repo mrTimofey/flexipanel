@@ -1,6 +1,5 @@
-import { computed, ref } from '@vue/reactivity';
-import type { PropType, SetupContext } from 'vue';
-import { watch, defineComponent } from 'vue';
+import { computed, ref, defineComponent } from 'vue';
+import type { PropType, ComponentPropsOptions } from 'vue';
 import HttpClient from '../../http';
 import NotificationManager from '../../notification';
 import { get, useTemplate, useTranslator } from '../../vue-composition-utils';
@@ -11,118 +10,127 @@ export enum UploadStatus {
 	InProgress = 3,
 }
 
-function useFileUpload<T extends ['update:modelValue'] = ['update:modelValue']>(
-	props: {
-		modelValue: string | Blob;
-		urlTemplate: string;
-		disabled: boolean;
-		uploadEndpoint: string;
-	},
-	emit: SetupContext<T>['emit'],
-) {
-	const { tpl } = useTemplate();
-	const http = get(HttpClient);
-	const notifier = get(NotificationManager);
-	const uploaded = computed<boolean>(() => typeof props.modelValue === 'string' && props.modelValue !== '');
-	const fileUrl = ref('');
-	const uploadStatus = ref(UploadStatus.Idle);
-	const uploadProgress = ref(0);
+export default function makeUploadComponent(options: { props?: ComponentPropsOptions } = {}) {
+	return defineComponent({
+		props: {
+			modelValue: {
+				type: [String, Blob, Array] as PropType<string | Blob | (string | Blob)[]>,
+				default: null,
+			},
+			placeholder: {
+				type: String,
+				default: '',
+			},
+			disabled: {
+				type: Boolean,
+				default: false,
+			},
+			multiple: {
+				type: Boolean,
+				default: false,
+			},
+			accept: {
+				type: String,
+				default: '',
+			},
+			uploadMessage: {
+				type: String,
+				default: '',
+			},
+			valueLabel: {
+				type: String,
+				default: '',
+			},
+			uploadEndpoint: {
+				type: String,
+				default: '/api/files',
+			},
+			urlTemplate: {
+				type: String,
+				default: '/storage/uploads/{{=it}}',
+			},
+			errors: {
+				type: Array as PropType<string[]>,
+				default: null,
+			},
+			...options.props,
+		},
+		emits: ['update:modelValue'],
+		setup(props, { emit }) {
+			const { tpl } = useTemplate();
+			const http = get(HttpClient);
+			const notifier = get(NotificationManager);
+			const uploadStatus = ref(UploadStatus.Idle);
+			const uploadProgress = ref(0);
+			const modelValueArray = computed<(string | Blob)[]>(() => {
+				if (Array.isArray(props.modelValue)) {
+					return props.modelValue;
+				}
+				if (props.modelValue) {
+					return [props.modelValue];
+				}
+				return [];
+			});
+			const modelValueItems = computed(() =>
+				modelValueArray.value.map((value) => ({
+					value,
+					url: typeof value === 'string' ? tpl(props.urlTemplate, value) : '',
+				})),
+			);
 
-	// TODO computed doesn't work, investigate
-	watch(
-		() => props.modelValue,
-		() => {
-			fileUrl.value = typeof props.modelValue === 'string' ? tpl(props.urlTemplate, props.modelValue) : '';
-		},
-		{ immediate: true },
-	);
+			const uploadFile = async (file: File) => {
+				uploadStatus.value = UploadStatus.InQueue;
+				try {
+					const res = await http.upload(props.uploadEndpoint, file, {
+						onProgress({ loaded, total }) {
+							uploadStatus.value = UploadStatus.InProgress;
+							uploadProgress.value = loaded / total;
+						},
+					});
+					emit('update:modelValue', props.multiple ? [...modelValueArray.value, res.body] : res.body);
+				} catch (err) {
+					notifier.push({
+						type: 'error',
+						body: `${err}`,
+					});
+				} finally {
+					uploadStatus.value = UploadStatus.Idle;
+					uploadProgress.value = 0;
+				}
+			};
 
-	return {
-		...useTranslator(),
-		UploadStatus,
-		uploadStatus,
-		uploadProgress,
-		uploaded,
-		fileUrl,
-		async onFileChange(e: Event) {
-			uploadProgress.value = 0;
-			uploadStatus.value = UploadStatus.Idle;
-			if (props.disabled) {
-				return;
-			}
-			const target = e.target as HTMLInputElement;
-			if (!target.files?.length) {
-				return;
-			}
-			uploadStatus.value = UploadStatus.InQueue;
-			try {
-				const res = await http.upload(props.uploadEndpoint, target.files[0], {
-					onProgress({ loaded, total }) {
-						uploadStatus.value = UploadStatus.InProgress;
-						uploadProgress.value = loaded / total;
-					},
-				});
-				emit('update:modelValue', res.body);
-				target.value = '';
-			} catch (err) {
-				notifier.push({
-					type: 'error',
-					body: `${err}`,
-				});
-			} finally {
-				uploadStatus.value = UploadStatus.Idle;
-			}
+			return {
+				...useTranslator(),
+				UploadStatus,
+				uploadStatus,
+				uploadProgress,
+				modelValueItems,
+				uploadFile,
+				async onFileChange(e: Event) {
+					if (props.disabled) {
+						return;
+					}
+					const target = e.target as HTMLInputElement;
+					if (!target.files?.length) {
+						return;
+					}
+					await Array.from(target.files)
+						.map((file) => () => uploadFile(file))
+						.reduce((prev, fn) => prev.then(fn), Promise.resolve());
+					target.value = '';
+				},
+				clearValue() {
+					if (props.disabled) {
+						return;
+					}
+					emit('update:modelValue', props.multiple ? [] : null);
+				},
+				removeItem(index: number) {
+					const newValue = modelValueArray.value.slice();
+					newValue.splice(index, 1);
+					emit('update:modelValue', props.multiple ? newValue : newValue[0] || null);
+				},
+			};
 		},
-		clearValue() {
-			if (props.disabled) {
-				return;
-			}
-			emit('update:modelValue', null);
-		},
-	};
+	});
 }
-
-export default defineComponent({
-	props: {
-		modelValue: {
-			type: [String, Blob],
-			default: null,
-		},
-		placeholder: {
-			type: String,
-			default: '',
-		},
-		disabled: {
-			type: Boolean,
-			default: false,
-		},
-		accept: {
-			type: String,
-			default: '',
-		},
-		uploadMessage: {
-			type: String,
-			default: '',
-		},
-		valueLabel: {
-			type: String,
-			default: '',
-		},
-		uploadEndpoint: {
-			type: String,
-			default: '/api/files',
-		},
-		urlTemplate: {
-			type: String,
-			default: '/storage/uploads/{{=it}}',
-		},
-		errors: {
-			type: Array as PropType<string[]>,
-			default: null,
-		},
-	},
-	emits: ['update:modelValue'],
-	setup(props, { emit }) {
-		return useFileUpload(props, emit);
-	},
-});

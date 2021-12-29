@@ -30,7 +30,7 @@
 			v-if="modelValue && typeof modelValue === 'string'"
 			target="_blank"
 			:class="errors ? 'btn-outline-danger' : 'btn-light'"
-			:href="fileUrl"
+			:href="modelValueItems[0].url"
 		)
 			i.fas.fa-download
 			!=' '
@@ -45,7 +45,7 @@
 </template>
 
 <script lang="ts">
-import Component from './file-upload';
+import makeUploadComponent from './file-upload';
 
-export default Component;
+export default makeUploadComponent();
 </script>
