@@ -43,24 +43,24 @@
 				@item-input="onItemInput($event)"
 				@item-action-click="onItemActionClick($event)"
 			)
-				template(#view-display="bindings")
-					slot(name="view-display" v-bind="bindings" :reload="reload")
-				template(#item-before="bindings")
-					slot(name="item-before" v-bind="bindings" :reload="reload")
-				template(#item-after="bindings")
-					slot(name="item-after" v-bind="bindings" :reload="reload")
+				template(#view-display="{ item }")
+					slot(name="view-display" v-bind="getItemSlotBindings(item)")
+				template(#item-before="{ item }")
+					slot(name="item-before" v-bind="getItemSlotBindings(item)")
+				template(#item-after="{ item }")
+					slot(name="item-after" v-bind="getItemSlotBindings(item)")
 				template(#selection="{ item }")
-					slot(name="selection" :item="item" :id="item[idKey]" :reload="reload")
+					slot(name="selection" v-bind="getItemSlotBindings(item)")
 				template(#actions="{ item }")
 					.d-flex.justify-content-end
 						.btn-group.btn-group-sm
-							slot(name="actions-before" :item="item" :id="item[idKey]" :reload="reload")
-							slot(name="actions" v-bind="{ item, id: item[idKey], reload, onEditClick: () => onEditClick(item), confirmAndDelete: () => confirmAndDelete(item) }")
+							slot(name="actions-before" v-bind="getItemSlotBindings(item)")
+							slot(name="actions" v-bind="getItemSlotBindings(item)")
 								a.btn.btn-primary(v-if="store.abilities.edit" @click.prevent="onEditClick(item)" :href="itemRoute(item)")
 									i.fas.fa-pencil
 								button.btn.btn-danger(v-if="store.abilities.delete" @click.prevent="confirmAndDelete(item)")
 									i.fas.fa-trash
-							slot(name="actions-after" :item="item" :id="item[idKey]" :reload="reload")
+							slot(name="actions-after" v-bind="getItemSlotBindings(item)")
 			.p-3(v-if="store.lastPage > 1 && store.hasPagination")
 				page-nav(
 					:model-value="store.page"
@@ -173,26 +173,67 @@ export default defineComponent({
 		const initialLoading = ref(false);
 		const isActivated = ref(false);
 
-		onActivated(() => {
-			isActivated.value = true;
-		});
-
-		onDeactivated(() => {
-			isActivated.value = false;
-		});
-
-		async function reloadInitialState() {
+		const reloadInitialState = async (): Promise<void> => {
 			if (store.loading || !entityView.value) {
 				return;
 			}
 			initialLoading.value = true;
 			store.setEntity(props.entityMeta);
-			await store.reload({
-				page: props.page > 1 ? props.page : 1,
-				perPage: props.perPage || entityView.value.perPage || 0,
+			store
+				.reload({
+					page: props.page > 1 ? props.page : 1,
+					perPage: props.perPage || entityView.value.perPage || 0,
+					filters: props.filters,
+				})
+				.then(() => {
+					initialLoading.value = false;
+				});
+		};
+		const reload = (): void => {
+			store.reload({
+				page: store.page,
+				perPage: store.perPage,
 				filters: props.filters,
 			});
-			initialLoading.value = false;
+		};
+		const itemRoute = (item: ListItem): string => {
+			if (!props.entityMeta) {
+				return '#';
+			}
+			return router.resolve({
+				name: 'entityItem',
+				params: {
+					entity: props.entityMeta.slug,
+					id: `${item[props.entityMeta.itemUrlKey]}`,
+				},
+			}).href;
+		};
+		function onEditClick(item: ListItem): void {
+			if (!props.entityMeta) {
+				return;
+			}
+			emit('edit-click', { item, id: `${item[idKey.value]}` });
+		}
+		async function confirmAndDelete(item: ListItem) {
+			const confirmed = await modalDialog.confirm(`${trans('areYouSure')}?`, trans('deleteItem'));
+			if (!confirmed) {
+				return;
+			}
+			store
+				.deleteItem(item)
+				.then(() =>
+					store.reload({
+						page: store.page,
+						perPage: store.perPage,
+						filters: props.filters,
+					}),
+				)
+				.catch((err) => {
+					notifier.push({
+						type: 'error',
+						body: `${err}`,
+					});
+				});
 		}
 
 		watch(
@@ -226,6 +267,12 @@ export default defineComponent({
 				store.reload({ page: 1, perPage: store.perPage, filters });
 			}),
 		);
+		onActivated(() => {
+			isActivated.value = true;
+		});
+		onDeactivated(() => {
+			isActivated.value = false;
+		});
 		reloadInitialState();
 		return {
 			viewType,
@@ -237,6 +284,9 @@ export default defineComponent({
 			idKey,
 			isActivated,
 			trans,
+			onEditClick,
+			itemRoute,
+			confirmAndDelete,
 			updatePage(page: number): void {
 				store.reload({ page, perPage: store.perPage });
 				emit('update:page', page);
@@ -244,12 +294,6 @@ export default defineComponent({
 			updatePerPage(perPage: number): void {
 				store.reload({ perPage });
 				emit('update:perPage', perPage);
-			},
-			onEditClick(item: ListItem): void {
-				if (!props.entityMeta) {
-					return;
-				}
-				emit('edit-click', { item, id: `${item[idKey.value]}` });
 			},
 			onItemClick(item: ListItem): void {
 				if (!props.entityMeta) {
@@ -263,39 +307,6 @@ export default defineComponent({
 				} else {
 					emit('item-action-click', { ...event, id: `${event.item[idKey.value]}` });
 				}
-			},
-			itemRoute(item: ListItem): string {
-				if (!props.entityMeta) {
-					return '#';
-				}
-				return router.resolve({
-					name: 'entityItem',
-					params: {
-						entity: props.entityMeta.slug,
-						id: `${item[props.entityMeta.itemUrlKey]}`,
-					},
-				}).href;
-			},
-			async confirmAndDelete(item: ListItem) {
-				const confirmed = await modalDialog.confirm(`${trans('areYouSure')}?`, trans('deleteItem'));
-				if (!confirmed) {
-					return;
-				}
-				store
-					.deleteItem(item)
-					.then(() =>
-						store.reload({
-							page: store.page,
-							perPage: store.perPage,
-							filters: props.filters,
-						}),
-					)
-					.catch((err) => {
-						notifier.push({
-							type: 'error',
-							body: `${err}`,
-						});
-					});
 			},
 			fieldComponent(type: string) {
 				return entityManager.getFieldType(type)?.component;
@@ -317,14 +328,18 @@ export default defineComponent({
 					});
 				});
 			},
-			// external API
-			reload() {
-				store.reload({
-					page: store.page,
-					perPage: store.perPage,
-					filters: props.filters,
-				});
+			getItemSlotBindings(item: ListItem) {
+				return {
+					item,
+					id: item[idKey.value],
+					itemRoute: itemRoute(item),
+					reload,
+					onEditClick: () => onEditClick(item),
+					confirmAndDelete: () => confirmAndDelete(item),
+				};
 			},
+			// external API
+			reload,
 		};
 	},
 });

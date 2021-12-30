@@ -6,7 +6,7 @@
 			.d-flex.align-items-center
 				.ps-2(v-if="selectable")
 					slot(name="selection" :item="item")
-				.item-display.flex-grow-1.p-2(@click.prevent="onItemClick(item)")
+				.item-display(:class="displayClass" @click.prevent="onItemClick(item)")
 					slot(name="view-display" v-bind="{ item, displayType, displayProps }")
 						component(:is="displayComponent" v-bind="{ ...displayProps, item, index }")
 				.pe-2(v-if="!noActions")
@@ -39,6 +39,10 @@ export default defineComponent({
 		itemClass: {
 			type: String,
 			default: 'list-group-item list-group-item-action p-0',
+		},
+		displayClass: {
+			type: String,
+			default: 'flex-grow-1 p-2',
 		},
 		loading: {
 			type: Boolean,
