@@ -1,12 +1,11 @@
 <template lang="pug">
 .form-field-boolean
-	label.form-check
+	label.form-check(@click.prevent="toggle()")
 		input.form-check-input(
 			type="checkbox"
 			:disabled="disabled"
 			:checked="modelValue"
 			:class="{ 'is-invalid': !!errors }"
-			@change="onInput($event)"
 		)
 		span.form-check-label
 			slot(name="label")
@@ -36,9 +35,8 @@ export default defineComponent({
 	emits: ['update:modelValue'],
 	setup(props, { emit }) {
 		return {
-			onInput(e: Event) {
-				const { checked } = e.target as HTMLInputElement;
-				emit('update:modelValue', checked);
+			toggle() {
+				emit('update:modelValue', !props.modelValue);
 			},
 		};
 	},
