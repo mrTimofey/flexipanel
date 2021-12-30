@@ -206,16 +206,16 @@ export default defineComponent({
 				emit('update:modelValue', newValue);
 			},
 		});
-		const modelValueIds = computed<(string | number)[]>(() => {
+		const modelValueIds = computed<unknown[]>(() => {
 			if (!modelValueArray.value.length) {
-				return modelValueArray.value as (string | number)[];
+				return modelValueArray.value;
 			}
 			if (['string', 'number'].includes(typeof modelValueArray.value[0])) {
-				return modelValueArray.value as (string | number)[];
+				return modelValueArray.value;
 			}
 			return modelValueArray.value.map((item) => {
 				if (typeof item === 'object' && item !== null) {
-					return `${(item as Record<string, unknown>)[props.idField || 'id']}` || '';
+					return (item as Record<string, unknown>)[props.idField || 'id'] || '';
 				}
 				return '';
 			});
@@ -266,7 +266,7 @@ export default defineComponent({
 			emitValue(newValue);
 		};
 
-		const addItem = (e: { id: string; item: Record<string, unknown> }) => {
+		const addItem = (e: { id: unknown; item: Record<string, unknown> }) => {
 			if (!props.multiple) {
 				selecting.value = false;
 			}
@@ -297,7 +297,7 @@ export default defineComponent({
 			},
 			removeItem,
 			addItem,
-			toggleItem(e: { id: string; item: Record<string, unknown> }) {
+			toggleItem(e: { id: unknown; item: Record<string, unknown> }) {
 				const index = modelValueArray.value.indexOf(props.idField ? e.item[props.idField] : e.id);
 				if (index === -1) {
 					addItem(e);
