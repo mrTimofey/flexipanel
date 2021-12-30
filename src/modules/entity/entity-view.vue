@@ -16,8 +16,8 @@
 					)
 					span {{ trans('of') }} {{ store.total }}
 				slot(name="top-end")
-			.px-2.my-2.position-relative(v-if="entityView.filters && entityView.filters.length" style="z-index:6")
-				component(
+			.px-1.my-2.position-relative.d-flex.flex-wrap(v-if="entityView.filters && entityView.filters.length" style="z-index:6")
+				component.flex-grow-1.px-1(
 					v-for="(filter, i) in entityView.filters"
 					:key="filter.key"
 					:is="fieldComponent(filter.type)"
