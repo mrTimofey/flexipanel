@@ -27,7 +27,7 @@
 		slot(name="actions")
 			.btn-group.btn-group-sm.p-2(v-if="!readonly")
 				slot(name="actions-before")
-				button.btn.btn-primary(type="button" @click.prevent="editingItem = { id: '' }") {{ createButtonText || trans('createEntityItem') }}
+				button.btn.btn-primary(type="button" @click.prevent="onCreateButtonClick()") {{ createButtonText || trans('createEntityItem') }}
 				slot(name="actions-after")
 		slot(name="view-before")
 		entity-view(
@@ -57,6 +57,7 @@
 import type { PropType } from 'vue';
 import { defineComponent, ref, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import Container from 'mini-ioc';
 import EntityView from '../entity-view.vue';
 import EntityItem from '../entity-item.vue';
 import type { ModalSize } from '../../modal';
@@ -66,6 +67,7 @@ import { get, useTranslator } from '../../vue-composition-utils';
 import type { IRegisteredEntity } from '..';
 import EntityManager from '..';
 import type { ListItem } from '../stores/base';
+import adapters from '../adapters';
 
 interface IItemData {
 	id: string;
@@ -146,9 +148,15 @@ export default defineComponent({
 			type: Boolean,
 			default: false,
 		},
+		// send POST request with { ...fixedValues, ...defaultValues } on create button click
+		instantCreateEnabled: {
+			type: Boolean,
+			default: false,
+		},
 	},
 	emits: ['item-action'],
 	setup(props, { emit }) {
+		const container = get(Container);
 		const route = useRoute();
 		const router = useRouter();
 		const entityViewComponent = ref<typeof EntityView | null>(null);
@@ -222,6 +230,18 @@ export default defineComponent({
 					};
 				} else {
 					emit('item-action', event);
+				}
+			},
+			async onCreateButtonClick() {
+				if (relatedEntityMeta.value && props.instantCreateEnabled) {
+					const adapter = container.get(await adapters[relatedEntityMeta.value.apiType]());
+					await adapter.saveItem(relatedEntityMeta.value.apiEndpoint, {
+						...defaultItemValues.value,
+						...fixedItemValues.value,
+					});
+					entityViewComponent.value?.reload();
+				} else {
+					editingItem.value = { id: '' };
 				}
 			},
 
