@@ -25,32 +25,41 @@
 			)
 			i.fas.fa-upload
 			!=' '
-			| {{ placeholder || trans('chooseFile') }}
-	.d-flex.flex-wrap
-		.form-field-image-item.me-2.my-1(v-for="(item, index) in modelValueItems")
-			.d-block.position-relative(v-if="typeof item.value === 'string'")
-				a(target="_blank" :href="item.url")
-					img.img-thumbnail(
-						:src="item.url"
-						:alt="item.value"
-						:class="errors ? ['border-danger', 'bg-danger'] : null"
-						style="--bs-bg-opacity:0.25"
-					)
-				.btn.btn-danger.btn-sm.position-absolute.top-0.start-0.m-2(@click="removeItem(index)" :disabled="disabled")
-					i.fas.fa-trash
-			.btn-group(v-else)
-				.btn.btn-danger(@click="removeItem(index)" :disabled="disabled")
-					i.fas.fa-trash
-				.btn(:class="errors ? 'btn-outline-danger' : 'btn-light'") {{ uploadMessage || trans('uploadMessage') }}
+			| {{ placeholder || trans(multiple ? 'chooseImages' : 'chooseImage') }}
+	draggable-group.d-flex.flex-wrap(
+		:item-key="(item: unknown) => `${item}`"
+		:animation="200"
+		:model-value="modelValueItems"
+		:disabled="!multiple"
+		@change="$event.moved && changePosition($event.moved.oldIndex, $event.moved.newIndex)"
+	)
+		template(#item="{ element, index }")
+			.form-field-image-item.me-2.my-1
+				.d-block.position-relative(v-if="typeof element.value === 'string'")
+					a(target="_blank" :href="element.url")
+						img.img-thumbnail(
+							:src="element.url"
+							:alt="element.value"
+							:class="errors ? ['border-danger', 'bg-danger'] : null"
+							style="--bs-bg-opacity:0.25"
+						)
+					.btn.btn-danger.btn-sm.position-absolute.top-0.start-0.m-2(@click="removeItem(index)" :disabled="disabled")
+						i.fas.fa-trash
+				.btn-group(v-else)
+					.btn.btn-danger(@click="removeItem(index)" :disabled="disabled")
+						i.fas.fa-trash
+					.btn(:class="errors ? 'btn-outline-danger' : 'btn-light'") {{ uploadMessage || trans('uploadMessage') }}
 	.text-danger(v-if="errors && errors.length")
 		div(v-for="err in errors")
 			small {{ err }}
 </template>
 
 <script lang="ts">
+import DraggableGroup from 'vuedraggable';
 import makeUploadComponent from './file-upload';
 
 export default makeUploadComponent({
+	components: { DraggableGroup },
 	props: {
 		frameWidth: {
 			type: String,
@@ -69,6 +78,8 @@ export default makeUploadComponent({
 	min-width 5rem
 	min-height 5rem
 .form-field-image-item
+	a
+		cursor move
 	img
 		width var(--frame-width)
 		height var(--frame-height)

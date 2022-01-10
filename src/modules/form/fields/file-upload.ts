@@ -1,5 +1,5 @@
 import { computed, ref, defineComponent } from 'vue';
-import type { PropType, ComponentPropsOptions } from 'vue';
+import type { PropType, ComponentPropsOptions, Component } from 'vue';
 import HttpClient from '../../http';
 import NotificationManager from '../../notification';
 import { get, useTemplate, useTranslator } from '../../vue-composition-utils';
@@ -10,8 +10,9 @@ export enum UploadStatus {
 	InProgress = 3,
 }
 
-export default function makeUploadComponent(options: { props?: ComponentPropsOptions } = {}) {
+export default function makeUploadComponent(options: { props?: ComponentPropsOptions; components?: Record<string, Component> } = {}) {
 	return defineComponent({
+		components: options.components || {},
 		props: {
 			modelValue: {
 				type: [String, Blob, Array] as PropType<string | Blob | (string | Blob)[]>,
@@ -129,6 +130,13 @@ export default function makeUploadComponent(options: { props?: ComponentPropsOpt
 					const newValue = modelValueArray.value.slice();
 					newValue.splice(index, 1);
 					emit('update:modelValue', props.multiple ? newValue : newValue[0] || null);
+				},
+				changePosition(from: number, to: number) {
+					const item = modelValueArray.value[from];
+					const newValue = [...modelValueArray.value];
+					newValue.splice(from, 1);
+					newValue.splice(to, 0, item);
+					emit('update:modelValue', newValue);
 				},
 			};
 		},

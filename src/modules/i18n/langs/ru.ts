@@ -21,6 +21,8 @@ export default {
 	saveAndReturn: 'Сохранить и вернуться',
 	delete: 'Удалить',
 	chooseFile: 'Выберите файл',
+	chooseImage: 'Выберите изображение',
+	chooseImages: 'Выберите изображения',
 	uploadMessage: 'Файл будет загружен при сохранении',
 	svgFile: 'SVG файл',
 	svgCode: 'Код SVG',

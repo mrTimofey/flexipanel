@@ -21,6 +21,8 @@ export default {
 	saveAndReturn: 'Save and return',
 	delete: 'Delete',
 	chooseFile: 'Choose file',
+	chooseImage: 'Choose image',
+	chooseImages: 'Choose images',
 	uploadMessage: 'File will be uploaded on save',
 	svgFile: 'SVG file',
 	svgCode: 'SVG raw code',
