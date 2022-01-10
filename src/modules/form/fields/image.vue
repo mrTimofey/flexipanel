@@ -1,5 +1,5 @@
 <template lang="pug">
-.form-field-image(:style=`// @ts-ignore
+.form-field-image(:class="{ multiple }" :style=`// @ts-ignore
 							'--frame-width:' + (frameWidth || 'auto') + ';--frame-height:' + (frameHeight || 'auto')`)
 	.form-field-image-label
 		slot(name="label")
@@ -78,9 +78,10 @@ export default makeUploadComponent({
 	min-width 5rem
 	min-height 5rem
 .form-field-image-item
-	a
-		cursor move
 	img
 		width var(--frame-width)
 		height var(--frame-height)
+.multiple
+	.form-field-image-item a
+		cursor move
 </style>

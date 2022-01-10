@@ -110,4 +110,6 @@ export default defineComponent({
 	.form-field-object-item
 		flex 1 1 0
 		padding-left 0.25rem
+	.form-field-object-fields ::v-deep(.form-field-object-fields)
+		padding 0
 </style>
