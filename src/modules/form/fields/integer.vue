@@ -21,7 +21,7 @@ export default defineComponent({
 	props: {
 		modelValue: {
 			type: [Number, String],
-			default: 0,
+			default: null,
 		},
 		disabled: {
 			type: Boolean,
