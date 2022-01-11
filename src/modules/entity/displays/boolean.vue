@@ -16,17 +16,26 @@ export default defineComponent({
 			type: String,
 			default: '',
 		},
+		trueClass: {
+			type: String,
+			default: 'fas fa-check text-success',
+		},
+		falseClass: {
+			type: String,
+			default: 'fas fa-times text-muted',
+		},
+		nullClass: {
+			type: String,
+			default: 'fas fa-question',
+		},
 	},
 	setup(props) {
 		return {
 			iconClass: computed(() => {
-				if (props.item[props.prop] === true) {
-					return 'fas fa-check text-success';
+				if (props.item[props.prop] == null) {
+					return props.nullClass;
 				}
-				if (props.item[props.prop] === false) {
-					return 'fas fa-times text-muted';
-				}
-				return 'fas fa-question';
+				return props.item[props.prop] ? props.trueClass : props.falseClass;
 			}),
 		};
 	},

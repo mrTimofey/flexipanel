@@ -375,7 +375,7 @@ export default defineComponent({
 	top 0
 	left 0
 	right 0
-	z-index 5
+	z-index 10
 	animation entity-dropdown-appear 0.1s ease-out
 	&:after
 		content ''
