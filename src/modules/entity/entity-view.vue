@@ -299,13 +299,13 @@ export default defineComponent({
 				if (!props.entityMeta) {
 					return;
 				}
-				emit('item-click', { item, id: `${item[idKey.value]}` });
+				emit('item-click', { item, id: `${item[idKey.value]}`, abilities: store.abilities });
 			},
 			onItemActionClick(event: { action: string; item: ListItem; [otherArgs: string]: unknown }): void {
 				if (isPositionChangeEvent(event)) {
 					store.moveItem(event.oldIndex, event.newIndex);
 				} else {
-					emit('item-action-click', { ...event, id: `${event.item[idKey.value]}` });
+					emit('item-action-click', { ...event, id: `${event.item[idKey.value]}`, abilities: store.abilities });
 				}
 			},
 			fieldComponent(type: string) {

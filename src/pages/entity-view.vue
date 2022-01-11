@@ -10,11 +10,11 @@ page-layout.page-entity-view(v-if="entityMeta")
 		v-model:page="page"
 		v-model:per-page="perPage"
 		v-model:filters="filters"
-		@item-click="goToEditPage($event.id)"
+		@item-click="$event.abilities.edit && goToEditPage($event.id)"
 		@edit-click="goToEditPage($event.id)"
 	)
 		template(#top-end)
-			.my-2
+			.my-2(v-if="!entityMeta.createDisabled")
 				button.btn.btn-sm.btn-primary(@click.prevent="goToCreatePage()") {{ entityMeta.createButtonText || trans('createEntityItem') }}
 </template>
 

@@ -30,7 +30,7 @@
 						slot(name="selection" :item="item")
 					td.cell-display(
 						v-for="col in visibleColumns"
-						@click.prevent="col.type !== 'field' && onItemClick(item)"
+						@click="onItemClick(col, item, $event)"
 						:class="{ 'p-1': col.type === 'field' }"
 					)
 						slot(name="view-display" v-bind="{ item, col }")
@@ -116,7 +116,19 @@ export default defineComponent({
 			displayProps(item: Record<string, unknown>, index: number, col: IColumn) {
 				return { ...col, item, index, title: undefined, type: undefined, context: props.context };
 			},
-			onItemClick(item: unknown) {
+			onItemClick(col: IColumn, item: unknown, event: MouseEvent) {
+				if (col.type === 'field') {
+					return;
+				}
+				// go up from the event target to the table cell and detect an anchor on the way
+				let el: HTMLElement | null = event.target as HTMLElement;
+				while (el && el !== event.currentTarget) {
+					if (el instanceof HTMLAnchorElement) {
+						return;
+					}
+					el = el.parentElement;
+				}
+				event.preventDefault();
 				emit('item-click', item);
 			},
 			onInput(item: unknown, values: unknown) {

@@ -66,6 +66,8 @@ export interface IEntityMeta {
 	createButtonText?: string;
 	createPageTitle?: string;
 	editPageTitle?: string;
+	deleteDisabled?: true;
+	createDisabled?: true;
 }
 
 export const entityMetaDefaults: Partial<IEntityMeta> = {

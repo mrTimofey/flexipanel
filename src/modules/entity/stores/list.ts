@@ -149,15 +149,6 @@ export default class EntityListStore extends EntityBaseStore<IState> {
 		return this.state.perPage > 0;
 	}
 
-	get abilities(): Record<string, boolean> {
-		// TODO abilities
-		return {
-			create: !!this.entity?.form.fields.length,
-			edit: !!this.entity?.form.fields.length,
-			delete: !!this.entity,
-		};
-	}
-
 	get loadingItems(): Set<ListItem> {
 		return this.state.loadingItems;
 	}

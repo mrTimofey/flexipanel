@@ -1,5 +1,5 @@
 <template lang="pug">
-.entity-form(v-if="entityMeta?.form" :class="{ loading: store.loading }")
+.entity-form(v-if="entityMeta?.form && store.abilities[id ? 'edit' : 'create']" :class="{ loading: store.loading }")
 	.d-flex.justify-content-center.py-5(v-if="initializing")
 		.spinner.spinner-grow.text-primary
 	.entity-form-layout(v-else)
@@ -31,7 +31,7 @@
 							:form="formId"
 						) {{ trans('save') }}
 						button.btn.btn-outline-danger(
-							v-if="store.itemId && !deleteDisabled"
+							v-if="store.itemId && store.abilities.delete"
 							type="button"
 							@click.prevent="confirmAndDelete()"
 						) {{ trans('delete') }}
@@ -76,10 +76,6 @@ export default defineComponent({
 		formId: {
 			type: String,
 			default: () => guid(),
-		},
-		deleteDisabled: {
-			type: Boolean,
-			default: false,
 		},
 		sharedStore: {
 			type: Object as PropType<EntityItemStore>,
@@ -199,6 +195,6 @@ export default defineComponent({
 		left @top
 		opacity 0.8
 		background white
-		z-index 5
+		z-index 10
 		border-radius .25rem
 </style>
