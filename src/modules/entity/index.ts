@@ -73,8 +73,8 @@ export interface IEntityMeta {
 export const entityMetaDefaults: Partial<IEntityMeta> = {
 	itemUrlKey: 'id',
 	apiType: 'jsonApi',
-	createPageTitle: '{{#def.trans("newItem")}}',
-	editPageTitle: '{{#def.trans("item")}} #{{=it.id}}',
+	createPageTitle: '{{=h.trans("newItem")}}',
+	editPageTitle: '{{=h.trans("item")}} #{{=it.id}}',
 };
 
 export const viewDefaults: Partial<IView> = {

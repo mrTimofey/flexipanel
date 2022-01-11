@@ -1,5 +1,5 @@
 import { createApp } from 'vue';
-import type { Router, RouteRecordRaw } from 'vue-router';
+import type { RouteLocationRaw, Router, RouteRecordRaw } from 'vue-router';
 import { createRouter, createWebHistory } from 'vue-router';
 import Container from 'mini-ioc';
 import { injectKey } from 'mini-ioc-vue';
@@ -9,6 +9,8 @@ import HttpClient from './modules/http';
 import FetchJsonClient from './modules/http/fetch-json-client';
 import AuthProvider from './modules/auth/provider';
 import PublicAuthProvider from './modules/auth/providers/public';
+import TemplateEngine from './modules/template';
+import Translator from './modules/i18n';
 
 export interface IVueAdminConfig {
 	lang: string;
@@ -27,6 +29,16 @@ export default class VueAdminApp {
 		this.container.bind(AuthProvider, PublicAuthProvider);
 		// make container itself resolvable
 		this.container.registerResolver(Container, () => this.container);
+		this.container.registerResolver(TemplateEngine, (EngineClass) => {
+			const engine = new EngineClass();
+			this.registerTemplateHelpers(engine);
+			return engine;
+		});
+	}
+
+	protected registerTemplateHelpers(engine: TemplateEngine) {
+		engine.registerHelper('trans', (key: string) => this.container.get(Translator).get(key));
+		engine.registerHelper('route', (route: RouteLocationRaw) => this.router.resolve(route).href);
 	}
 
 	/**
