@@ -3,7 +3,7 @@
 	.form-field-object-label
 		slot(name="label")
 	.form-field-object-fields
-		.form-field-object-item(v-for="(field, k) in fields" :style="field.style")
+		.form-field-object-item(v-for="(field, k) in availableFields" :style="field.style")
 			entity-item-form-field(
 				v-if="store"
 				:field="getFieldDefinition(k)"
@@ -14,7 +14,7 @@
 
 <script lang="ts">
 import type { PropType } from 'vue';
-import { inject, defineComponent } from 'vue';
+import { watch, computed, inject, defineComponent } from 'vue';
 import type { IField, IRegisteredEntity } from '..';
 import EntityItemFormField, { storeInjectKey } from '../entity-item-form-field.vue';
 
@@ -71,8 +71,33 @@ export default defineComponent({
 			});
 			return obj;
 		};
+		const availableFields = computed(() => {
+			const fields: Record<string, IField & { style?: string }> = {};
+			Object.entries(props.fields).forEach(([key, field]) => {
+				if (!field.condition || (typeof field.condition === 'function' && field.condition(props.modelValue))) {
+					fields[key] = field;
+				}
+			});
+			return fields;
+		});
+		// set object fields to empty values when they become unavailable
+		watch(availableFields, () => {
+			if (!props.modelValue) {
+				return;
+			}
+			const emptyObject = createEmptyObject();
+			const nullKeys = Object.keys(props.modelValue).filter((key) => !availableFields.value[key] && emptyObject[key] !== props.modelValue?.[key]);
+			if (!nullKeys.length) {
+				return;
+			}
+			emit('update:modelValue', {
+				...props.modelValue,
+				...nullKeys.reduce((acc, key) => ({ ...acc, [key]: emptyObject[key] }), {}),
+			});
+		});
 		return {
 			store: inject(storeInjectKey),
+			availableFields,
 			getFieldDefinition(key: string): Required<IField> {
 				const field = props.fields[key];
 				return {

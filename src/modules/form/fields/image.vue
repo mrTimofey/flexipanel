@@ -9,7 +9,7 @@
 		.progress-bar.progress-bar-striped.progress-bar-animated(
 			:style="{ width: `${uploadProgress * 100}%` }"
 		)
-	.form-field-image-actions(v-else)
+	.form-field-image-actions.my-1(v-else)
 		label.btn(
 			v-if="multiple || !modelValueItems.length"
 			:disabled="disabled"
