@@ -35,9 +35,9 @@ mixin addButton(condition)
 					i.fas.fa-arrows-alt-v
 				.flex-grow-1
 					entity-item-form-field(
-						v-if="store"
 						:field="getFieldDefinition(index)"
 						:store="store"
+						:value="value"
 						@change="updateItem(index, $event)"
 					)
 				.actions.ms-1(v-if="!length && valueLength > min")
@@ -203,7 +203,7 @@ export default defineComponent({
 			keys,
 			valueLength,
 			keyedItems,
-			store: inject(storeInjectKey),
+			store: inject(storeInjectKey, undefined),
 			getFieldDefinition(index: number): Required<IField> {
 				return {
 					type: props.type || 'text',

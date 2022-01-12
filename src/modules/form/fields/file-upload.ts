@@ -15,7 +15,7 @@ export default function makeUploadComponent(options: { props?: ComponentPropsOpt
 		components: options.components || {},
 		props: {
 			modelValue: {
-				type: [String, Blob, Array] as PropType<string | Blob | (string | Blob)[]>,
+				type: [String, Array] as PropType<string | string[] | null>,
 				default: null,
 			},
 			placeholder: {

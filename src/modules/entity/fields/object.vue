@@ -5,9 +5,9 @@
 	.form-field-object-fields
 		.form-field-object-item(v-for="(field, k) in availableFields" :style="field.style")
 			entity-item-form-field(
-				v-if="store"
 				:field="getFieldDefinition(k)"
 				:store="store"
+				:value="modelValue?.[k]"
 				@change="updateItem(k, $event)"
 			)
 </template>
@@ -96,7 +96,7 @@ export default defineComponent({
 			});
 		});
 		return {
-			store: inject(storeInjectKey),
+			store: inject(storeInjectKey, undefined),
 			availableFields,
 			getFieldDefinition(key: string): Required<IField> {
 				const field = props.fields[key];
