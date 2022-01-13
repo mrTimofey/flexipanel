@@ -6,14 +6,15 @@
 		component(
 			:is="entityMeta.form.layout"
 			v-bind="{ store, context, formId, fields: availableFields, fieldComponent: EntityItemFormField }"
+			@submit="submit()"
 		)
 			template(#form)
 				slot(name="form" v-bind="{ store, context, formId, save, saveAndReturn, fields: availableFields, fieldComponent: EntityItemFormField }")
-					form(@submit.prevent="onReturn ? saveAndReturn() : save()" :id="formId")
+					form(@submit.prevent="submit()" :id="formId")
 						.mb-3(v-for="field in availableFields")
 							entity-item-form-field(v-bind="{ field, store, context }")
 			template(#actions)
-				slot(name="actions" v-bind="{ save, saveAndReturn, confirmAndDelete, formId }")
+				slot(name="actions" v-bind="{ submit, save, saveAndReturn, confirmAndDelete, formId }")
 					.btn-group.entity-form-actions
 						//- show "save and return" button only when @return is handled
 						template(v-if="onReturn")
@@ -125,11 +126,39 @@ export default defineComponent({
 			return true;
 		};
 
+		const save = async () => {
+			if ((await handleErrors(() => store.save())) && !store.hasErrors) {
+				notifier.push({
+					type: 'success',
+					body: trans('successfullySaved'),
+				});
+				emit('change', { id: store.itemId, item: store.formItem });
+				if (props.id === store.itemId) {
+					emit('update');
+				} else {
+					emit('create');
+					emit('update:id', store.itemId);
+				}
+			}
+		};
+		const saveAndReturn = async () => {
+			if ((await handleErrors(() => store.save())) && !store.hasErrors) {
+				notifier.push({
+					type: 'success',
+					body: trans('successfullySaved'),
+				});
+				emit('change', { id: store.itemId, item: store.formItem });
+				emit('return', { id: store.itemId, item: store.formItem });
+			}
+		};
+
 		return {
 			EntityItemFormField,
 			trans,
 			store,
 			initializing,
+			save,
+			saveAndReturn,
 			availableFields: computed<Required<IField>[]>(
 				() =>
 					props.entityMeta?.form.fields.filter<Required<IField>>(
@@ -139,31 +168,6 @@ export default defineComponent({
 							(!field.key || !Object.prototype.hasOwnProperty.call(props.fixedValues, field.key)),
 					) || [],
 			),
-			async save() {
-				if ((await handleErrors(() => store.save())) && !store.hasErrors) {
-					notifier.push({
-						type: 'success',
-						body: trans('successfullySaved'),
-					});
-					emit('change', { id: store.itemId, item: store.formItem });
-					if (props.id === store.itemId) {
-						emit('update');
-					} else {
-						emit('create');
-						emit('update:id', store.itemId);
-					}
-				}
-			},
-			async saveAndReturn() {
-				if ((await handleErrors(() => store.save())) && !store.hasErrors) {
-					notifier.push({
-						type: 'success',
-						body: trans('successfullySaved'),
-					});
-					emit('change', { id: store.itemId, item: store.formItem });
-					emit('return', { id: store.itemId, item: store.formItem });
-				}
-			},
 			async confirmAndDelete() {
 				const confirmed = await modalDialog.confirm(trans('areYouSure'), trans('deleteItem'));
 				if (!confirmed) {
@@ -172,6 +176,13 @@ export default defineComponent({
 				if (await handleErrors(() => store.destroy())) {
 					emit('delete');
 					emit('return');
+				}
+			},
+			submit() {
+				if (props.onReturn) {
+					saveAndReturn();
+				} else {
+					save();
 				}
 			},
 		};
