@@ -1,6 +1,6 @@
 {
   "name": "flexipanel",
-  "version": "0.0.0-dev30",
+  "version": "0.0.0-dev31",
   "author": "Timofey Tiunov <timoxa17@gmail.com>",
   "license": "MIT",
   "homepage": "https://github.com/mrTimofey/flexipanel",
@@ -14,6 +14,7 @@
     "prepublishOnly": "npm run lint"
   },
   "dependencies": {
+    "@editorjs/editorjs": "^2.22.2",
     "dot": "^2.0.0-beta.1",
     "mini-ioc": "^0.5.0",
     "mini-ioc-vue": "^0.3.0",
@@ -23,7 +24,6 @@
   },
   "devDependencies": {
     "@editorjs/delimiter": "^1.2.0",
-    "@editorjs/editorjs": "^2.22.2",
     "@editorjs/embed": "^2.5.0",
     "@editorjs/footnotes": "^1.1.0",
     "@editorjs/header": "^2.6.2",
@@ -57,11 +57,11 @@
     "vue-tsc": "^0.30.0"
   },
   "engines": {
-    "node": ">=14",
+    "node": ">=16",
     "npm": ">=8"
   },
   "files": [
-    "src"
+    "dist"
   ],
-  "main": "src/main.ts"
+  "main": "dist/main.js"
 }
