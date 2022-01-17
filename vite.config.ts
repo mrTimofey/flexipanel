@@ -3,6 +3,7 @@ import vue from '@vitejs/plugin-vue';
 import { minifyHtml } from 'vite-plugin-html';
 import dts from 'vite-plugin-dts';
 import { resolve } from 'path';
+import { unlinkSync } from 'fs';
 import { dependencies } from './package.json';
 
 // https://vitejs.dev/config/
@@ -10,14 +11,36 @@ export default defineConfig(({ command }) => ({
 	plugins: [
 		vue(),
 		minifyHtml(),
-		command === 'build' &&
-			dts({
-				beforeWriteFile(path) {
-					return {
-						filePath: path.replace('/dist/src/', '/dist/'),
-					};
-				},
-			}),
+		...(command === 'build'
+			? [
+					dts({
+						beforeWriteFile(path, content) {
+							const filePath = path.replace('/dist/src/', '/dist/');
+							if (path.endsWith('/dist/src/main.d.ts')) {
+								return {
+									content: content.replace("export { default as __dontUseThisThankYou__ } from './__import-all';", ''),
+									filePath,
+								};
+							}
+							return { filePath };
+						},
+						afterBuild() {
+							unlinkSync(resolve(__dirname, 'dist/__import-all.d.ts'));
+						},
+					}),
+					{
+						name: 'flexipanel:remove-import-all',
+						generateBundle(options, bundle) {
+							delete bundle['__import-all.js'];
+							const main = bundle['main.js'];
+							if (main.type !== 'chunk') {
+								return;
+							}
+							main.code = main.code.replace('export { default as __dontUseThisThankYou__ } from "./__import-all.js";', '');
+						},
+					},
+			  ]
+			: []),
 	],
 	server: {
 		proxy: {

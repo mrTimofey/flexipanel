@@ -12,6 +12,9 @@ import PublicAuthProvider from './modules/auth/providers/public';
 import TemplateEngine from './modules/template';
 import Translator from './modules/i18n';
 
+// removed after build, see this file for details
+export { default as __dontUseThisThankYou__ } from './__import-all';
+
 export interface IVueAdminConfig {
 	lang: string;
 }

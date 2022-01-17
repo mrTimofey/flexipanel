@@ -131,7 +131,6 @@ module.exports = {
 				'no-empty-function': 0,
 				'no-useless-constructor': 0,
 				'no-unused-vars': 0,
-				quotes: [2, 'single'],
 			},
 		},
 		{
