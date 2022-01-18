@@ -41,7 +41,7 @@
 		)
 			i.fas.fa-trash
 	.form-field-inline-svg-contents.d-flex(v-if="modelValue")
-		.p-1.border.rounded(v-html="modelValue" :style="`--inline-svg-min-width':${minWidth},--inline-svg-min-height:${minHeight}`")
+		.p-1.border.rounded(v-html="modelValue" :style="`--inline-svg-min-width':${minWidth};--inline-svg-min-height:${minHeight}`")
 	.text-danger(v-if="errors && errors.length")
 		div(v-for="err in errors")
 			small {{ err }}
