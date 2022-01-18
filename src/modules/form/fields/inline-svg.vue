@@ -41,7 +41,7 @@
 		)
 			i.fas.fa-trash
 	.form-field-inline-svg-contents.d-flex(v-if="modelValue")
-		.p-1.border.rounded(v-html="modelValue")
+		.p-1.border.rounded(v-html="modelValue" :style="`--inline-svg-min-width':${minWidth},--inline-svg-min-height:${minHeight}`")
 	.text-danger(v-if="errors && errors.length")
 		div(v-for="err in errors")
 			small {{ err }}
@@ -69,6 +69,14 @@ export default defineComponent({
 		errors: {
 			type: Array as PropType<string[]>,
 			default: null,
+		},
+		minWidth: {
+			type: String,
+			default: '',
+		},
+		minHeight: {
+			type: String,
+			default: '',
 		},
 	},
 	emits: ['update:modelValue'],
@@ -128,6 +136,8 @@ export default defineComponent({
 		display block
 		max-width 100%
 		height auto
+		min-width var(--inline-svg-min-width)
+		min-height var(--inline-svg-min-height)
 .form-field-inline-svg-contents
 	max-width 100%
 </style>
