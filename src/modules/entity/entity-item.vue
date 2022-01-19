@@ -10,7 +10,7 @@
 		)
 			template(#form)
 				slot(name="form" v-bind="{ store, context, formId, save, saveAndReturn, fields: availableFields, fieldComponent: EntityItemFormField }")
-					form(@submit.prevent="submit()" :id="formId")
+					form(@submit.prevent :id="formId")
 						.mb-3(v-for="field in availableFields")
 							entity-item-form-field(v-bind="{ field, store, context }")
 			template(#actions)
@@ -113,9 +113,9 @@ export default defineComponent({
 			initializing.value = false;
 		});
 
-		const handleErrors = async (cb: () => Promise<void>) => {
+		const handleErrors = async (asyncOp: Promise<void>) => {
 			try {
-				await cb();
+				await asyncOp;
 			} catch (err) {
 				notifier.push({
 					type: 'error',
@@ -126,30 +126,35 @@ export default defineComponent({
 			return true;
 		};
 
+		const saveAndNotify = async (): Promise<boolean> => {
+			const result = await handleErrors(store.save());
+			if (!result || store.hasErrors) {
+				return false;
+			}
+			notifier.push({
+				type: 'success',
+				body: trans('successfullySaved'),
+			});
+			emit('change', { id: store.itemId, item: store.formItem });
+			return true;
+		};
+
 		const save = async () => {
-			if ((await handleErrors(() => store.save())) && !store.hasErrors) {
-				notifier.push({
-					type: 'success',
-					body: trans('successfullySaved'),
-				});
-				emit('change', { id: store.itemId, item: store.formItem });
-				if (props.id === store.itemId) {
-					emit('update');
-				} else {
-					emit('create');
-					emit('update:id', store.itemId);
-				}
+			if (!(await saveAndNotify())) {
+				return;
+			}
+			if (props.id === store.itemId) {
+				emit('update');
+			} else {
+				emit('create');
+				emit('update:id', store.itemId);
 			}
 		};
 		const saveAndReturn = async () => {
-			if ((await handleErrors(() => store.save())) && !store.hasErrors) {
-				notifier.push({
-					type: 'success',
-					body: trans('successfullySaved'),
-				});
-				emit('change', { id: store.itemId, item: store.formItem });
-				emit('return', { id: store.itemId, item: store.formItem });
+			if (!(await saveAndNotify())) {
+				return;
 			}
+			emit('return', { id: store.itemId, item: store.formItem });
 		};
 
 		return {
@@ -173,7 +178,7 @@ export default defineComponent({
 				if (!confirmed) {
 					return;
 				}
-				if (await handleErrors(() => store.destroy())) {
+				if (await handleErrors(store.destroy())) {
 					emit('delete');
 					emit('return');
 				}

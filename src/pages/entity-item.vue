@@ -15,9 +15,8 @@ page-layout.page-entity-item
 <script lang="ts">
 import { defineComponent, computed, watchEffect } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import EntityManager from '../modules/entity';
 import Meta from '../modules/meta';
-import { get, useTemplate } from '../modules/vue-composition-utils';
+import { get, requireEntityMeta, useTemplate } from '../modules/vue-composition-utils';
 import EntityItem from '../modules/entity/entity-item.vue';
 import PageLayout from '../components/page-layout.vue';
 
@@ -34,9 +33,8 @@ export default defineComponent({
 		},
 	},
 	setup(props) {
-		const entityManager = get(EntityManager);
 		const pageMeta = get(Meta);
-		const entityMeta = computed(() => entityManager.getEntity(props.entity));
+		const entityMeta = computed(() => requireEntityMeta(props.entity));
 		const router = useRouter();
 		const route = useRoute();
 		const { tpl } = useTemplate();
