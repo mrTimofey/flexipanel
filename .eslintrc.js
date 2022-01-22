@@ -37,7 +37,6 @@ module.exports = {
 			},
 		],
 
-		indent: 0,
 		'no-shadow': 0,
 		'no-param-reassign': [2, { props: false }],
 		'no-unused-expressions': 0,
@@ -104,9 +103,7 @@ module.exports = {
 				prefix: ['I'],
 			},
 		],
-		'@typescript-eslint/no-array-constructor': 2,
 		'@typescript-eslint/no-extraneous-class': 2,
-		'@typescript-eslint/no-misused-new': 2,
 		'@typescript-eslint/no-unused-vars': 2,
 		'@typescript-eslint/no-use-before-define': [
 			2,
