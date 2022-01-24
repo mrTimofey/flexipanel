@@ -13,27 +13,15 @@
 		div(v-for="err in errors") {{ err }}
 </template>
 <script lang="ts">
-import type { PropType } from 'vue';
 import { defineComponent } from 'vue';
+import { getCommonProps } from './common';
 
 export default defineComponent({
 	props: {
-		placeholder: {
-			type: String,
-			default: '',
-		},
-		modelValue: {
+		...getCommonProps({
 			type: Number,
 			default: null,
-		},
-		errors: {
-			type: Array as PropType<string[]>,
-			default: null,
-		},
-		disabled: {
-			type: Boolean,
-			default: false,
-		},
+		}),
 		min: {
 			type: Number,
 			default: -Infinity,

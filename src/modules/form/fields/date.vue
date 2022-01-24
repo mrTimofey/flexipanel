@@ -13,28 +13,14 @@
 </template>
 
 <script lang="ts">
-import type { PropType } from 'vue';
 import { defineComponent, computed } from 'vue';
+import { getCommonProps } from './common';
 
 export default defineComponent({
-	props: {
-		modelValue: {
-			type: String,
-			default: '',
-		},
-		placeholder: {
-			type: String,
-			default: '',
-		},
-		disabled: {
-			type: Boolean,
-			default: false,
-		},
-		errors: {
-			type: Array as PropType<string[]>,
-			default: null,
-		},
-	},
+	props: getCommonProps({
+		type: String,
+		default: '',
+	}),
 	emits: ['update:modelValue'],
 	setup(props, { emit }) {
 		return {

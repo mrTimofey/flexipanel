@@ -14,24 +14,14 @@
 </template>
 
 <script lang="ts">
-import type { PropType } from 'vue';
 import { defineComponent } from 'vue';
+import { getCommonProps } from './common';
 
 export default defineComponent({
-	props: {
-		modelValue: {
-			type: Boolean,
-			default: false,
-		},
-		disabled: {
-			type: Boolean,
-			default: false,
-		},
-		errors: {
-			type: Array as PropType<string[]>,
-			default: null,
-		},
-	},
+	props: getCommonProps({
+		type: Boolean,
+		default: false,
+	}),
 	emits: ['update:modelValue'],
 	setup(props, { emit }) {
 		return {

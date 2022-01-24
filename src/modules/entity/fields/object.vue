@@ -15,39 +15,20 @@
 <script lang="ts">
 import type { PropType } from 'vue';
 import { watch, computed, inject, defineComponent } from 'vue';
-import type { IField, IRegisteredEntity } from '..';
+import type { IField } from '..';
 import EntityItemFormField, { storeInjectKey } from '../entity-item-form-field.vue';
+import { getCommonProps } from './common';
 
 export default defineComponent({
 	components: { EntityItemFormField },
 	props: {
-		modelValue: {
+		...getCommonProps({
 			type: Object as PropType<Record<string, unknown> | null>,
 			default: null,
-		},
-		fieldKey: {
-			type: String,
-			default: '',
-		},
+		}),
 		relatedItems: {
 			type: Object as PropType<Record<string, Record<string, Record<string, unknown>>>>,
 			default: () => ({}),
-		},
-		entityMeta: {
-			type: Object as PropType<IRegisteredEntity>,
-			default: null,
-		},
-		entityItem: {
-			type: Object,
-			default: null,
-		},
-		entityItemId: {
-			type: String,
-			default: '',
-		},
-		disabled: {
-			type: Boolean,
-			default: false,
 		},
 		fields: {
 			type: Object,
@@ -56,10 +37,6 @@ export default defineComponent({
 		inline: {
 			type: Boolean,
 			default: false,
-		},
-		errors: {
-			type: Array as PropType<string[] | null>,
-			default: null,
 		},
 	},
 	emits: ['update:modelValue'],

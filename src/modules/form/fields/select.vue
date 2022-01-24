@@ -17,24 +17,17 @@ import type { PropType } from 'vue';
 import { defineComponent, computed } from 'vue';
 import type { OptionsProp } from './select-utils';
 import { normalizeOptions } from './select-utils';
+import { getCommonProps } from './common';
 
 export default defineComponent({
 	props: {
-		modelValue: {
+		...getCommonProps({
 			type: [String, Number, Boolean, Object],
 			default: null,
-		},
+		}),
 		options: {
 			type: [Array, Object] as PropType<OptionsProp>,
 			required: true,
-		},
-		disabled: {
-			type: Boolean,
-			default: false,
-		},
-		required: {
-			type: Boolean,
-			default: false,
 		},
 		valueKey: {
 			type: String,
@@ -44,17 +37,9 @@ export default defineComponent({
 			type: String,
 			default: 'label',
 		},
-		errors: {
-			type: Array as PropType<string[]>,
-			default: null,
-		},
 		emptyValue: {
 			type: [String, Number, Boolean, Object],
 			default: null,
-		},
-		placeholder: {
-			type: String,
-			default: '',
 		},
 	},
 	emits: ['update:modelValue'],

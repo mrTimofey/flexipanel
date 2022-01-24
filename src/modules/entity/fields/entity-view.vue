@@ -64,10 +64,10 @@ import type { ModalSize } from '../../modal';
 import ModalDialog from '../../modal/modal.vue';
 import clickOutside from '../../click-outside';
 import { get, useTranslator } from '../../vue-composition-utils';
-import type { IRegisteredEntity } from '..';
 import EntityManager from '..';
 import type { ListItem } from '../stores/base';
 import adapters from '../adapters';
+import { getCommonProps } from './common';
 
 interface IItemData {
 	id: string;
@@ -78,6 +78,10 @@ export default defineComponent({
 	components: { EntityView, ModalDialog, EntityItem },
 	directives: { clickOutside },
 	props: {
+		...getCommonProps({
+			type: Object as unknown as PropType<never>,
+			default: null,
+		}),
 		relatedEntity: {
 			type: String,
 			default: '',
@@ -86,29 +90,9 @@ export default defineComponent({
 			type: String,
 			default: '',
 		},
-		relatedItems: {
-			type: Object as PropType<Record<string, Record<string, Record<string, unknown>>>>,
-			default: () => ({}),
-		},
-		entityMeta: {
-			type: Object as PropType<IRegisteredEntity>,
-			default: null,
-		},
-		entityItem: {
-			type: Object,
-			default: null,
-		},
-		entityItemId: {
-			type: String,
-			default: '',
-		},
 		itemModalSize: {
 			type: String as PropType<ModalSize>,
 			default: 'lg',
-		},
-		fieldKey: {
-			type: String,
-			default: '',
 		},
 		foreignKey: {
 			type: String,

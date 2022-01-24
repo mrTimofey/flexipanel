@@ -16,28 +16,16 @@
 </template>
 
 <script lang="ts">
-import type { PropType } from 'vue';
 import { defineComponent, computed, ref, watch } from 'vue';
 import { useTranslator } from '../../vue-composition-utils';
+import { getCommonProps } from './common';
 
 export default defineComponent({
 	props: {
-		modelValue: {
+		...getCommonProps({
 			type: String,
 			default: '',
-		},
-		disabled: {
-			type: Boolean,
-			default: false,
-		},
-		placeholder: {
-			type: String,
-			default: '',
-		},
-		errors: {
-			type: Array as PropType<string[]>,
-			default: null,
-		},
+		}),
 		maxLength: {
 			type: Number,
 			default: 0,

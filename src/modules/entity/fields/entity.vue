@@ -91,38 +91,22 @@ import EntityItem from '../entity-item.vue';
 import type { ModalSize } from '../../modal';
 import ModalDialog from '../../modal/modal.vue';
 import clickOutside from '../../click-outside';
-import type { IRegisteredEntity } from '..';
 import EntityManager from '..';
+import { getCommonProps } from './common';
 
 export default defineComponent({
 	name: 'EntityField',
 	components: { EntityView, ModalDialog, EntityItem, DraggableGroup },
 	directives: { clickOutside },
 	props: {
-		modelValue: {
+		...getCommonProps({
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			type: [String, Number, Boolean, Object, Array] as PropType<any | any[]>,
 			default: null,
-		},
-		fieldKey: {
-			type: String,
-			default: '',
-		},
-		entityMeta: {
-			type: Object as PropType<IRegisteredEntity>,
-			default: null,
-		},
-		entityItem: {
-			type: Object,
-			default: null,
-		},
+		}),
 		relatedEntity: {
 			type: String,
 			required: true,
-		},
-		relatedItems: {
-			type: Object as PropType<Record<string, Record<string, Record<string, unknown>>>>,
-			default: () => ({}),
 		},
 		view: {
 			type: String,
@@ -152,15 +136,7 @@ export default defineComponent({
 			type: String as PropType<ModalSize>,
 			default: 'lg',
 		},
-		placeholder: {
-			type: String,
-			default: '',
-		},
 		multiple: {
-			type: Boolean,
-			default: false,
-		},
-		required: {
 			type: Boolean,
 			default: false,
 		},
@@ -175,14 +151,6 @@ export default defineComponent({
 		idField: {
 			type: String,
 			default: '',
-		},
-		errors: {
-			type: Array as PropType<string[]>,
-			default: null,
-		},
-		context: {
-			type: Object,
-			default: null,
 		},
 	},
 	emits: ['update:modelValue'],
@@ -289,14 +257,14 @@ export default defineComponent({
 			creating,
 			modelValueArray,
 			modelValueIds,
+			removeItem,
+			addItem,
 			onBlur(e: FocusEvent) {
 				// hide selector if there is no focus within the element
 				if (!(e.currentTarget as Node)?.contains(e.relatedTarget as Node)) {
 					selecting.value = false;
 				}
 			},
-			removeItem,
-			addItem,
 			toggleItem(e: { id: unknown; item: Record<string, unknown> }) {
 				const index = modelValueArray.value.indexOf(props.idField ? e.item[props.idField] : e.id);
 				if (index === -1) {

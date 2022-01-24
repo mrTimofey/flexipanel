@@ -57,9 +57,10 @@ mixin addButton(condition)
 import type { PropType } from 'vue';
 import { inject, defineComponent, computed, ref, watch } from 'vue';
 import DraggableGroup from 'vuedraggable';
-import type { IField, IRegisteredEntity } from '..';
+import type { IField } from '..';
 import { useTemplate } from '../../vue-composition-utils';
 import EntityItemFormField, { storeInjectKey } from '../entity-item-form-field.vue';
+import { getCommonProps } from './common';
 
 let idCounter = 0;
 function uid() {
@@ -70,34 +71,10 @@ function uid() {
 export default defineComponent({
 	components: { DraggableGroup, EntityItemFormField },
 	props: {
-		modelValue: {
+		...getCommonProps({
 			type: Array as PropType<unknown[]>,
 			default: () => [],
-		},
-		fieldKey: {
-			type: String,
-			default: '',
-		},
-		disabled: {
-			type: Boolean,
-			default: false,
-		},
-		relatedItems: {
-			type: Object as PropType<Record<string, Record<string, Record<string, unknown>>>>,
-			default: () => ({}),
-		},
-		entityMeta: {
-			type: Object as PropType<IRegisteredEntity>,
-			default: null,
-		},
-		entityItem: {
-			type: Object,
-			default: null,
-		},
-		entityItemId: {
-			type: String,
-			default: '',
-		},
+		}),
 		type: {
 			type: String,
 			default: 'text',
@@ -133,10 +110,6 @@ export default defineComponent({
 		unshift: {
 			type: Boolean,
 			default: false,
-		},
-		errors: {
-			type: Array as PropType<string[]>,
-			default: null,
 		},
 		sortable: {
 			type: Boolean,

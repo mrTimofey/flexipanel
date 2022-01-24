@@ -3,6 +3,7 @@ import type { PropType, ComponentPropsOptions, Component } from 'vue';
 import HttpClient from '../../http';
 import NotificationManager from '../../notification';
 import { get, useTemplate, useTranslator } from '../../vue-composition-utils';
+import { getCommonProps } from './common';
 
 export enum UploadStatus {
 	Idle = 1,
@@ -14,18 +15,10 @@ export default function makeUploadComponent(options: { props?: ComponentPropsOpt
 	return defineComponent({
 		components: options.components || {},
 		props: {
-			modelValue: {
+			...getCommonProps({
 				type: [String, Array] as PropType<string | string[] | null>,
 				default: null,
-			},
-			placeholder: {
-				type: String,
-				default: '',
-			},
-			disabled: {
-				type: Boolean,
-				default: false,
-			},
+			}),
 			multiple: {
 				type: Boolean,
 				default: false,
@@ -49,10 +42,6 @@ export default function makeUploadComponent(options: { props?: ComponentPropsOpt
 			urlTemplate: {
 				type: String,
 				default: '/storage/uploads/{{=it}}',
-			},
-			errors: {
-				type: Array as PropType<string[]>,
-				default: null,
 			},
 			...options.props,
 		},

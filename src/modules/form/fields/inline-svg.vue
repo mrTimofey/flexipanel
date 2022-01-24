@@ -48,28 +48,20 @@
 </template>
 
 <script lang="ts">
-import type { PropType } from 'vue';
 import { defineComponent, ref, computed } from 'vue';
 import { useTranslator } from '../../vue-composition-utils';
 import type { IModalAction } from '../../modal';
 import ModalDialog from '../../modal/modal.vue';
 import FieldTextarea from './textarea.vue';
+import { getCommonProps } from './common';
 
 export default defineComponent({
 	components: { ModalDialog, FieldTextarea },
 	props: {
-		modelValue: {
+		...getCommonProps({
 			type: String,
 			default: '',
-		},
-		disabled: {
-			type: Boolean,
-			default: false,
-		},
-		errors: {
-			type: Array as PropType<string[]>,
-			default: null,
-		},
+		}),
 		minWidth: {
 			type: String,
 			default: '',

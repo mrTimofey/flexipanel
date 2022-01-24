@@ -23,6 +23,7 @@ import type { PropType } from 'vue';
 import { computed, defineComponent } from 'vue';
 import { useTranslator } from '../../vue-composition-utils';
 import FieldCheckbox from './boolean.vue';
+import { getCommonProps } from './common';
 
 let guidCounter = 0;
 function guid() {
@@ -33,22 +34,10 @@ function guid() {
 export default defineComponent({
 	components: { FieldCheckbox },
 	props: {
-		placeholder: {
+		...getCommonProps({
 			type: String,
 			default: '',
-		},
-		modelValue: {
-			type: String,
-			default: '',
-		},
-		required: {
-			type: Boolean,
-			default: false,
-		},
-		disabled: {
-			type: Boolean,
-			default: false,
-		},
+		}),
 		options: {
 			type: Array as PropType<string[]>,
 			default: null,

@@ -1,7 +1,7 @@
 <template lang="pug">
 .form-field-editorjs
 	slot(name="label")
-	div(ref="editorElement")
+	div(ref="editorElement" :class="{ 'is-invalid': !!errors }")
 	.invalid-feedback(v-if="errors && errors.length")
 		div(v-for="err in errors") {{ err }}
 </template>
@@ -11,27 +11,16 @@ import type { PropType } from 'vue';
 import { onBeforeUnmount, defineComponent, ref, watch } from 'vue';
 import type { EditorConfig, OutputData } from '@editorjs/editorjs';
 import EditorJS from '@editorjs/editorjs';
+import { getCommonProps } from './common';
 
 export type EditorComponentConfig = Omit<EditorConfig, 'holder' | 'data' | 'placeholder' | 'onChange'>;
 
 export default defineComponent({
 	props: {
-		modelValue: {
+		...getCommonProps({
 			type: Object as PropType<OutputData>,
 			default: null,
-		},
-		disabled: {
-			type: Boolean,
-			default: false,
-		},
-		placeholder: {
-			type: String,
-			default: '',
-		},
-		errors: {
-			type: Array as PropType<string[]>,
-			default: null,
-		},
+		}),
 		config: {
 			type: Object as PropType<EditorComponentConfig>,
 			default: () => ({}),
@@ -42,6 +31,13 @@ export default defineComponent({
 		const editorElement = ref<null | HTMLDivElement>();
 		let editor: EditorJS | null = null;
 		let justEmitted = false;
+
+		const emitChange = (data: OutputData) => {
+			// catch internal change
+			justEmitted = true;
+			emit('update:modelValue', data.blocks.length ? data : null);
+		};
+
 		watch(
 			[editorElement, () => props.config],
 			() => {
@@ -58,17 +54,12 @@ export default defineComponent({
 					placeholder: props.placeholder,
 					readOnly: props.disabled,
 					onChange() {
-						editor?.save().then((data) => {
-							justEmitted = true;
-							emit('update:modelValue', data);
-						});
+						editor?.save().then(emitChange);
 					},
 					onReady() {
+						// for custom events from custom tools
 						editor?.on('change', () => {
-							editor?.save().then((data) => {
-								justEmitted = true;
-								emit('update:modelValue', data);
-							});
+							editor?.save().then(emitChange);
 						});
 					},
 					// eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -91,7 +82,8 @@ export default defineComponent({
 		watch(
 			() => props.modelValue,
 			() => {
-				if (!editor || justEmitted) {
+				if (!editor || justEmitted || props.modelValue === undefined) {
+					// catch internal change
 					justEmitted = false;
 					return;
 				}

@@ -26,20 +26,17 @@ import type { PropType } from 'vue';
 import { defineComponent, computed } from 'vue';
 import type { IOption, OptionsProp } from './select-utils';
 import { normalizeOptions } from './select-utils';
+import { getCommonProps } from './common';
 
 export default defineComponent({
 	props: {
-		modelValue: {
+		...getCommonProps({
 			type: [String, Number, Boolean, Object],
 			default: null,
-		},
+		}),
 		options: {
 			type: [Array, Object] as PropType<OptionsProp>,
 			required: true,
-		},
-		disabled: {
-			type: Boolean,
-			default: false,
 		},
 		valueKey: {
 			type: String,
@@ -48,10 +45,6 @@ export default defineComponent({
 		labelKey: {
 			type: String,
 			default: 'label',
-		},
-		errors: {
-			type: Array as PropType<string[]>,
-			default: null,
 		},
 		theme: {
 			type: String,

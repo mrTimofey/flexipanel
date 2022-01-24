@@ -22,6 +22,7 @@
 <script lang="ts">
 import type { PropType } from 'vue';
 import { computed, defineComponent, watchEffect } from 'vue';
+import { getCommonProps } from './common';
 
 type FormatterFn = {
 	modelToInternal(value: unknown): string | null;
@@ -58,25 +59,13 @@ const dateFormatters = {
 
 export default defineComponent({
 	props: {
-		modelValue: {
+		...getCommonProps({
 			type: [Number, String],
 			default: '',
-		},
-		placeholder: {
-			type: String,
-			default: '',
-		},
+		}),
 		timePlaceholder: {
 			type: String,
 			default: '',
-		},
-		disabled: {
-			type: Boolean,
-			default: false,
-		},
-		errors: {
-			type: Array as PropType<string[]>,
-			default: null,
 		},
 		formatter: {
 			type: String as PropType<keyof typeof dateFormatters | FormatterFn>,
