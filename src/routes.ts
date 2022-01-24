@@ -7,11 +7,6 @@ export default [
 		component: () => import('./pages/index.vue'),
 	},
 	{
-		name: 'uiKit',
-		path: '/ui-kit',
-		component: () => import('./pages/ui-kit.vue'),
-	},
-	{
 		name: 'entityView',
 		path: '/entity/view/:entity/:view?',
 		props: true,

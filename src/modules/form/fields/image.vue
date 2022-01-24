@@ -43,7 +43,7 @@
 							:class="errors ? ['border-danger', 'bg-danger'] : null"
 							style="--bs-bg-opacity:0.25"
 						)
-					.btn.btn-danger.btn-sm.position-absolute.top-0.start-0.m-2(@click="removeItem(index)" :disabled="disabled")
+					.btn.btn-danger.btn-sm.btn-delete.m-2(@click="removeItem(index)" :disabled="disabled")
 						i.fas.fa-trash
 				.btn-group(v-else)
 					.btn.btn-danger(@click="removeItem(index)" :disabled="disabled")
@@ -75,8 +75,8 @@ export default makeUploadComponent({
 
 <style lang="stylus" scoped>
 .img-thumbnail
-	min-width 5rem
-	min-height 5rem
+	min-width 3rem
+	min-height 3rem
 .form-field-image-item
 	img
 		width var(--frame-width)
@@ -84,4 +84,10 @@ export default makeUploadComponent({
 .multiple
 	.form-field-image-item a
 		cursor move
+.btn-delete
+	position absolute
+	top 0
+	left 0
+	padding 0 0.2rem
+	font-size 12px
 </style>
