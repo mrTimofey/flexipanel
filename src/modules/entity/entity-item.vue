@@ -55,8 +55,6 @@ function guid() {
 	return `entity-item-${guidCounter}`;
 }
 
-const submitEventProcessedFlag = Symbol('submitEventProcessedFlag');
-
 export default defineComponent({
 	components: { EntityItemFormField },
 	props: {
@@ -185,14 +183,12 @@ export default defineComponent({
 					emit('return');
 				}
 			},
-			submit(evt: Event) {
-				// Prevent parent forms submitting by marking the event.
-				// Why not stopPropagation? Events should not be stopped to allow others to handle them.
-				const event = evt as Event & { [submitEventProcessedFlag]?: true };
-				if (event[submitEventProcessedFlag]) {
+			// eslint-disable-next-line no-undef
+			submit(event: SubmitEvent) {
+				const target = event.target as HTMLFormElement;
+				if (target.id !== props.formId) {
 					return;
 				}
-				event[submitEventProcessedFlag] = true;
 				if (props.onReturn) {
 					saveAndReturn();
 				} else {
