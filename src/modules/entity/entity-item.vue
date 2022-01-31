@@ -6,7 +6,7 @@
 		component(
 			:is="entityMeta.form.layout"
 			v-bind="{ store, context, formId, fields: availableFields, fieldComponent: EntityItemFormField }"
-			@submit="submit()"
+			@submit="submit($event)"
 		)
 			template(#form)
 				slot(name="form" v-bind="{ store, context, formId, save, saveAndReturn, fields: availableFields, fieldComponent: EntityItemFormField }")
@@ -54,6 +54,8 @@ function guid() {
 	guidCounter += 1;
 	return `entity-item-${guidCounter}`;
 }
+
+const submitEventProcessedFlag = Symbol('submitEventProcessedFlag');
 
 export default defineComponent({
 	components: { EntityItemFormField },
@@ -183,7 +185,14 @@ export default defineComponent({
 					emit('return');
 				}
 			},
-			submit() {
+			submit(evt: Event) {
+				// Prevent parent forms submitting by marking the event.
+				// Why not stopPropagation? Events should not be stopped to allow others to handle them.
+				const event = evt as Event & { [submitEventProcessedFlag]?: true };
+				if (event[submitEventProcessedFlag]) {
+					return;
+				}
+				event[submitEventProcessedFlag] = true;
 				if (props.onReturn) {
 					saveAndReturn();
 				} else {
