@@ -1,6 +1,6 @@
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
-import { minifyHtml } from 'vite-plugin-html';
+import { createHtmlPlugin } from 'vite-plugin-html';
 import dts from 'vite-plugin-dts';
 import { resolve } from 'path';
 import { unlinkSync } from 'fs';
@@ -10,7 +10,7 @@ import { dependencies } from './package.json';
 export default defineConfig(({ command }) => ({
 	plugins: [
 		vue(),
-		minifyHtml(),
+		createHtmlPlugin(),
 		...(command === 'build'
 			? [
 					dts({
