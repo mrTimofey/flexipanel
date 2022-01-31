@@ -2,6 +2,7 @@ import { computed, ref, defineComponent } from 'vue';
 import type { PropType, ComponentPropsOptions, Component } from 'vue';
 import HttpClient from '../../http';
 import NotificationManager from '../../notification';
+import { useDragAndDrop } from '../../drag-and-drop';
 import { get, useTemplate, useTranslator } from '../../vue-composition-utils';
 import { getCommonProps } from './common';
 
@@ -91,6 +92,13 @@ export default function makeUploadComponent(options: { props?: ComponentPropsOpt
 
 			return {
 				...useTranslator(),
+				...useDragAndDrop((from: number, to: number) => {
+					const item = modelValueArray.value[from];
+					const newValue = [...modelValueArray.value];
+					newValue.splice(from, 1);
+					newValue.splice(to, 0, item);
+					emit('update:modelValue', newValue);
+				}),
 				UploadStatus,
 				uploadStatus,
 				uploadProgress,
@@ -119,13 +127,6 @@ export default function makeUploadComponent(options: { props?: ComponentPropsOpt
 					const newValue = modelValueArray.value.slice();
 					newValue.splice(index, 1);
 					emit('update:modelValue', props.multiple ? newValue : newValue[0] || null);
-				},
-				changePosition(from: number, to: number) {
-					const item = modelValueArray.value[from];
-					const newValue = [...modelValueArray.value];
-					newValue.splice(from, 1);
-					newValue.splice(to, 0, item);
-					emit('update:modelValue', newValue);
 				},
 			};
 		},

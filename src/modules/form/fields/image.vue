@@ -31,7 +31,7 @@
 		:animation="200"
 		:model-value="modelValueItems"
 		:disabled="!multiple"
-		@change="$event.moved && changePosition($event.moved.oldIndex, $event.moved.newIndex)"
+		@change="onDragAndDrop($event)"
 	)
 		template(#item="{ element, index }")
 			.form-field-image-item.me-2.my-1

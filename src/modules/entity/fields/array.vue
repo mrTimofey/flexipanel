@@ -14,13 +14,12 @@ mixin addButton(condition)
 	+addButton('["both", "top"].includes(addButtonPosition)')
 	draggable-group.form-field-array-items(
 		v-if="keys && valueLength > 0"
-		style="--bs-bg-opacity:0.25"
 		item-key="key"
 		handle="[data-move-handle]"
 		:class="errors ? 'bg-danger' : ''"
 		:model-value="keyedItems"
 		:disabled="!sortable || disabled"
-		@change="$event.moved && changePosition($event.moved.oldIndex, $event.moved.newIndex)"
+		@change="onDragAndDrop($event)"
 	)
 		template(#item="{ element: { value }, index }")
 			.d-flex.align-items-center.my-1(
@@ -56,7 +55,7 @@ mixin addButton(condition)
 <script lang="ts">
 import type { PropType } from 'vue';
 import { inject, defineComponent, computed, ref, watch } from 'vue';
-import DraggableGroup from 'vuedraggable';
+import DraggableGroup, { useDragAndDrop } from '../../drag-and-drop';
 import type { IField } from '..';
 import { useTemplate } from '../../vue-composition-utils';
 import EntityItemFormField, { storeInjectKey } from '../entity-item-form-field.vue';
@@ -173,6 +172,16 @@ export default defineComponent({
 
 		return {
 			...useTemplate(),
+			...useDragAndDrop((oldIndex: number, newIndex: number) => {
+				const newValue = items.value.slice();
+				const newKeys = keys.value?.slice() || [];
+				newValue.splice(oldIndex, 1);
+				newValue.splice(newIndex, 0, items.value[oldIndex]);
+				newKeys.splice(oldIndex, 1);
+				newKeys.splice(newIndex, 0, keys.value?.[oldIndex] || uid());
+				emitInternal(newValue);
+				keys.value = newKeys;
+			}),
 			keys,
 			valueLength,
 			keyedItems,
@@ -241,20 +250,12 @@ export default defineComponent({
 				keys.value = newKeys;
 				emitInternal(value);
 			},
-			changePosition(oldIndex: number, newIndex: number) {
-				if (oldIndex === newIndex) {
-					return;
-				}
-				const newValue = items.value.slice();
-				const newKeys = keys.value?.slice() || [];
-				newValue.splice(oldIndex, 1);
-				newValue.splice(newIndex, 0, items.value[oldIndex]);
-				newKeys.splice(oldIndex, 1);
-				newKeys.splice(newIndex, 0, keys.value?.[oldIndex] || uid());
-				emitInternal(newValue);
-				keys.value = newKeys;
-			},
 		};
 	},
 });
 </script>
+
+<style lang="stylus" scoped>
+.form-field-array-items
+	--bs-bg-opacity 0.25
+</style>

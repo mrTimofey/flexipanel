@@ -19,7 +19,7 @@
 			:animation="200"
 			:model-value="items"
 			:disabled="!sortable"
-			@change="$event.moved && onPositionChange($event.moved.oldIndex, $event.moved.newIndex)"
+			@change="onDragAndDrop($event)"
 		)
 			template(#item="{ element: item, index }")
 				tr(:class="{ 'row-loading': loadingItems.has(item) }")
@@ -46,7 +46,7 @@
 <script lang="ts">
 import type { PropType } from 'vue';
 import { computed, defineComponent } from 'vue';
-import DraggableGroup from 'vuedraggable';
+import DraggableGroup, { useDragAndDrop } from '../../drag-and-drop';
 import EntityManager from '..';
 import { get } from '../../vue-composition-utils';
 
@@ -108,7 +108,15 @@ export default defineComponent({
 	emits: ['item-click', 'item-input', 'item-action-click'],
 	setup(props, { emit }) {
 		const entityManager = get(EntityManager);
+
 		return {
+			...useDragAndDrop((oldIndex: number, newIndex: number) => {
+				emit('item-action-click', {
+					action: 'itemPositionChange',
+					oldIndex,
+					newIndex,
+				});
+			}),
 			visibleColumns: computed(() => (props.hiddenColumns.size > 0 ? props.columns.filter((col) => !props.hiddenColumns.has(col)) : props.columns)),
 			displayComponent(displayType: string) {
 				return entityManager.getDisplayType(displayType)?.component;
@@ -133,13 +141,6 @@ export default defineComponent({
 			},
 			onInput(item: unknown, values: unknown) {
 				emit('item-input', { item, values });
-			},
-			onPositionChange(oldIndex: number, newIndex: number) {
-				emit('item-action-click', {
-					action: 'itemPositionChange',
-					oldIndex,
-					newIndex,
-				});
 			},
 		};
 	},

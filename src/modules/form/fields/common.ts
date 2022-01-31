@@ -7,7 +7,7 @@ const commonFieldProps = {
 		default: false,
 	},
 	errors: {
-		type: Array as PropType<string[]>,
+		type: Array as PropType<string[] | null>,
 		default: null,
 	},
 	placeholder: {

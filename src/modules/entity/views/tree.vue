@@ -8,7 +8,7 @@
 		:item-key="itemKey"
 		:model-value="currentLevelItems"
 		:disabled="!sortable"
-		@change="$event.moved && onPositionChange($event.moved.oldIndex, $event.moved.newIndex)"
+		@change="onDragAndDrop($event)"
 	)
 		template(#item="{ element: item, index }")
 			.tree-view-item-wrap(:class="{ loading: loadingItems.has(item) }")
@@ -53,7 +53,7 @@
 <script lang="ts">
 import type { PropType } from 'vue';
 import { defineComponent, computed } from 'vue';
-import DraggableGroup from 'vuedraggable';
+import DraggableGroup, { useDragAndDrop } from '../../drag-and-drop';
 import EntityManager from '..';
 import { get } from '../../vue-composition-utils';
 
@@ -146,7 +146,20 @@ export default defineComponent({
 				: // roots
 				  props.items.filter((item) => !deep(item, foreignPath.value)),
 		);
+
 		return {
+			...useDragAndDrop((oldIndex: number, newIndex: number) => {
+				const realOldIndex = props.items.indexOf(currentLevelItems.value[oldIndex]);
+				const realNewIndex = props.items.indexOf(currentLevelItems.value[newIndex]);
+				if (realOldIndex === -1 || realNewIndex === -1) {
+					return;
+				}
+				emit('item-action-click', {
+					action: 'itemPositionChange',
+					oldIndex: realOldIndex,
+					newIndex: realNewIndex,
+				});
+			}),
 			slots,
 			props,
 			currentLevelItems,
@@ -159,18 +172,6 @@ export default defineComponent({
 			},
 			onCreateChildClick(item: Record<string, unknown>) {
 				emit('item-action-click', { action: 'createChild', item });
-			},
-			onPositionChange(oldIndex: number, newIndex: number) {
-				const realOldIndex = props.items.indexOf(currentLevelItems.value[oldIndex]);
-				const realNewIndex = props.items.indexOf(currentLevelItems.value[newIndex]);
-				if (realOldIndex === -1 || realNewIndex === -1) {
-					return;
-				}
-				emit('item-action-click', {
-					action: 'itemPositionChange',
-					oldIndex: realOldIndex,
-					newIndex: realNewIndex,
-				});
 			},
 			onItemActionClick(event: unknown) {
 				emit('item-action-click', event);
