@@ -184,9 +184,9 @@ export default defineComponent({
 				}
 			},
 			// eslint-disable-next-line no-undef
-			submit(event: SubmitEvent) {
-				const target = event.target as HTMLFormElement;
-				if (target.id !== props.formId) {
+			submit(event?: Event | SubmitEvent) {
+				// for native submit event check if it bubbled from another processed form
+				if (event?.target instanceof HTMLFormElement && event.target.id !== props.formId) {
 					return;
 				}
 				if (props.onReturn) {
