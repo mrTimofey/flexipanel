@@ -10,6 +10,9 @@
 				:value="modelValue?.[k]"
 				@change="updateItem(k, $event)"
 			)
+	.text-danger(v-if="errors && errors.length")
+		div(v-for="err in errors")
+			small {{ err }}
 </template>
 
 <script lang="ts">
