@@ -145,6 +145,10 @@ export default defineComponent({
 			type: String,
 			default: '',
 		},
+		sharedStore: {
+			type: Object as PropType<EntityListStore>,
+			default: null,
+		},
 		context: {
 			type: Object,
 			default: null,
@@ -152,7 +156,7 @@ export default defineComponent({
 	},
 	emits: ['update:page', 'update:perPage', 'update:filters', 'edit-click', 'item-click', 'item-action-click'],
 	setup(props, { emit }) {
-		const store = create(EntityListStore);
+		const store = props.sharedStore || create(EntityListStore);
 		const entityManager = get(EntityManager);
 		const notifier = get(NotificationManager);
 		const modalDialog = get(ModalDialog);
