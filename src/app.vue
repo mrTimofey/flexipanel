@@ -18,9 +18,11 @@
 			auth-form
 notification-root
 dialog-root
+component(v-for="comp in rootComponents" :is="comp")
 </template>
 
 <script lang="ts">
+import type { PropType, Component, ExtractPropTypes } from 'vue';
 import { defineComponent, watchEffect, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { get, useTranslator } from './modules/vue-composition-utils';
@@ -32,14 +34,24 @@ import AuthStore from './modules/auth/store';
 import NotificationRoot from './modules/notification/notifications.vue';
 import DialogRoot from './modules/modal/dialogs.vue';
 
+const props = {
+	rootComponents: {
+		type: Array as PropType<Component[]>,
+		default: () => [],
+	},
+};
+
+export type AppProps = ExtractPropTypes<typeof props>;
+
 export default defineComponent({
-	name: 'App',
+	name: 'AppRoot',
 	components: {
 		MainNav,
 		AuthForm,
 		NotificationRoot,
 		DialogRoot,
 	},
+	props,
 	setup() {
 		const config = get(AppConfig);
 		const meta = get(Meta);

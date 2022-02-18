@@ -4,6 +4,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import Container from 'mini-ioc';
 import { injectKey } from 'mini-ioc-vue';
 import routes from './routes';
+import type { AppProps } from './app.vue';
 import App from './app.vue';
 import HttpClient from './modules/http';
 import FetchJsonClient from './modules/http/fetch-json-client';
@@ -64,8 +65,8 @@ export default class VueAdminApp {
 	 * Mount administration panel to a DOM element.
 	 * @param target CSS selector or DOM element
 	 */
-	mount(target: string | Element): this {
-		createApp(App).use(this.router).provide(injectKey, this.container).mount(target);
+	mount(target: string | Element, props?: AppProps): this {
+		createApp(App, props).use(this.router).provide(injectKey, this.container).mount(target);
 		return this;
 	}
 }
