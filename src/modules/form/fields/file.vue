@@ -19,7 +19,7 @@
 			input(
 				type="file"
 				style="display:none"
-				@change="onFileChange($event)"
+				@change="onFileInputChange($event)"
 				:accept="accept"
 				:disabled="disabled"
 			)
@@ -45,7 +45,14 @@
 </template>
 
 <script lang="ts">
-import makeUploadComponent from './file-upload';
+import { defineComponent } from 'vue';
+import useFieldWithFileUploads, { getFileFieldProps } from './file-upload';
 
-export default makeUploadComponent();
+export default defineComponent({
+	props: getFileFieldProps(),
+	emits: ['update:modelValue'],
+	setup(props, { emit }) {
+		return useFieldWithFileUploads(props, (newValue) => emit('update:modelValue', newValue));
+	},
+});
 </script>

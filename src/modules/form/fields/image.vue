@@ -1,6 +1,5 @@
 <template lang="pug">
-.form-field-image(:class="{ multiple }" :style=`// @ts-ignore
-							'--frame-width:' + (frameWidth || 'auto') + ';--frame-height:' + (frameHeight || 'auto')`)
+.form-field-image(:class="{ multiple }" :style="frameSizeStyle")
 	.form-field-image-label
 		slot(name="label")
 	.progress.active(v-if="uploadStatus === UploadStatus.InQueue")
@@ -18,7 +17,7 @@
 			input(
 				type="file"
 				style="display:none"
-				@change="onFileChange($event)"
+				@change="onFileInputChange($event)"
 				:accept="accept"
 				:disabled="disabled"
 				:multiple="multiple"
@@ -55,12 +54,14 @@
 </template>
 
 <script lang="ts">
-import DraggableGroup from 'vuedraggable';
-import makeUploadComponent from './file-upload';
+import { computed, defineComponent } from 'vue';
+import DraggableGroup from '../../drag-and-drop';
+import useFieldWithFileUploads, { getFileFieldProps } from './file-upload';
 
-export default makeUploadComponent({
+export default defineComponent({
 	components: { DraggableGroup },
 	props: {
+		...getFileFieldProps(),
 		frameWidth: {
 			type: String,
 			default: '',
@@ -69,6 +70,13 @@ export default makeUploadComponent({
 			type: String,
 			default: '',
 		},
+	},
+	emits: ['update:modelValue'],
+	setup(props, { emit }) {
+		return {
+			...useFieldWithFileUploads(props, (newValue) => emit('update:modelValue', newValue)),
+			frameSizeStyle: computed(() => `--frame-width:${props.frameWidth || 'auto'};--frame-height:${props.frameHeight || 'auto'}`),
+		};
 	},
 });
 </script>
