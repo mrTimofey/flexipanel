@@ -92,13 +92,7 @@ export default function makeUploadComponent(options: { props?: ComponentPropsOpt
 
 			return {
 				...useTranslator(),
-				...useDragAndDrop((from: number, to: number) => {
-					const item = modelValueArray.value[from];
-					const newValue = [...modelValueArray.value];
-					newValue.splice(from, 1);
-					newValue.splice(to, 0, item);
-					emit('update:modelValue', newValue);
-				}),
+				...useDragAndDrop((newValue) => emit('update:modelValue', newValue), modelValueArray),
 				UploadStatus,
 				uploadStatus,
 				uploadProgress,
