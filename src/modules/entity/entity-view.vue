@@ -85,6 +85,7 @@ import PageNav from './pagination.vue';
 import FieldSelect from '../form/fields/select.vue';
 import ModalDialog from '../modal/dialogs';
 import NotificationManager from '../notification';
+import FormFields from '../form/fields';
 
 function isPositionChangeEvent(event: { action: string }): event is { action: string; oldIndex: number; newIndex: number } {
 	return event.action === 'itemPositionChange';
@@ -155,9 +156,10 @@ export default defineComponent({
 		},
 	},
 	emits: ['update:page', 'update:perPage', 'update:filters', 'edit-click', 'item-click', 'item-action-click'],
-	setup(props, { emit }) {
+	setup(props, { emit, expose }) {
 		const store = props.sharedStore || create(EntityListStore);
 		const entityManager = get(EntityManager);
+		const formFields = get(FormFields);
 		const notifier = get(NotificationManager);
 		const modalDialog = get(ModalDialog);
 		const { trans } = useTranslator();
@@ -183,23 +185,19 @@ export default defineComponent({
 			}
 			initialLoading.value = true;
 			store.setEntity(props.entityMeta);
-			store
-				.reload({
-					page: props.page > 1 ? props.page : 1,
-					perPage: props.perPage || entityView.value.perPage || 0,
-					filters: props.filters,
-				})
-				.then(() => {
-					initialLoading.value = false;
-				});
+			await store.reload({
+				page: props.page > 1 ? props.page : 1,
+				perPage: props.perPage || entityView.value.perPage || 0,
+				filters: props.filters,
+			});
+			initialLoading.value = false;
 		};
-		const reload = (): void => {
+		const reload = (): Promise<void> =>
 			store.reload({
 				page: store.page,
 				perPage: store.perPage,
 				filters: props.filters,
 			});
-		};
 		const itemRoute = (item: ListItem): string => {
 			if (!props.entityMeta) {
 				return '#';
@@ -223,21 +221,19 @@ export default defineComponent({
 			if (!confirmed) {
 				return;
 			}
-			store
-				.deleteItem(item)
-				.then(() =>
-					store.reload({
-						page: store.page,
-						perPage: store.perPage,
-						filters: props.filters,
-					}),
-				)
-				.catch((err) => {
-					notifier.push({
-						type: 'error',
-						body: `${err}`,
-					});
+			try {
+				await store.deleteItem(item);
+				store.reload({
+					page: store.page,
+					perPage: store.perPage,
+					filters: props.filters,
 				});
+			} catch (err) {
+				notifier.push({
+					type: 'error',
+					body: `${err}`,
+				});
+			}
 		}
 
 		watch(
@@ -278,6 +274,8 @@ export default defineComponent({
 			isActivated.value = false;
 		});
 		reloadInitialState();
+
+		expose({ reload });
 		return {
 			viewType,
 			viewComponent,
@@ -313,7 +311,7 @@ export default defineComponent({
 				}
 			},
 			fieldComponent(type: string) {
-				return entityManager.getFieldType(type)?.component;
+				return formFields.getComponent(type);
 			},
 			onFilterInput(key: string, value: unknown) {
 				const filters: Record<string, unknown> = { ...props.filters };
@@ -342,7 +340,6 @@ export default defineComponent({
 					confirmAndDelete: () => confirmAndDelete(item),
 				};
 			},
-			// external API
 			reload,
 		};
 	},

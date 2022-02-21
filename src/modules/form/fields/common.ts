@@ -18,6 +18,14 @@ const commonFieldProps = {
 		type: Boolean,
 		default: false,
 	},
+	fieldKey: {
+		type: String,
+		default: '',
+	},
+	context: {
+		type: Object,
+		default: null,
+	},
 };
 
 export function getCommonProps<T>(modelValue: T) {

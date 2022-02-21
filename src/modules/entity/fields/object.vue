@@ -29,10 +29,6 @@ export default defineComponent({
 			type: Object as PropType<Record<string, unknown> | null>,
 			default: null,
 		}),
-		relatedItems: {
-			type: Object as PropType<Record<string, Record<string, Record<string, unknown>>>>,
-			default: () => ({}),
-		},
 		fields: {
 			type: Object,
 			required: true,

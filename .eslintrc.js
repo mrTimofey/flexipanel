@@ -25,6 +25,8 @@ module.exports = {
 
 		'filenames/match-regex': [2, '^([a-z0-9]+[-.])*[a-z0-9]+$', true],
 
+		'no-restricted-syntax': 0,
+
 		'import/no-unresolved': 0,
 		'import/no-extraneous-dependencies': 0,
 		'import/extensions': 0,

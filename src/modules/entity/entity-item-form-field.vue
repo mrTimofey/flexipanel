@@ -1,6 +1,6 @@
 <template lang="pug">
 component(
-	:is="getFieldComponent(field.type)"
+	:is="computedFieldComponent"
 	:field-key="field.key"
 	:errors="store?.formErrors[field.key]"
 	:context="context"
@@ -20,7 +20,7 @@ component(
 import type { InjectionKey, PropType, ComputedRef } from 'vue';
 import { defineComponent, provide, computed } from 'vue';
 import type { IField } from '.';
-import EntityManager from '.';
+import FormFields from '../form/fields';
 import { get } from '../vue-composition-utils';
 import type EntityItemStore from './stores/item';
 
@@ -29,7 +29,6 @@ export const storeInjectKey: InjectionKey<ComputedRef<EntityItemStore>> = Symbol
 
 function deep(obj: Record<string, unknown>, path: string[]): unknown {
 	let current = obj;
-	// eslint-disable-next-line no-restricted-syntax
 	for (const prop of path) {
 		current = current[prop] as Record<string, unknown>;
 		if (current == null || typeof current !== 'object') {
@@ -58,10 +57,6 @@ export default defineComponent({
 			type: Object,
 			default: null,
 		},
-		onChange: {
-			type: Function as PropType<(value: unknown) => unknown>,
-			default: null,
-		},
 		fieldComponent: {
 			type: Object,
 			default: null,
@@ -70,17 +65,18 @@ export default defineComponent({
 			type: Object,
 			default: null,
 		},
+		// eslint-disable-next-line vue/require-default-prop
+		onChange: Function,
 	},
+	emits: ['change'],
 	setup(props) {
-		const entityManager = get(EntityManager);
+		const formFields = get(FormFields);
 		provide(
 			storeInjectKey,
 			computed(() => props.store),
 		);
 		return {
-			getFieldComponent(type: string) {
-				return props.fieldComponent || entityManager.getFieldType(type)?.component;
-			},
+			computedFieldComponent: computed(() => props.fieldComponent || formFields.getComponent(props.field.type)),
 			fieldValue: computed(() => (props.store ? deep(props.store.formItem, props.field.key.split('.')) : props.value)),
 		};
 	},

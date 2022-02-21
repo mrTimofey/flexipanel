@@ -1,5 +1,6 @@
 import { defineAsyncComponent } from 'vue';
 import type { Component, AsyncComponentLoader } from 'vue';
+import type { Resolver } from '../form/fields';
 
 type PossiblyAsyncComponent = Component | AsyncComponentLoader;
 
@@ -128,11 +129,19 @@ function fillFields(fields: IField[]) {
 	});
 }
 
+const fields: { [name: string]: Component } = {};
+Object.entries(import.meta.glob('./fields/*.vue')).forEach(([path, importFn]) => {
+	// remove './' and '.vue' parts
+	fields[path.slice(9, -4)] = defineAsyncComponent(importFn);
+});
+
 export default class EntityManager {
 	protected entities: Record<string, IRegisteredEntity> = {};
 	protected viewTypes: Record<string, IViewType> = {};
 	protected displayTypes: Record<string, IDisplayType> = {};
 	protected fieldTypes: Record<string, IFieldType> = {};
+
+	public readonly fieldsResolver: Resolver = (name) => fields[name] || null;
 
 	public registerEntity(slug: string, entity: IEntityMeta): this {
 		const entityWithDefaults = { ...entityMetaDefaults, ...entity, slug };
@@ -170,16 +179,6 @@ export default class EntityManager {
 		return this.displayTypes[key] || null;
 	}
 
-	public registerFieldType(key: string, field: IFieldType): this {
-		this.fieldTypes[key] = field;
-		return this;
-	}
-
-	// TODO move fields to form module
-	public getFieldType(key: string): IFieldType | null {
-		return this.fieldTypes[key] || null;
-	}
-
 	constructor() {
 		this.registerViewType('table', {
 			component: defineAsyncComponent(() => import('./views/table.vue')),
@@ -207,63 +206,6 @@ export default class EntityManager {
 		});
 		this.registerDisplayType('boolean', {
 			component: defineAsyncComponent(() => import('./displays/boolean.vue')),
-		});
-		this.registerFieldType('text', {
-			component: defineAsyncComponent(() => import('../form/fields/text.vue')),
-		});
-		this.registerFieldType('textarea', {
-			component: defineAsyncComponent(() => import('../form/fields/textarea.vue')),
-		});
-		this.registerFieldType('date', {
-			component: defineAsyncComponent(() => import('../form/fields/date.vue')),
-		});
-		this.registerFieldType('time', {
-			component: defineAsyncComponent(() => import('../form/fields/time.vue')),
-		});
-		this.registerFieldType('datetime', {
-			component: defineAsyncComponent(() => import('../form/fields/datetime.vue')),
-		});
-		this.registerFieldType('select', {
-			component: defineAsyncComponent(() => import('../form/fields/select.vue')),
-		});
-		this.registerFieldType('radio', {
-			component: defineAsyncComponent(() => import('../form/fields/radio.vue')),
-		});
-		this.registerFieldType('integer', {
-			component: defineAsyncComponent(() => import('../form/fields/integer.vue')),
-		});
-		this.registerFieldType('float', {
-			component: defineAsyncComponent(() => import('../form/fields/float.vue')),
-		});
-		this.registerFieldType('boolean', {
-			component: defineAsyncComponent(() => import('../form/fields/boolean.vue')),
-		});
-		this.registerFieldType('file', {
-			component: defineAsyncComponent(() => import('../form/fields/file.vue')),
-		});
-		this.registerFieldType('image', {
-			component: defineAsyncComponent(() => import('../form/fields/image.vue')),
-		});
-		this.registerFieldType('color', {
-			component: defineAsyncComponent(() => import('../form/fields/color.vue')),
-		});
-		this.registerFieldType('inline-svg', {
-			component: defineAsyncComponent(() => import('../form/fields/inline-svg.vue')),
-		});
-		this.registerFieldType('editorjs', {
-			component: defineAsyncComponent(() => import('../form/fields/editorjs.vue')),
-		});
-		this.registerFieldType('entity', {
-			component: defineAsyncComponent(() => import('./fields/entity.vue')),
-		});
-		this.registerFieldType('entity-view', {
-			component: defineAsyncComponent(() => import('./fields/entity-view.vue')),
-		});
-		this.registerFieldType('array', {
-			component: defineAsyncComponent(() => import('./fields/array.vue')),
-		});
-		this.registerFieldType('object', {
-			component: defineAsyncComponent(() => import('./fields/object.vue')),
 		});
 	}
 }

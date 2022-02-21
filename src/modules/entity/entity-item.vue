@@ -42,6 +42,7 @@
 import type { PropType } from 'vue';
 import { defineComponent, computed, watchEffect, ref } from 'vue';
 import type { IField, IRegisteredEntity } from '.';
+import type { DetailedItem } from './stores/item';
 import EntityItemStore from './stores/item';
 import { get, create, useTranslator } from '../vue-composition-utils';
 import NotificationManager from '../notification';
@@ -53,6 +54,11 @@ let guidCounter = 0;
 function guid() {
 	guidCounter += 1;
 	return `entity-item-${guidCounter}`;
+}
+
+export interface IEntityEventArgs {
+	id: string;
+	item: DetailedItem;
 }
 
 export default defineComponent({
@@ -88,8 +94,6 @@ export default defineComponent({
 		},
 		// eslint-disable-next-line vue/require-default-prop
 		onReturn: Function,
-		// eslint-disable-next-line vue/require-default-prop
-		onDelete: Function,
 	},
 	emits: ['update:id', 'return', 'delete', 'change', 'update', 'create'],
 	setup(props, { emit }) {
@@ -99,19 +103,9 @@ export default defineComponent({
 		const initializing = ref(false);
 		const { trans } = useTranslator();
 
-		watchEffect(async () => {
-			initializing.value = true;
-			await store.loadEntityItem(props.entityMeta, props.id);
-			Object.entries(props.fixedValues).forEach(([key, value]) => {
-				store.formItem[key] = value;
-			});
-			if (!props.id) {
-				Object.entries(props.defaultValues).forEach(([key, value]) => {
-					store.formItem[key] = value;
-				});
-			}
-			initializing.value = false;
-		});
+		const emitWithItemInfo = (event: Parameters<typeof emit>[0]) => {
+			emit(event, { id: store.itemId, item: store.formItem });
+		};
 
 		const handleErrors = async (asyncOp: Promise<void>) => {
 			try {
@@ -135,7 +129,7 @@ export default defineComponent({
 				type: 'success',
 				body: trans('successfullySaved'),
 			});
-			emit('change', { id: store.itemId, item: store.formItem });
+			emitWithItemInfo('change');
 			return true;
 		};
 
@@ -144,18 +138,33 @@ export default defineComponent({
 				return;
 			}
 			if (props.id === store.itemId) {
-				emit('update');
+				emitWithItemInfo('update');
 			} else {
-				emit('create');
+				emitWithItemInfo('create');
 				emit('update:id', store.itemId);
 			}
 		};
+
 		const saveAndReturn = async () => {
 			if (!(await saveAndNotify())) {
 				return;
 			}
-			emit('return', { id: store.itemId, item: store.formItem });
+			emitWithItemInfo('return');
 		};
+
+		watchEffect(async () => {
+			initializing.value = true;
+			await store.loadEntityItem(props.entityMeta, props.id);
+			Object.entries(props.fixedValues).forEach(([key, value]) => {
+				store.formItem[key] = value;
+			});
+			if (!props.id) {
+				Object.entries(props.defaultValues).forEach(([key, value]) => {
+					store.formItem[key] = value;
+				});
+			}
+			initializing.value = false;
+		});
 
 		return {
 			EntityItemFormField,
@@ -180,12 +189,11 @@ export default defineComponent({
 				}
 				if (await handleErrors(store.destroy())) {
 					emit('delete');
-					emit('return');
+					emitWithItemInfo('return');
 				}
 			},
-			// eslint-disable-next-line no-undef
-			submit(event?: Event | SubmitEvent) {
-				// for native submit event check if it bubbled from another processed form
+			submit(event?: Event) {
+				// for native submit event check if it is bubbled from another processed form
 				if (event?.target instanceof HTMLFormElement && event.target.id !== props.formId) {
 					return;
 				}

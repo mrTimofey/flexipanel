@@ -12,6 +12,8 @@ import AuthProvider from './modules/auth/provider';
 import PublicAuthProvider from './modules/auth/providers/public';
 import TemplateEngine from './modules/template';
 import Translator from './modules/i18n';
+import EntityManager from './modules/entity';
+import FormFields from './modules/form/fields';
 
 // removed after build, see this file for details
 export { default as __dontUseThisThankYou__ } from './__import-all';
@@ -33,16 +35,25 @@ export default class VueAdminApp {
 		this.container.bind(AuthProvider, PublicAuthProvider);
 		// make container itself resolvable
 		this.container.registerResolver(Container, () => this.container);
-		this.container.registerResolver(TemplateEngine, (EngineClass) => {
-			const engine = new EngineClass();
+		this.container.registerResolver(TemplateEngine, (TemplateEngineClass) => {
+			const engine = new TemplateEngineClass();
 			this.registerTemplateHelpers(engine);
 			return engine;
+		});
+		this.container.registerResolver(FormFields, (FormFieldsClass) => {
+			const formFields = new FormFieldsClass();
+			this.registerFieldResolvers(formFields);
+			return formFields;
 		});
 	}
 
 	protected registerTemplateHelpers(engine: TemplateEngine) {
 		engine.registerHelper('trans', (key: string) => this.container.get(Translator).get(key));
 		engine.registerHelper('route', (route: RouteLocationRaw) => this.router.resolve(route).href);
+	}
+
+	protected registerFieldResolvers(formFields: FormFields) {
+		formFields.addComponentResolver(this.container.get(EntityManager).fieldsResolver);
 	}
 
 	/**

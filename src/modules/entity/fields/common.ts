@@ -20,14 +20,6 @@ const commonEntityFieldProps = {
 		type: Object as PropType<Record<string, Record<string, Record<string, unknown>>>>,
 		default: () => ({}),
 	},
-	fieldKey: {
-		type: String,
-		default: '',
-	},
-	context: {
-		type: Object,
-		default: null,
-	},
 };
 
 export function getCommonProps<T>(modelValue: T) {

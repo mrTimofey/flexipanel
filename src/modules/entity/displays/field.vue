@@ -12,7 +12,7 @@ component(
 
 <script lang="ts">
 import { defineComponent, computed } from 'vue';
-import EntityManager from '..';
+import FormFields from '../../form/fields';
 import { get, debounce } from '../../vue-composition-utils';
 
 export default defineComponent({
@@ -45,7 +45,7 @@ export default defineComponent({
 	},
 	emits: ['input'],
 	setup(props, { emit }) {
-		const entityManager = get(EntityManager);
+		const formFields = get(FormFields);
 		const debounceAwareEmit = computed<(value: unknown) => void>(() => {
 			const fn = (value: unknown) => {
 				emit('input', { [props.prop]: value });
@@ -54,7 +54,7 @@ export default defineComponent({
 		});
 
 		return {
-			fieldComponent: computed(() => entityManager.getFieldType(props.fieldType)?.component),
+			fieldComponent: computed(() => formFields.getComponent(props.fieldType)),
 			debounceAwareEmit,
 		};
 	},
