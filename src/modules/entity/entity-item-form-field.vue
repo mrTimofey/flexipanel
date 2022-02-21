@@ -3,6 +3,7 @@ component(
 	:is="fieldComponent"
 	:field-key="field.key"
 	:errors="store.formErrors[field.key]"
+	:all-errors="store.formErrors"
 	:context="fullContext"
 	:model-value="fieldValue"
 	:form-object="store.formItem"

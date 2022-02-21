@@ -33,11 +33,12 @@ mixin addButton(condition)
 				)
 					i.fas.fa-arrows-alt-v
 				.flex-grow-1
-					// TODO errors
 					component(
 						:is="fieldComponent"
 						:field-key="`${fieldKey}.${index}`"
 						:context="context"
+						:errors="allErrors?.[`${fieldKey}.${index}`]"
+						:all-errors="allErrors"
 						:form-object="formObject"
 						:form-object-id="formObjectId"
 						:model-value="modelValue[index]"

@@ -8,6 +8,8 @@
 				:is="field.component"
 				:field-key="`${fieldKey}.${k}`"
 				:context="context"
+				:errors="allErrors?.[`${fieldKey}.${k}`]"
+				:all-errors="allErrors"
 				:form-object="formObject"
 				:form-object-id="formObjectId"
 				:model-value="modelValue?.[k]"
