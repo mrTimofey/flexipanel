@@ -131,7 +131,7 @@ function fillFields(fields: IField[]) {
 
 const fields: { [name: string]: Component } = {};
 Object.entries(import.meta.glob('./fields/*.vue')).forEach(([path, importFn]) => {
-	// remove './' and '.vue' parts
+	// remove './fields' and '.vue' parts
 	fields[path.slice(9, -4)] = defineAsyncComponent(importFn);
 });
 
@@ -141,7 +141,7 @@ export default class EntityManager {
 	protected displayTypes: Record<string, IDisplayType> = {};
 	protected fieldTypes: Record<string, IFieldType> = {};
 
-	public readonly fieldsResolver: Resolver = (name) => fields[name] || null;
+	public readonly formFieldsResolver: Resolver = (name) => fields[name] || null;
 
 	public registerEntity(slug: string, entity: IEntityMeta): this {
 		const entityWithDefaults = { ...entityMetaDefaults, ...entity, slug };

@@ -33,11 +33,16 @@ mixin addButton(condition)
 				)
 					i.fas.fa-arrows-alt-v
 				.flex-grow-1
-					entity-item-form-field(
-						:field="getFieldDefinition(index)"
-						:store="store"
-						:value="value"
-						@change="updateItem(index, $event)"
+					// TODO errors
+					component(
+						:is="fieldComponent"
+						:field-key="`${fieldKey}.${index}`"
+						:context="context"
+						:form-object="formObject"
+						:form-object-id="formObjectId"
+						:model-value="modelValue[index]"
+						v-bind="{ disabled, ...props, ...(formObjectId ? updateProps : createProps) }"
+						@update:model-value="updateItem(index, $event)"
 					)
 				.actions.ms-1(v-if="!length && valueLength > min")
 					button.btn.btn-sm.btn-danger(
@@ -54,12 +59,11 @@ mixin addButton(condition)
 
 <script lang="ts">
 import type { PropType } from 'vue';
-import { inject, defineComponent, computed, ref, watch } from 'vue';
+import { defineComponent, computed, ref, watch } from 'vue';
 import DraggableGroup, { useDragAndDrop } from '../../drag-and-drop';
-import type { IField } from '..';
-import { useTemplate } from '../../vue-composition-utils';
-import EntityItemFormField, { storeInjectKey } from '../entity-item-form-field.vue';
+import { get, useTemplate } from '../../vue-composition-utils';
 import { getCommonProps } from './common';
+import FormFields from '.';
 
 let idCounter = 0;
 function uid() {
@@ -68,7 +72,7 @@ function uid() {
 }
 
 export default defineComponent({
-	components: { DraggableGroup, EntityItemFormField },
+	components: { DraggableGroup },
 	props: {
 		...getCommonProps({
 			type: Array as PropType<unknown[]>,
@@ -80,7 +84,15 @@ export default defineComponent({
 		},
 		props: {
 			type: Object as PropType<Record<string, unknown>>,
-			default: () => ({}),
+			default: null,
+		},
+		updateProps: {
+			type: Object as PropType<Record<string, unknown>>,
+			default: null,
+		},
+		createProps: {
+			type: Object as PropType<Record<string, unknown>>,
+			default: null,
 		},
 		defaultItemValue: {
 			type: [Number, String, Boolean, Object] as PropType<unknown>,
@@ -125,6 +137,7 @@ export default defineComponent({
 	},
 	emits: ['update:modelValue'],
 	setup(props, { emit }) {
+		const formFields = get(FormFields);
 		const keys = ref<number[] | null>(null);
 		const valueLength = computed(() => {
 			if (props.length) {
@@ -185,22 +198,7 @@ export default defineComponent({
 			keys,
 			valueLength,
 			keyedItems,
-			store: inject(storeInjectKey, undefined),
-			getFieldDefinition(index: number): Required<IField> {
-				return {
-					type: props.type || 'text',
-					key: `${props.fieldKey}.${index}`,
-					label: '',
-					inlineRelated: false,
-					hidden: false,
-					default: undefined,
-					createProps: {},
-					updateProps: {},
-					updateOnly: false,
-					createOnly: false,
-					props: { ...props.props, disabled: props.disabled },
-				};
-			},
+			fieldComponent: computed(() => formFields.getComponent(props.type)),
 			updateItem(i: number, v: unknown) {
 				if (props.disabled) {
 					return;

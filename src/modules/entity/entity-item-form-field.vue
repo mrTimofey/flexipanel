@@ -1,31 +1,27 @@
 <template lang="pug">
 component(
-	:is="computedFieldComponent"
+	:is="fieldComponent"
 	:field-key="field.key"
-	:errors="store?.formErrors[field.key]"
-	:context="context"
+	:errors="store.formErrors[field.key]"
+	:context="fullContext"
 	:model-value="fieldValue"
-	:entity-meta="store?.entityMeta"
-	:entity-item="store?.formItem"
-	:entity-item-id="store?.itemId"
-	:related-items="store?.relatedItems"
+	:form-object="store.formItem"
+	:form-object-id="store.itemId"
+	:related-items="store.relatedItems"
 	v-bind="{ ...field.props, ...(store ? field[store.itemId ? 'updateProps' : 'createProps'] : {}), ...fieldProps }"
-	@update:model-value="onChange ? onChange($event) : store?.updateFormFieldValue(field.key, $event)"
-	@update-field="store?.updateFormFieldValue($event.key, $event.value, !!$event.immediate)"
+	@update:model-value="store.updateFormFieldValue(field.key, $event)"
+	@update-field="store.updateFormFieldValue($event.key, $event.value, !!$event.immediate)"
 )
 	template(#label) {{ field.label }}
 </template>
 
 <script lang="ts">
-import type { InjectionKey, PropType, ComputedRef } from 'vue';
-import { defineComponent, provide, computed } from 'vue';
+import type { PropType } from 'vue';
+import { defineComponent, computed } from 'vue';
 import type { IField } from '.';
 import FormFields from '../form/fields';
 import { get } from '../vue-composition-utils';
 import type EntityItemStore from './stores/item';
-
-// for internal usage only, makes field composition possible
-export const storeInjectKey: InjectionKey<ComputedRef<EntityItemStore>> = Symbol('entityItemStore');
 
 function deep(obj: Record<string, unknown>, path: string[]): unknown {
 	let current = obj;
@@ -45,19 +41,10 @@ export default defineComponent({
 			required: true,
 		},
 		store: {
-			type: Object as PropType<EntityItemStore | null>,
-			default: null,
-		},
-		value: {
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			type: [String, Number, Object] as PropType<any>,
-			default: null,
+			type: Object as PropType<EntityItemStore>,
+			required: true,
 		},
 		context: {
-			type: Object,
-			default: null,
-		},
-		fieldComponent: {
 			type: Object,
 			default: null,
 		},
@@ -65,19 +52,14 @@ export default defineComponent({
 			type: Object,
 			default: null,
 		},
-		// eslint-disable-next-line vue/require-default-prop
-		onChange: Function,
 	},
 	emits: ['change'],
 	setup(props) {
 		const formFields = get(FormFields);
-		provide(
-			storeInjectKey,
-			computed(() => props.store),
-		);
 		return {
-			computedFieldComponent: computed(() => props.fieldComponent || formFields.getComponent(props.field.type)),
-			fieldValue: computed(() => (props.store ? deep(props.store.formItem, props.field.key.split('.')) : props.value)),
+			fieldComponent: computed(() => formFields.getComponent(props.field.type)),
+			fieldValue: computed(() => deep(props.store.formItem, props.field.key.split('.'))),
+			fullContext: computed(() => ({ ...props.store.relatedItems, ...props.context })),
 		};
 	},
 });

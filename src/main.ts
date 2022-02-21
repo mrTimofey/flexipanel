@@ -53,7 +53,7 @@ export default class VueAdminApp {
 	}
 
 	protected registerFieldResolvers(formFields: FormFields) {
-		formFields.addComponentResolver(this.container.get(EntityManager).fieldsResolver);
+		formFields.addComponentResolver(this.container.get(EntityManager).formFieldsResolver);
 	}
 
 	/**

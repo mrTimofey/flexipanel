@@ -92,7 +92,7 @@ import type { ModalSize } from '../../modal';
 import ModalDialog from '../../modal/modal.vue';
 import clickOutside from '../../click-outside';
 import EntityManager from '..';
-import { getCommonProps } from './common';
+import { getCommonProps } from '../../form/fields/common';
 
 export default defineComponent({
 	name: 'EntityField',
@@ -201,11 +201,11 @@ export default defineComponent({
 						if (!fieldName) {
 							return;
 						}
-						let obj = props.entityItem;
+						let obj = props.formObject;
 						while (relationPath.length && obj) {
 							const relatedField = relationPath.shift() as string;
 							const relatedObjectOrId = obj[relatedField] || props.context[relatedField];
-							obj = typeof relatedObjectOrId === 'object' && relatedObjectOrId ? relatedObjectOrId : props.relatedItems?.[relatedField]?.[relatedObjectOrId];
+							obj = typeof relatedObjectOrId === 'object' && relatedObjectOrId ? relatedObjectOrId : props.context?.[relatedField]?.[relatedObjectOrId];
 						}
 						if (obj && obj[fieldName]) {
 							newFilters[key] = obj[fieldName];
@@ -292,7 +292,7 @@ export default defineComponent({
 				const valueString = `${value}`;
 				return tpl(props.displayTemplate, {
 					value,
-					item: props.relatedItems[props.fieldKey.replace(/\.[0-9]+(\.|$)/g, '$1')]?.[valueString] || internalRelatedItems.get(value) || {},
+					item: props.context[props.fieldKey.replace(/\.[0-9]+(\.|$)/g, '$1')]?.[valueString] || internalRelatedItems.get(value) || {},
 				});
 			},
 			getModelItemKey(value: unknown) {

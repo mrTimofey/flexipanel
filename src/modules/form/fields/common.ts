@@ -26,6 +26,14 @@ const commonFieldProps = {
 		type: Object,
 		default: null,
 	},
+	formObject: {
+		type: Object,
+		default: null,
+	},
+	formObjectId: {
+		type: [String, Number],
+		default: '',
+	},
 };
 
 export function getCommonProps<T>(modelValue: T) {

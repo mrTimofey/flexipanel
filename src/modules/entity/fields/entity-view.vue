@@ -23,7 +23,7 @@
 			)
 	.form-field-entity-view-label
 		slot(name="label")
-	.form-field-entity-view-content.border.rounded.shadow-sm(v-if="entityItemId")
+	.form-field-entity-view-content.border.rounded.shadow-sm(v-if="formObjectId")
 		slot(name="actions")
 			.btn-group.btn-group-sm.p-2(v-if="!readonly")
 				slot(name="actions-before")
@@ -67,7 +67,7 @@ import { get, useTranslator } from '../../vue-composition-utils';
 import EntityManager from '..';
 import type { ListItem } from '../stores/base';
 import adapters from '../adapters';
-import { getCommonProps } from './common';
+import { getCommonProps } from '../../form/fields/common';
 
 interface IItemData {
 	id: string;
@@ -75,6 +75,7 @@ interface IItemData {
 }
 
 export default defineComponent({
+	name: 'EntityViewField',
 	components: { EntityView, ModalDialog, EntityItem },
 	directives: { clickOutside },
 	props: {
@@ -147,7 +148,7 @@ export default defineComponent({
 		const page = ref<number>(1);
 		const perPage = ref<number | undefined>(undefined);
 		const filters = ref<Record<string, unknown>>({
-			[props.foreignKey]: props.idField ? props.entityItem[props.idField] : props.entityItemId,
+			[props.foreignKey]: props.idField ? props.formObject[props.idField] : props.formObjectId,
 		});
 		const sort = ref<Record<string, unknown>>({});
 		const queryKey = () => `${props.fieldKey}.${props.relatedEntity}`;
@@ -171,8 +172,8 @@ export default defineComponent({
 		});
 		const fixedItemValues = computed(() => {
 			const values: Record<string, unknown> = {};
-			if (props.foreignKey && props.entityItemId) {
-				values[props.foreignKey] = props.idField ? props.entityItem[props.idField] : props.entityItemId;
+			if (props.foreignKey && props.formObjectId) {
+				values[props.foreignKey] = props.idField ? props.formObject[props.idField] : props.formObjectId;
 			}
 			if (editingItem.value?.parent && props.parentForeignKey) {
 				values[props.parentForeignKey] = editingItem.value?.parent;
@@ -185,7 +186,7 @@ export default defineComponent({
 			}
 			const values: Record<string, unknown> = {};
 			Object.entries(props.itemDefaultsMap).forEach(([childKey, parentKey]) => {
-				values[childKey] = props.entityItem[parentKey];
+				values[childKey] = props.formObject[parentKey];
 			});
 			return values;
 		});

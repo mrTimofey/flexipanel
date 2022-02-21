@@ -3,12 +3,16 @@
 	.form-field-object-label
 		slot(name="label")
 	.form-field-object-fields
-		.form-field-object-item(v-for="(field, k) in availableFields" :style="field.style")
-			entity-item-form-field(
-				:field="getFieldDefinition(k)"
-				:store="store"
-				:value="modelValue?.[k]"
-				@change="updateItem(k, $event)"
+		.form-field-object-item(v-for="(field, k) in availableFields" :style="field.def.style")
+			component(
+				:is="field.component"
+				:field-key="`${fieldKey}.${k}`"
+				:context="context"
+				:form-object="formObject"
+				:form-object-id="formObjectId"
+				:model-value="modelValue?.[k]"
+				v-bind="{ disabled, ...field.def.props, ...(formObjectId ? field.def.updateProps : field.def.createProps) }"
+				@update:model-value="updateItem(k, $event)"
 			)
 	.text-danger(v-if="errors && errors.length")
 		div(v-for="err in errors")
@@ -16,21 +20,29 @@
 </template>
 
 <script lang="ts">
-import type { PropType } from 'vue';
-import { watch, computed, inject, defineComponent } from 'vue';
-import type { IField } from '..';
-import EntityItemFormField, { storeInjectKey } from '../entity-item-form-field.vue';
+import type { Component, PropType } from 'vue';
+import { watch, computed, defineComponent } from 'vue';
+import FormFields from '.';
+import { get } from '../../vue-composition-utils';
 import { getCommonProps } from './common';
 
+export interface IField {
+	type?: string;
+	props?: Record<string, unknown>;
+	updateProps?: Record<string, unknown>;
+	createProps?: Record<string, unknown>;
+	style?: string;
+	condition?: (value: Record<string, unknown>) => boolean;
+}
+
 export default defineComponent({
-	components: { EntityItemFormField },
 	props: {
 		...getCommonProps({
 			type: Object as PropType<Record<string, unknown> | null>,
 			default: null,
 		}),
 		fields: {
-			type: Object,
+			type: Object as PropType<IField>,
 			required: true,
 		},
 		inline: {
@@ -40,6 +52,7 @@ export default defineComponent({
 	},
 	emits: ['update:modelValue'],
 	setup(props, { emit }) {
+		const formFields = get(FormFields);
 		const createEmptyObject = () => {
 			const obj: Record<string, null> = {};
 			Object.keys(props.fields).forEach((k) => {
@@ -48,10 +61,13 @@ export default defineComponent({
 			return obj;
 		};
 		const availableFields = computed(() => {
-			const fields: Record<string, IField & { style?: string }> = {};
-			Object.entries(props.fields).forEach(([key, field]) => {
-				if (!field.condition || (typeof field.condition === 'function' && field.condition(props.modelValue))) {
-					fields[key] = field;
+			const fields: Record<string, { def: IField; component: Component | null }> = {};
+			Object.entries(props.fields).forEach(([key, def]) => {
+				if (!def.condition || def.condition(props.modelValue)) {
+					fields[key] = {
+						def,
+						component: formFields.getComponent(def.type || 'text'),
+					};
 				}
 			});
 			return fields;
@@ -72,24 +88,7 @@ export default defineComponent({
 			});
 		});
 		return {
-			store: inject(storeInjectKey, undefined),
 			availableFields,
-			getFieldDefinition(key: string): Required<IField> {
-				const field = props.fields[key];
-				return {
-					key: `${props.fieldKey}.${key}`,
-					type: (field.type && `${field.type}`) || 'text',
-					label: (field.label && `${field.label}`) || '',
-					inlineRelated: false,
-					hidden: false,
-					default: undefined,
-					createProps: {},
-					updateProps: {},
-					updateOnly: false,
-					createOnly: false,
-					props: { ...field.props, disabled: props.disabled },
-				};
-			},
 			updateItem(k: string, v: unknown) {
 				if (props.disabled) {
 					return;
