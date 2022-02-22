@@ -50,7 +50,7 @@ export default defineComponent({
 				}
 				editor = new EditorJS({
 					holder: editorElement.value,
-					data: props.modelValue,
+					data: props.modelValue?.blocks?.length ? props.modelValue : undefined,
 					placeholder: props.placeholder,
 					readOnly: props.disabled,
 					onChange() {

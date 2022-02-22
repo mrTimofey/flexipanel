@@ -30,11 +30,11 @@ const commonFieldProps = {
 		default: '',
 	},
 	context: {
-		type: Object,
+		type: Object as PropType<Record<string, unknown> | null>,
 		default: null,
 	},
 	formObject: {
-		type: Object,
+		type: Object as PropType<Record<string, unknown> | null>,
 		default: null,
 	},
 	formObjectId: {

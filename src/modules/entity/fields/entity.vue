@@ -204,8 +204,11 @@ export default defineComponent({
 						let obj = props.formObject;
 						while (relationPath.length && obj) {
 							const relatedField = relationPath.shift() as string;
-							const relatedObjectOrId = obj[relatedField] || props.context[relatedField];
-							obj = typeof relatedObjectOrId === 'object' && relatedObjectOrId ? relatedObjectOrId : props.context?.[relatedField]?.[relatedObjectOrId];
+							const relatedObjectOrId = obj[relatedField] || props.context?.[relatedField];
+							obj =
+								typeof relatedObjectOrId === 'object' && relatedObjectOrId
+									? (relatedObjectOrId as Record<string, unknown>)
+									: ((props.context?.[relatedField] as Record<string, unknown> | null)?.[`${relatedObjectOrId}`] as Record<string, unknown>);
 						}
 						if (obj && obj[fieldName]) {
 							newFilters[key] = obj[fieldName];
@@ -292,7 +295,10 @@ export default defineComponent({
 				const valueString = `${value}`;
 				return tpl(props.displayTemplate, {
 					value,
-					item: props.context[props.fieldKey.replace(/\.[0-9]+(\.|$)/g, '$1')]?.[valueString] || internalRelatedItems.get(value) || {},
+					item:
+						(props.context?.[props.fieldKey.replace(/\.[0-9]+(\.|$)/g, '$1')] as Record<string, unknown> | null)?.[valueString] ||
+						internalRelatedItems.get(value) ||
+						{},
 				});
 			},
 			getModelItemKey(value: unknown) {
