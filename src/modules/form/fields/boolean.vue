@@ -1,8 +1,10 @@
 <template lang="pug">
 .form-field-boolean
 	label.form-check(@click.prevent="toggle()")
+		//- readonly checkbox, just displays value
 		input.form-check-input(
 			type="checkbox"
+			style="pointer-events:none"
 			:disabled="disabled"
 			:checked="modelValue"
 			:class="{ 'is-invalid': !!errors }"

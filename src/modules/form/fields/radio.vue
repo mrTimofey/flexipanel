@@ -3,8 +3,10 @@
 	slot(name="label")
 	template(v-if="theme === 'input-list'")
 		label.form-check(v-for="option in normalizedOptions" @click.prevent="selectOption(option)")
+			//- readonly radio, just displays value
 			input.form-check-input(
 				type="radio"
+				style="pointer-events:none"
 				:disabled="disabled"
 				:checked="option.value === modelValue"
 			)
@@ -66,3 +68,8 @@ export default defineComponent({
 	},
 });
 </script>
+
+<style lang="stylus" scoped>
+.form-check
+	cursor pointer
+</style>
