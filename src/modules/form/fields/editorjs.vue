@@ -25,8 +25,20 @@ export default defineComponent({
 			type: Object as PropType<EditorComponentConfig>,
 			default: () => ({}),
 		},
+		// array of event names which will passed from EditorJS internal events as an 'editorjs' event of this component
+		// event argument is an object:
+		// {
+		//    event (EditorJS event name),
+		//    args (EditorJS event argument),
+		//    context (passed from props.context),
+		//    object (passed from props.formObject),
+		// }
+		passEvents: {
+			type: Array as PropType<string[] | null>,
+			default: null,
+		},
 	},
-	emits: ['update:modelValue'],
+	emits: ['update:modelValue', 'editorjs'],
 	setup(props, { emit }) {
 		const editorElement = ref<null | HTMLDivElement>();
 		let editor: EditorJS | null = null;
@@ -60,6 +72,11 @@ export default defineComponent({
 						// for custom events from custom tools
 						editor?.on('change', () => {
 							editor?.save().then(emitChange);
+						});
+						props.passEvents?.forEach((event) => {
+							editor?.on(event, (args: unknown) => {
+								emit('editorjs', { event, args, context: props.context, object: props.formObject });
+							});
 						});
 					},
 					// eslint-disable-next-line @typescript-eslint/ban-ts-comment
