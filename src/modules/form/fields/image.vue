@@ -63,15 +63,18 @@
 <script lang="ts">
 import type { PropType } from 'vue';
 import { computed, defineComponent, ref } from 'vue';
-import type Cropper from 'cropperjs';
+import type CropperClass from 'cropperjs';
 import DraggableGroup from '../../drag-and-drop';
 import useFieldWithFileUploads, { getFileFieldProps } from './file-upload';
 import ModalDialog from '../../modal/modal.vue';
 import { useTranslator } from '../../vue-composition-utils';
 import type { IModalAction } from '../../modal';
 
-export type CropperOptions = Cropper.Options;
-export const defaultCropperOptions: CropperOptions = {
+import 'cropperjs/dist/cropper.css';
+
+export type CropOptions = CropperClass.Options;
+
+export const defaultCropperOptions: CropOptions = {
 	viewMode: 2,
 };
 
@@ -88,14 +91,14 @@ export default defineComponent({
 			default: '',
 		},
 		crop: {
-			type: [Boolean, Object] as PropType<boolean | CropperOptions>,
+			type: [Boolean, Object] as PropType<boolean | CropOptions>,
 			default: false,
 		},
 	},
 	emits: ['update:modelValue'],
 	setup(props, { emit }) {
 		const { trans } = useTranslator();
-		let cropper: Cropper | null = null;
+		let cropper: CropperClass | null = null;
 		const cropperEl = ref<HTMLCanvasElement | null>(null);
 		const fieldWithFileUploads = useFieldWithFileUploads(props, (newValue) => emit('update:modelValue', newValue));
 		const pendingCropFiles = ref<File[]>([]);
@@ -116,7 +119,7 @@ export default defineComponent({
 			if (!cropperEl.value) {
 				return;
 			}
-			const [Cropper] = await Promise.all([import('cropperjs').then((m) => m.default), import('cropperjs/dist/cropper.css')]);
+			const Cropper = await import('cropperjs').then((m) => m.default);
 			cropper = new Cropper(cropperEl.value, typeof props.crop === 'boolean' ? defaultCropperOptions : props.crop);
 		};
 		const injectNextCropImage = () => {

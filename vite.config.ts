@@ -56,6 +56,7 @@ export default defineConfig(({ command }) => ({
 			external: Object.keys(dependencies),
 			preserveModules: true,
 			output: {
+				preserveModulesRoot: 'src',
 				entryFileNames(chunk) {
 					if (chunk.facadeModuleId.endsWith('.vue')) {
 						return `${chunk.name}.vue.js`;
