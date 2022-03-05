@@ -1,13 +1,20 @@
 <template lang="pug">
 .form-field-image(:class="{ multiple }" :style="frameSizeStyle")
+	modal-dialog.p-0(
+		v-if="pendingCropFiles.length"
+		@close="endCropping()"
+		@action-click="onCropActionClick($event.index === 0)"
+		size="xl"
+		:title="`${trans('editImage')} (${cropFileCount - pendingCropFiles.length + 1}/${cropFileCount})`"
+		:actions="cropModalActions"
+	)
+		canvas(ref="cropperEl")
 	.form-field-image-label
 		slot(name="label")
 	.progress.active(v-if="uploadStatus === UploadStatus.InQueue")
 		.progress-bar.progress-bar-striped(style="width:100%;opacity:0.5")
 	.progress.active(v-else-if="uploadStatus === UploadStatus.InProgress")
-		.progress-bar.progress-bar-striped.progress-bar-animated(
-			:style="{ width: `${uploadProgress * 100}%` }"
-		)
+		.progress-bar.progress-bar-striped.progress-bar-animated(:style="{ width: `${uploadProgress * 100}%` }")
 	.form-field-image-actions.my-1(v-else)
 		label.btn(
 			v-if="multiple || !modelValueItems.length"
@@ -54,12 +61,22 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent } from 'vue';
+import type { PropType } from 'vue';
+import { computed, defineComponent, ref } from 'vue';
+import type Cropper from 'cropperjs';
 import DraggableGroup from '../../drag-and-drop';
 import useFieldWithFileUploads, { getFileFieldProps } from './file-upload';
+import ModalDialog from '../../modal/modal.vue';
+import { useTranslator } from '../../vue-composition-utils';
+import type { IModalAction } from '../../modal';
+
+export type CropperOptions = Cropper.Options;
+export const defaultCropperOptions: CropperOptions = {
+	viewMode: 2,
+};
 
 export default defineComponent({
-	components: { DraggableGroup },
+	components: { DraggableGroup, ModalDialog },
 	props: {
 		...getFileFieldProps(),
 		frameWidth: {
@@ -70,12 +87,118 @@ export default defineComponent({
 			type: String,
 			default: '',
 		},
+		crop: {
+			type: [Boolean, Object] as PropType<boolean | CropperOptions>,
+			default: false,
+		},
 	},
 	emits: ['update:modelValue'],
 	setup(props, { emit }) {
+		const { trans } = useTranslator();
+		let cropper: Cropper | null = null;
+		const cropperEl = ref<HTMLCanvasElement | null>(null);
+		const fieldWithFileUploads = useFieldWithFileUploads(props, (newValue) => emit('update:modelValue', newValue));
+		const pendingCropFiles = ref<File[]>([]);
+		const cropFileCount = ref(0);
+		const endCropping = () => {
+			pendingCropFiles.value = [];
+			cropFileCount.value = 0;
+			if (cropper) {
+				cropper.destroy();
+				cropper = null;
+			}
+		};
+		const resetCropper = async () => {
+			if (cropper) {
+				cropper.destroy();
+				cropper = null;
+			}
+			if (!cropperEl.value) {
+				return;
+			}
+			const [Cropper] = await Promise.all([import('cropperjs').then((m) => m.default), import('cropperjs/dist/cropper.css')]);
+			cropper = new Cropper(cropperEl.value, typeof props.crop === 'boolean' ? defaultCropperOptions : props.crop);
+		};
+		const injectNextCropImage = () => {
+			const reader = new FileReader();
+			reader.readAsDataURL(pendingCropFiles.value[0]);
+			reader.onloadend = (loadedEvent) => {
+				if (!loadedEvent.target?.result) {
+					return;
+				}
+				const image = new Image();
+				image.src = loadedEvent.target.result as string;
+				image.onload = () => {
+					const canvas = cropperEl.value;
+					if (!canvas) {
+						return;
+					}
+					const ctx = canvas.getContext('2d');
+					if (!ctx) {
+						return;
+					}
+					canvas.width = image.width;
+					canvas.height = image.height;
+					ctx.drawImage(image, 0, 0);
+				};
+				resetCropper();
+			};
+		};
+
 		return {
-			...useFieldWithFileUploads(props, (newValue) => emit('update:modelValue', newValue)),
+			...fieldWithFileUploads,
+			cropperEl,
+			pendingCropFiles,
+			cropFileCount,
+			trans,
+			endCropping,
 			frameSizeStyle: computed(() => `--frame-width:${props.frameWidth || 'auto'};--frame-height:${props.frameHeight || 'auto'}`),
+			cropModalActions: computed<IModalAction[]>(() => [
+				{
+					type: 'primary',
+					title: trans('apply'),
+				},
+				{
+					type: 'secondary',
+					title: trans('cancel'),
+				},
+			]),
+			onCropActionClick(apply: boolean) {
+				if (apply && cropper) {
+					cropper
+						.getCroppedCanvas({
+							imageSmoothingEnabled: false,
+						})
+						.toBlob((blob) => {
+							if (!blob) {
+								return;
+							}
+							fieldWithFileUploads.uploadFile(blob);
+							pendingCropFiles.value = pendingCropFiles.value.slice(1);
+							if (pendingCropFiles.value.length > 0) {
+								injectNextCropImage();
+							} else {
+								endCropping();
+							}
+						});
+				} else {
+					endCropping();
+				}
+			},
+			onFileInputChange(e: Event) {
+				if (!props.crop) {
+					fieldWithFileUploads.onFileInputChange(e);
+					return;
+				}
+				const target = e.target as HTMLInputElement;
+				if (target.disabled || !target.files?.length) {
+					return;
+				}
+				pendingCropFiles.value = Array.from(target.files);
+				cropFileCount.value = pendingCropFiles.value.length;
+				target.value = '';
+				injectNextCropImage();
+			},
 		};
 	},
 });

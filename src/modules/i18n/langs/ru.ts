@@ -37,4 +37,6 @@ export default {
 	color: 'Цвет',
 	noColor: 'Цвет не выбран',
 	clearField: 'Очистить поле',
+	editImage: 'Изменить изображение',
+	apply: 'Применить',
 };

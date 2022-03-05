@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@editorjs/editorjs": "^2.22.2",
+    "cropperjs": "^1.5.12",
     "dot": "^2.0.0-beta.1",
     "mini-ioc": "^1.0.0",
     "mini-ioc-vue": "^0.3.0",

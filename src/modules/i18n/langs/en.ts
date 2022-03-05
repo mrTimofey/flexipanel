@@ -37,4 +37,6 @@ export default {
 	color: 'Color',
 	noColor: 'Color is not set',
 	clearField: 'Clear field',
+	editImage: 'Edit image',
+	apply: 'Apply',
 };

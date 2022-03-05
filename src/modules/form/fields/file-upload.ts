@@ -58,7 +58,7 @@ export function useFileInput<T = unknown>(config: Readonly<{ endpoint: string; o
 	const uploadStatus = ref(UploadStatus.Idle);
 	const uploadProgress = ref(0);
 
-	const uploadFile = async (file: File) => {
+	const uploadFile = async (file: Blob) => {
 		uploadStatus.value = UploadStatus.InQueue;
 		try {
 			const res = await http.upload<T>(config.endpoint, file, {
@@ -83,6 +83,7 @@ export function useFileInput<T = unknown>(config: Readonly<{ endpoint: string; o
 		UploadStatus,
 		uploadStatus,
 		uploadProgress,
+		uploadFile,
 		async onFileInputChange(e: Event) {
 			const target = e.target as HTMLInputElement;
 			if (target.disabled || !target.files?.length) {
