@@ -1,6 +1,7 @@
 import AuthProvider, { WrongCredentialsError } from '../provider';
 import type { IAuthenticationResult, ICredentials } from '../provider';
 import type { IHttpRequest, IHttpResponse } from '../../http';
+import { HttpRequestError } from '../../http';
 
 interface IHttpBodyKeys {
 	accessToken: string;
@@ -48,20 +49,24 @@ export default class HttpTokenAuthProvider extends AuthProvider {
 		Object.assign(this.httpBodyKeys, keys);
 	}
 
-	private authResponse({ status, body }: IHttpResponse<Record<string, string>>): IAuthenticationResult {
-		if (status >= 200 && status < 300) {
+	private async authResponse(req: Promise<IHttpResponse<Record<string, string>>>): Promise<IAuthenticationResult> {
+		try {
+			const { body } = await req;
 			return {
 				accessToken: `${body[this.httpBodyKeys.accessToken] || ''}`,
 				refreshToken: `${body[this.httpBodyKeys.refreshToken] || ''}`,
 			};
+		} catch (err) {
+			if (err instanceof HttpRequestError && [400, 401, 422].includes(err.res?.status || 0)) {
+				throw new WrongCredentialsError();
+			}
+			throw err;
 		}
-		throw new WrongCredentialsError();
 	}
 
-	async authenticate(credentials: ICredentials): Promise<IAuthenticationResult> {
+	authenticate(credentials: ICredentials): Promise<IAuthenticationResult> {
 		return this.authResponse(
-			// TODO customize endpoint
-			await this.http.post(this.httpEndpoints.authenticate, {
+			this.http.post(this.httpEndpoints.authenticate, {
 				[this.httpBodyKeys.login]: credentials.login,
 				[this.httpBodyKeys.password]: credentials.password,
 			}),
@@ -85,7 +90,7 @@ export default class HttpTokenAuthProvider extends AuthProvider {
 
 	async recoverAccessToken(refreshToken: string): Promise<IAuthenticationResult> {
 		return this.authResponse(
-			await this.http.post<Record<string, string>>(this.httpEndpoints.refresh, {
+			this.http.post<Record<string, string>>(this.httpEndpoints.refresh, {
 				[this.httpBodyKeys.refreshTokenInRequestBody || this.httpBodyKeys.refreshToken]: refreshToken,
 			}),
 		);

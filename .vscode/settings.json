@@ -32,5 +32,14 @@
   "volar.completion.preferredTagNameCase": "kebab",
   "cSpell.words": [
     "flexipanel"
+  ],
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  },
+  "eslint.validate": [
+    "javascript",
+    "typescript",
+    "stylus",
+    "vue"
   ]
 }
