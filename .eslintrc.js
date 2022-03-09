@@ -1,4 +1,4 @@
-/* eslint-disable filenames/match-regex */
+/* eslint-disable filenames/match-regex,@typescript-eslint/naming-convention */
 module.exports = {
 	root: true,
 	parser: 'vue-eslint-parser',

@@ -40,6 +40,7 @@ export default class AppConfig extends ReactiveStore<IState> {
 
 	protected get rootStyles(): Record<string, string> {
 		return {
+			// eslint-disable-next-line @typescript-eslint/naming-convention
 			'--bs-body-font-family': this.state.fontFamily,
 		};
 	}

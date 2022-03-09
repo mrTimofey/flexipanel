@@ -44,6 +44,7 @@ export default defineConfig(({ command }) => ({
 	],
 	server: {
 		proxy: {
+			// eslint-disable-next-line @typescript-eslint/naming-convention
 			'/api': process.env.API_BACKEND || 'http://localhost:8000',
 		},
 	},

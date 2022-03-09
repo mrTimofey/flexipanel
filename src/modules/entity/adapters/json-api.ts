@@ -175,6 +175,7 @@ export default class JsonApiAdapter implements IAdapter {
 		}
 		const urlParamsString = `?${urlParams.map(([k, v]) => `${k}=${encodeURIComponent(v)}`).join('&')}`;
 		const { body } = await this.http.get<IJsonApiListResponse>(`${endpoint}${urlParamsString.length > 1 ? urlParamsString : ''}`, {
+			// eslint-disable-next-line @typescript-eslint/naming-convention
 			'Content-Type': 'application/vnd.api+json',
 		});
 		return adaptListResponse(body);
@@ -182,6 +183,7 @@ export default class JsonApiAdapter implements IAdapter {
 
 	async getItem(endpoint: string, { id }: IItemParams): Promise<IItemData> {
 		const { body } = await this.http.get<IJsonApiItemResponse>(`${endpoint}/${id}`, {
+			// eslint-disable-next-line @typescript-eslint/naming-convention
 			'Content-Type': 'application/vnd.api+json',
 		});
 		return adaptItemResponse(body);
@@ -189,6 +191,7 @@ export default class JsonApiAdapter implements IAdapter {
 
 	async deleteItem(endpoint: string, id: string): Promise<void> {
 		await this.http.delete(`${endpoint}/${id}`, null, {
+			// eslint-disable-next-line @typescript-eslint/naming-convention
 			'Content-Type': 'application/vnd.api+json',
 		});
 	}
@@ -202,6 +205,7 @@ export default class JsonApiAdapter implements IAdapter {
 				id ? 'PATCH' : 'POST',
 				{ data: { attributes } },
 				{
+					// eslint-disable-next-line @typescript-eslint/naming-convention
 					'Content-Type': 'application/vnd.api+json',
 				},
 			);

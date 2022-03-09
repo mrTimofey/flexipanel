@@ -31,6 +31,7 @@
   "volar.completion.preferredAttrNameCase": "kebab",
   "volar.completion.preferredTagNameCase": "kebab",
   "cSpell.words": [
+    "croppable",
     "flexipanel"
   ],
   "editor.codeActionsOnSave": {

@@ -8,6 +8,7 @@ export default class FetchJsonClient extends HttpClient {
 				method,
 				body: reqBody == null ? null : JSON.stringify(reqBody),
 				headers: {
+					// eslint-disable-next-line @typescript-eslint/naming-convention
 					'Content-Type': 'application/json',
 					...headers,
 				},

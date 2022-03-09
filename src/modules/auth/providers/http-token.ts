@@ -34,8 +34,8 @@ export default class HttpTokenAuthProvider extends AuthProvider {
 	};
 
 	/**
-	 * Set object keys for request/response body used as user name, password, access token and remember token.
-	 * @param keys key mappings
+	 * Set endpoint URL's for authentication, refreshing and logout.
+	 * @param endpoints key mappings
 	 */
 	setHttpEndpoints(endpoints: Partial<IHttpEndpoints>): void {
 		Object.assign(this.httpEndpoints, endpoints);
