@@ -15,7 +15,7 @@ export enum UploadStatus {
 /**
  * File upload form field common props.
  */
-export function getFileFieldProps() {
+export function getFileFieldProps(options: { defaultAccept?: string } = {}) {
 	return {
 		...getCommonProps({
 			type: [String, Array] as PropType<string | string[] | null>,
@@ -27,7 +27,7 @@ export function getFileFieldProps() {
 		},
 		accept: {
 			type: String,
-			default: '',
+			default: options.defaultAccept || '',
 		},
 		uploadMessage: {
 			type: String,

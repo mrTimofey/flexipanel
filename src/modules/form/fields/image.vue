@@ -81,7 +81,7 @@ export const defaultCropperOptions: CropOptions = {
 export default defineComponent({
 	components: { DraggableGroup, ModalDialog },
 	props: {
-		...getFileFieldProps(),
+		...getFileFieldProps({ defaultAccept: 'image/*' }),
 		frameWidth: {
 			type: String,
 			default: '',
@@ -197,7 +197,19 @@ export default defineComponent({
 				if (target.disabled || !target.files?.length) {
 					return;
 				}
-				pendingCropFiles.value = Array.from(target.files);
+				// don't crop gif images, just upload them as-is
+				const croppableImages: File[] = [];
+				Array.from(target.files).forEach((file) => {
+					if (file.type === 'image/gif') {
+						fieldWithFileUploads.uploadFile(file);
+					} else {
+						croppableImages.push(file);
+					}
+				});
+				if (!croppableImages.length) {
+					return;
+				}
+				pendingCropFiles.value = croppableImages;
 				cropFileCount.value = pendingCropFiles.value.length;
 				target.value = '';
 				injectNextCropImage();
