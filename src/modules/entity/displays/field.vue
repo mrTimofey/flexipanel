@@ -4,8 +4,8 @@ component(
 	v-bind="fieldProps"
 	:model-value="item[prop]"
 	:field-key="prop"
-	:entity-item="item"
-	:context="context || undefined"
+	:form-object="item"
+	:context="context"
 	@update:model-value="debounceAwareEmit($event)"
 )
 </template>
