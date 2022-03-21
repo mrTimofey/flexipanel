@@ -38,6 +38,7 @@
 			:per-page-options="perPageOptions"
 			:sortable="sortable"
 			:selectable="selectable"
+			:context="context"
 			v-model:page="page"
 			v-model:perPage="perPage"
 			v-model:filters="filters"

@@ -63,6 +63,7 @@
 							:view="view"
 							:per-page="perPage"
 							:per-page-options="[]"
+							:context="context"
 							v-model:page="page"
 							v-model:filters="filters"
 							v-model:sort="sort"
@@ -197,22 +198,18 @@ export default defineComponent({
 				if (props.optionsFilterMap) {
 					Object.entries(props.optionsFilterMap).forEach(([key, path]) => {
 						const relationPath = path.split('.');
-						const fieldName = relationPath.pop();
-						if (!fieldName) {
+						if (!relationPath.length) {
 							return;
 						}
-						let obj = props.formObject;
-						while (relationPath.length && obj) {
-							const relatedField = relationPath.shift() as string;
-							const relatedObjectOrId = obj[relatedField] || props.context?.[relatedField];
-							obj =
-								typeof relatedObjectOrId === 'object' && relatedObjectOrId
-									? (relatedObjectOrId as Record<string, unknown>)
-									: ((props.context?.[relatedField] as Record<string, unknown> | null)?.[`${relatedObjectOrId}`] as Record<string, unknown>);
+
+						let obj: unknown = null;
+						for (const pathField of relationPath) {
+							obj = obj ? (obj as Record<string, unknown>)[pathField] : props.formObject?.[pathField] || props.context?.[pathField];
+							if (!obj || ['number', 'string', 'boolean'].includes(typeof obj)) {
+								break;
+							}
 						}
-						if (obj && obj[fieldName]) {
-							newFilters[key] = obj[fieldName];
-						}
+						newFilters[key] = obj;
 					});
 				}
 				filters.value = newFilters;

@@ -24,6 +24,7 @@
 					v-bind="filter.props"
 					:model-value="filters[filter.key]"
 					:autofocus="isActivated && i === 0"
+					:context="context"
 					@update:model-value="onFilterInput(filter.key, $event)"
 				)
 					template(#label) {{ filter.label }}
@@ -151,7 +152,7 @@ export default defineComponent({
 			default: null,
 		},
 		context: {
-			type: Object,
+			type: Object as PropType<Record<string, unknown> | null>,
 			default: null,
 		},
 	},
