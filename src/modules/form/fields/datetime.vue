@@ -15,7 +15,7 @@
 			:class="{ 'is-invalid': !!errors, empty: !modelValue }"
 			@blur="onTimeBlur($event)"
 		)
-	.invalid-feedback(v-if="errors && errors.length")
+	.invalid-feedback.d-block(v-if="errors && errors.length")
 		div(v-for="err in errors") {{ err }}
 </template>
 
