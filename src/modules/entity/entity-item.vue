@@ -1,5 +1,5 @@
 <template lang="pug">
-.entity-form(v-if="entityMeta?.form && store.abilities[id ? 'edit' : 'create']" :class="{ loading: store.loading }")
+.entity-form(v-if="entityMeta?.form && store.abilities[id ? 'update' : 'create']" :class="{ loading: store.loading }")
 	.d-flex.justify-content-center.py-5(v-if="initializing")
 		.spinner.spinner-grow.text-primary
 	.entity-form-layout(v-else)

@@ -10,7 +10,7 @@ page-layout.page-entity-view(v-if="entityMeta")
 		v-model:page="page"
 		v-model:per-page="perPage"
 		v-model:filters="filters"
-		@item-click="$event.abilities.edit && goToEditPage($event.id)"
+		@item-click="$event.abilities.update && goToEditPage($event.id)"
 		@edit-click="goToEditPage($event.id)"
 	)
 		template(#top-end)

@@ -43,10 +43,9 @@ export default abstract class EntityBaseStore<T extends object> extends Reactive
 	}
 
 	get abilities(): Record<string, boolean> {
-		// TODO abilities
 		return {
 			create: !!this.entity?.form.fields.length && !this.entity.createDisabled,
-			edit: !!this.entity?.form.fields.length,
+			update: !!this.entity?.form.fields.length && !this.entity.updateDisabled,
 			delete: !!this.entity && !this.entity.deleteDisabled,
 		};
 	}

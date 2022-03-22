@@ -57,7 +57,7 @@
 						.btn-group.btn-group-sm
 							slot(name="actions-before" v-bind="getItemSlotBindings(item)")
 							slot(name="actions" v-bind="getItemSlotBindings(item)")
-								a.btn.btn-primary(v-if="store.abilities.edit" @click.prevent="onEditClick(item)" :href="itemRoute(item)")
+								a.btn.btn-primary(v-if="store.abilities.update" @click.prevent="onEditClick(item)" :href="itemRoute(item)")
 									i.fas.fa-pencil
 								button.btn.btn-danger(v-if="store.abilities.delete" @click.prevent="confirmAndDelete(item)")
 									i.fas.fa-trash
