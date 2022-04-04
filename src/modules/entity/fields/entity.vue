@@ -71,7 +71,7 @@
 						)
 							template(#selection="data")
 								label.d-block(@click.prevent="toggleItem(data)")
-									input.form-check-input(
+									input.form-check-input.form-field-entity-item-checkbox(
 										:type="multiple ? 'checkbox' : 'radio'"
 										:checked="modelValueIds.includes(idField ? data.item[idField] : data.id)"
 									)
@@ -382,6 +382,8 @@ export default defineComponent({
 	i
 		display block
 		font-size 12px
+.form-field-entity-item-checkbox
+	pointer-events none
 @keyframes entity-dropdown-appear
 	0%
 		opacity 0

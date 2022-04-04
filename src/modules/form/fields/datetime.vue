@@ -3,13 +3,14 @@
 	slot(name="label")
 	.input-group
 		input.form-control.form-control-sm.flex-grow-0(type="date"
-			v-model="date"
+			:value="date"
 			:disabled="disabled"
 			:placeholder="placeholder"
 			:class="{ 'is-invalid': !!errors, empty: !modelValue }"
+			@blur="onDateBlur($event)"
 		)
 		input.form-control.form-control-sm.flex-grow-0(type="time"
-			v-model="time"
+			:value="time"
 			:disabled="disabled"
 			:placeholder="timePlaceholder"
 			:class="{ 'is-invalid': !!errors, empty: !modelValue }"
@@ -43,7 +44,7 @@ const dateFormatters = {
 	} as FormatterFn,
 	timestamp: {
 		modelToInternal(value) {
-			if (typeof value === 'number') {
+			if (typeof value === 'number' && !Number.isNaN(value)) {
 				const date = new Date(value * 1000);
 				// normalize timezone to make the date time
 				date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
@@ -110,6 +111,16 @@ export default defineComponent({
 				const input = e.target as HTMLInputElement;
 				if (!input.value && time.value) {
 					input.value = time.value;
+				} else {
+					time.value = input.value;
+				}
+			},
+			onDateBlur(e: Event) {
+				const input = e.target as HTMLInputElement;
+				if (!input.value && date.value) {
+					input.value = date.value;
+				} else {
+					date.value = input.value;
 				}
 			},
 		};

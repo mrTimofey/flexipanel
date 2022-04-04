@@ -13,7 +13,8 @@ component(
 	@update:model-value="store.updateFormFieldValue(field.key, $event)"
 	@update-field="store.updateFormFieldValue($event.key, $event.value, !!$event.immediate)"
 )
-	template(#label) {{ field.label }}
+	template(#label)
+		span(v-html="field.label")
 </template>
 
 <script lang="ts">
