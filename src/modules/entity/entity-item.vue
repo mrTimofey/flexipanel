@@ -7,6 +7,7 @@
 			:is="entityMeta.form.layout"
 			v-bind="{ store, context, formId, fields: availableFields, fieldComponent: EntityItemFormField }"
 			@submit="submit($event)"
+			@save="save()"
 		)
 			template(#form)
 				slot(name="form" v-bind="{ store, context, formId, save, saveAndReturn, fields: availableFields, fieldComponent: EntityItemFormField }")
