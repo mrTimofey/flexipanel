@@ -8,7 +8,8 @@
 		:title="`${trans('editImage')} (${cropFileCount - pendingCropFiles.length + 1}/${cropFileCount})`"
 		:actions="cropModalActions"
 	)
-		canvas(ref="cropperEl")
+		.form-field-image-cropper-source
+			img(ref="cropperEl")
 	.form-field-image-label
 		slot(name="label")
 	.progress.active(v-if="uploadStatus === UploadStatus.InQueue")
@@ -99,7 +100,7 @@ export default defineComponent({
 	setup(props, { emit }) {
 		const { trans } = useTranslator();
 		let cropper: CropperClass | null = null;
-		const cropperEl = ref<HTMLCanvasElement | null>(null);
+		const cropperEl = ref<HTMLImageElement | null>(null);
 		const fieldWithFileUploads = useFieldWithFileUploads(props, (newValue) => emit('update:modelValue', newValue));
 		const pendingCropFiles = ref<File[]>([]);
 		const cropFileCount = ref(0);
@@ -129,21 +130,11 @@ export default defineComponent({
 				if (!loadedEvent.target?.result) {
 					return;
 				}
-				const image = new Image();
+				const image = cropperEl.value;
+				if (!image) {
+					return;
+				}
 				image.src = loadedEvent.target.result as string;
-				image.onload = () => {
-					const canvas = cropperEl.value;
-					if (!canvas) {
-						return;
-					}
-					const ctx = canvas.getContext('2d');
-					if (!ctx) {
-						return;
-					}
-					canvas.width = image.width;
-					canvas.height = image.height;
-					ctx.drawImage(image, 0, 0);
-				};
 				resetCropper();
 			};
 		};
@@ -227,6 +218,10 @@ export default defineComponent({
 	img
 		width var(--frame-width)
 		height var(--frame-height)
+.form-field-image-cropper-source
+	img
+		display block
+		width 100%
 .multiple
 	.form-field-image-item a
 		cursor move
