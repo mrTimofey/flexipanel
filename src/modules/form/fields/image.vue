@@ -4,7 +4,7 @@
 		v-if="pendingCropFiles.length"
 		@close="endCropping()"
 		@action-click="onCropActionClick($event.index === 0)"
-		size="xl"
+		:size="cropModalSize"
 		:title="`${trans('editImage')} (${cropFileCount - pendingCropFiles.length + 1}/${cropFileCount})`"
 		:actions="cropModalActions"
 	)
@@ -68,8 +68,8 @@ import type CropperClass from 'cropperjs';
 import DraggableGroup from '../../drag-and-drop';
 import useFieldWithFileUploads, { getFileFieldProps } from './file-upload';
 import ModalDialog from '../../modal/modal.vue';
+import type { ModalSize, IModalAction } from '../../modal';
 import { useTranslator } from '../../vue-composition-utils';
-import type { IModalAction } from '../../modal';
 
 import 'cropperjs/dist/cropper.css';
 
@@ -94,6 +94,10 @@ export default defineComponent({
 		crop: {
 			type: [Boolean, Object] as PropType<boolean | CropOptions>,
 			default: false,
+		},
+		cropModalSize: {
+			type: String as PropType<ModalSize>,
+			default: 'lg',
 		},
 	},
 	emits: ['update:modelValue'],

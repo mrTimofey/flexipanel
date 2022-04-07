@@ -3,4 +3,4 @@ export interface IModalAction {
 	title: string;
 }
 
-export type ModalSize = 'sm' | 'lg' | 'xl' | 'fullscreen';
+export type ModalSize = 'sm' | 'lg' | 'xl' | 'fullscreen' | '';
