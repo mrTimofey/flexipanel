@@ -24,6 +24,7 @@ export interface IApiOptions {
 
 export default class EntityListStore extends EntityBaseStore<IState> {
 	protected entity: IRegisteredEntity | null = null;
+	protected staticFilters: Record<string, unknown> | null = null;
 
 	protected getInitialState(): IState {
 		return {
@@ -69,7 +70,7 @@ export default class EntityListStore extends EntityBaseStore<IState> {
 			const res = await adapter.getList(this.entity.apiEndpoint, {
 				offset: perPage ? perPage * (page - 1) : 0,
 				limit: perPage,
-				filters,
+				filters: { ...filters, ...this.staticFilters },
 			});
 			this.state.list = res.items;
 			this.state.offset = res.offset || -1;
@@ -115,6 +116,10 @@ export default class EntityListStore extends EntityBaseStore<IState> {
 		if (entity) {
 			adapters[entity.apiType]();
 		}
+	}
+
+	public setStaticFilters(filters: Record<string, unknown> | null) {
+		this.staticFilters = filters;
 	}
 
 	get loading(): boolean {

@@ -77,7 +77,7 @@
 import type { PropType } from 'vue';
 import { onDeactivated, onActivated, defineComponent, computed, watch, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import type { IRegisteredEntity } from '.';
+import type { IRegisteredEntity, IView } from '.';
 import EntityManager from '.';
 import type { ListItem } from './stores/list';
 import EntityListStore from './stores/list';
@@ -170,7 +170,8 @@ export default defineComponent({
 				return null;
 			}
 			const { views } = props.entityMeta;
-			return props.view ? views[props.view] : views[Object.keys(views)[0]];
+			const view = props.view ? views[props.view] : views[Object.keys(views)[0]];
+			return (view as Required<IView>) || null;
 		});
 		const viewType = computed(() => entityView.value && entityManager.getViewType(entityView.value.type));
 		// TODO skeleton and not found state
@@ -186,6 +187,7 @@ export default defineComponent({
 			}
 			initialLoading.value = true;
 			store.setEntity(props.entityMeta);
+			store.setStaticFilters(entityView.value.staticFilters);
 			await store.reload({
 				page: props.page > 1 ? props.page : 1,
 				perPage: props.perPage || entityView.value.perPage || 0,
@@ -237,10 +239,7 @@ export default defineComponent({
 			}
 		}
 
-		watch(
-			() => props.entityMeta,
-			() => reloadInitialState(),
-		);
+		watch([() => props.entityMeta, entityView], () => reloadInitialState());
 		watch(entityView, () => {
 			if (store.perPage !== entityView.value?.perPage && !(entityView.value?.perPageOptions || props.perPageOptions)?.includes(store.perPage)) {
 				reloadInitialState();

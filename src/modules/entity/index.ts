@@ -36,6 +36,8 @@ export interface IView {
 	title?: string;
 	// fields used as filters for this view
 	filters?: IField[];
+	// always use these filters for the list request
+	staticFilters?: Record<string, unknown>;
 	// view component properties (based on type)
 	props?: Record<string, unknown>;
 	// items per page
