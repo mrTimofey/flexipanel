@@ -17,17 +17,18 @@
 					span {{ trans('of') }} {{ store.total }}
 				slot(name="top-end")
 			.px-1.my-2.position-relative.d-flex.flex-wrap(v-if="entityView.filters && entityView.filters.length" style="z-index:6")
-				component.flex-grow-1.px-1(
-					v-for="(filter, i) in entityView.filters"
-					:key="filter.key"
-					:is="fieldComponent(filter.type)"
-					v-bind="filter.props"
-					:model-value="filters[filter.key]"
-					:autofocus="isActivated && i === 0"
-					:context="context"
-					@update:model-value="onFilterInput(filter.key, $event)"
-				)
-					template(#label) {{ filter.label }}
+				template(v-for="(filter, i) in entityView.filters")
+					component.flex-grow-1.px-1(
+						v-if="filter.type && filter.key"
+						:key="filter.key"
+						:is="fieldComponent(filter.type)"
+						v-bind="filter.props"
+						:model-value="filters[filter.key]"
+						:autofocus="isActivated && i === 0"
+						:context="context"
+						@update:model-value="onFilterInput(filter.key, $event)"
+					)
+						template(#label) {{ filter.label }}
 		.fs-5.semibold.text-center.text-muted.px-3.py-4(v-if="store.total === 0") {{ store.loading ? (loadingText || `${trans('loading')}...`) : (emptyText || trans('noItems')) }}
 		.flex-shrink-1(v-else)
 			component(
@@ -313,7 +314,10 @@ export default defineComponent({
 			fieldComponent(type: string) {
 				return formFields.getComponent(type);
 			},
-			onFilterInput(key: string, value: unknown) {
+			onFilterInput(key: string | undefined, value: unknown) {
+				if (!key) {
+					return;
+				}
 				const filters: Record<string, unknown> = { ...props.filters };
 				if (value == null || value === '') {
 					delete filters[key];
