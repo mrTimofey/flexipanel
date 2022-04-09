@@ -149,6 +149,13 @@ export default class EntityItemStore extends EntityBaseStore<IState> {
 		}
 	}
 
+	public setRelatedItem(key: string, id: string, item: Record<string, unknown>) {
+		if (!this.relatedItems[key]) {
+			this.relatedItems[key] = {};
+		}
+		this.relatedItems[key][id] = item;
+	}
+
 	get loading(): IState['loading'] {
 		return this.state.loading;
 	}
