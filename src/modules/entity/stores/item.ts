@@ -60,7 +60,7 @@ export default class EntityItemStore extends EntityBaseStore<IState> {
 				const value = item[field.key];
 				if (Array.isArray(value)) {
 					item[field.key] = value.map((id) => this.relatedItems[field.key][id]);
-				} else {
+				} else if (value != null) {
 					item[field.key] = this.relatedItems[field.key][`${value}`];
 				}
 			});
