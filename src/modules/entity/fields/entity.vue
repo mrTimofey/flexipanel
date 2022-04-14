@@ -269,7 +269,7 @@ export default defineComponent({
 				const index = modelValueArray.value.indexOf(props.idField ? e.item[props.idField] : e.id);
 				if (index === -1) {
 					addItem(e);
-				} else {
+				} else if (props.multiple || !props.required) {
 					removeItem(index);
 				}
 			},
