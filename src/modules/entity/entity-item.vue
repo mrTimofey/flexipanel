@@ -5,9 +5,10 @@
 	.entity-form-layout(v-else)
 		component(
 			:is="entityMeta.form.layout"
-			v-bind="{ store, context, formId, fields: availableFields, fieldComponent: EntityItemFormField }"
+			v-bind="{ store, context, formId, fields: availableFields, fieldComponent: EntityItemFormField, hasReturn: !!onReturn }"
 			@submit="submit($event)"
 			@save="save()"
+			@destroy="$event?.immediate ? destroy() : confirmAndDestroy()"
 		)
 			template(#form)
 				slot(name="form" v-bind="{ store, context, formId, save, saveAndReturn, fields: availableFields, fieldComponent: EntityItemFormField }")
@@ -15,7 +16,7 @@
 						.mb-3(v-for="field in availableFields")
 							entity-item-form-field(v-bind="{ field, store, context }")
 			template(#actions)
-				slot(name="actions" v-bind="{ submit, save, saveAndReturn, confirmAndDelete, formId }")
+				slot(name="actions" v-bind="{ submit, save, saveAndReturn, confirmAndDestroy, formId }")
 					.btn-group.entity-form-actions
 						//- show "save and return" button only when @return is handled
 						template(v-if="onReturn")
@@ -35,7 +36,7 @@
 						button.btn.btn-outline-danger(
 							v-if="store.itemId && store.abilities.delete"
 							type="button"
-							@click.prevent="confirmAndDelete()"
+							@click.prevent="confirmAndDestroy()"
 						) {{ trans('delete') }}
 </template>
 
@@ -153,6 +154,13 @@ export default defineComponent({
 			emitWithItemInfo('return');
 		};
 
+		const destroy = async () => {
+			if (await handleErrors(store.destroy())) {
+				emit('delete');
+				emitWithItemInfo('return');
+			}
+		};
+
 		watchEffect(async () => {
 			initializing.value = true;
 			await store.loadEntityItem(props.entityMeta, props.id);
@@ -174,6 +182,7 @@ export default defineComponent({
 			initializing,
 			save,
 			saveAndReturn,
+			destroy,
 			availableFields: computed<Required<IField>[]>(
 				() =>
 					props.entityMeta?.form.fields.filter<Required<IField>>(
@@ -183,15 +192,12 @@ export default defineComponent({
 							(!field.key || !Object.prototype.hasOwnProperty.call(props.fixedValues, field.key)),
 					) || [],
 			),
-			async confirmAndDelete() {
+			async confirmAndDestroy() {
 				const confirmed = await modalDialog.confirm(trans('areYouSure'), trans('deleteItem'));
 				if (!confirmed) {
 					return;
 				}
-				if (await handleErrors(store.destroy())) {
-					emit('delete');
-					emitWithItemInfo('return');
-				}
+				await destroy();
 			},
 			submit(event?: Event) {
 				// for native submit event check if it is bubbled from another processed form

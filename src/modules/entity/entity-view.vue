@@ -60,7 +60,7 @@
 							slot(name="actions" v-bind="getItemSlotBindings(item)")
 								a.btn.btn-primary(v-if="store.abilities.update" @click.prevent="onEditClick(item)" :href="itemRoute(item)")
 									i.fas.fa-pencil
-								button.btn.btn-danger(v-if="store.abilities.delete" @click.prevent="confirmAndDelete(item)")
+								button.btn.btn-danger(v-if="store.abilities.delete" @click.prevent="confirmAndDestroy(item)")
 									i.fas.fa-trash
 							slot(name="actions-after" v-bind="getItemSlotBindings(item)")
 			.p-3(v-if="store.lastPage > 1 && store.hasPagination")
@@ -220,7 +220,7 @@ export default defineComponent({
 			}
 			emit('edit-click', { item, id: `${item[idKey.value]}` });
 		}
-		async function confirmAndDelete(item: ListItem) {
+		async function confirmAndDestroy(item: ListItem) {
 			const confirmed = await modalDialog.confirm(`${trans('areYouSure')}?`, trans('deleteItem'));
 			if (!confirmed) {
 				return;
@@ -289,7 +289,7 @@ export default defineComponent({
 			trans,
 			onEditClick,
 			itemRoute,
-			confirmAndDelete,
+			confirmAndDestroy,
 			updatePage(page: number): void {
 				store.reload({ page, perPage: store.perPage });
 				emit('update:page', page);
@@ -341,7 +341,7 @@ export default defineComponent({
 					itemRoute: itemRoute(item),
 					reload,
 					onEditClick: () => onEditClick(item),
-					confirmAndDelete: () => confirmAndDelete(item),
+					confirmAndDestroy: () => confirmAndDestroy(item),
 				};
 			},
 			reload,
