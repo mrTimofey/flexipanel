@@ -55,7 +55,6 @@ export default defineComponent({
 			default: null,
 		},
 	},
-	emits: ['change'],
 	setup(props) {
 		const formFields = get(FormFields);
 		return {

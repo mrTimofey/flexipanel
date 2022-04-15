@@ -6,6 +6,7 @@ export type DetailedItem = Record<string, unknown>;
 
 export interface IState {
 	loading: boolean;
+	dirty: boolean;
 	originalItem: DetailedItem;
 	formItem: DetailedItem;
 	relatedItems: Record<string, Record<string, Record<string, unknown>>>;
@@ -19,6 +20,7 @@ export default class EntityItemStore extends EntityBaseStore<IState> {
 	protected getInitialState(): IState {
 		return {
 			loading: false,
+			dirty: false,
 			originalItem: {},
 			formItem: {},
 			relatedItems: {},
@@ -116,6 +118,7 @@ export default class EntityItemStore extends EntityBaseStore<IState> {
 			Object.assign(this.originalItem, item);
 			Object.assign(this.formItem, item);
 			this.itemIdInternal = `${item[this.entity.itemUrlKey]}`;
+			this.state.dirty = false;
 		} catch (err) {
 			if (err instanceof ValidationError) {
 				this.state.formErrors = err.fieldErrors;
@@ -143,9 +146,11 @@ export default class EntityItemStore extends EntityBaseStore<IState> {
 
 	public async updateFormFieldValue(key: string, value: unknown, immediate = false) {
 		this.formItem[key] = value;
+		this.state.dirty = true;
 		if (immediate && this.entity) {
 			const adapter = await this.getAdapter();
 			adapter.saveItem(this.entity.apiEndpoint, { [key]: value }, this.itemId);
+			this.state.dirty = false;
 		}
 	}
 
@@ -182,5 +187,9 @@ export default class EntityItemStore extends EntityBaseStore<IState> {
 
 	get hasErrors(): boolean {
 		return Object.keys(this.formErrors).length > 0;
+	}
+
+	get isDirty(): boolean {
+		return this.state.dirty;
 	}
 }

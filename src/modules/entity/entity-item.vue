@@ -42,7 +42,7 @@
 
 <script lang="ts">
 import type { PropType } from 'vue';
-import { defineComponent, computed, watchEffect, ref } from 'vue';
+import { watch, defineComponent, computed, watchEffect, ref } from 'vue';
 import type { IField, IRegisteredEntity } from '.';
 import type { DetailedItem } from './stores/item';
 import EntityItemStore from './stores/item';
@@ -94,10 +94,14 @@ export default defineComponent({
 			type: Object,
 			default: null,
 		},
+		dirty: {
+			type: Boolean,
+			default: false,
+		},
 		// eslint-disable-next-line vue/require-default-prop
 		onReturn: Function,
 	},
-	emits: ['update:id', 'return', 'delete', 'change', 'update', 'create'],
+	emits: ['update:id', 'return', 'delete', 'change', 'update', 'create', 'update:dirty'],
 	setup(props, { emit }) {
 		const store = props.sharedStore || create(EntityItemStore);
 		const notifier = get(NotificationManager);
@@ -174,6 +178,17 @@ export default defineComponent({
 			}
 			initializing.value = false;
 		});
+
+		watch(
+			() => store.isDirty,
+			() => {
+				if (store.isDirty === props.dirty) {
+					return;
+				}
+				emit('update:dirty', store.isDirty);
+			},
+			{ immediate: true },
+		);
 
 		return {
 			EntityItemFormField,

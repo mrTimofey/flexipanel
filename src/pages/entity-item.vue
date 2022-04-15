@@ -8,12 +8,13 @@ page-layout.page-entity-item
 		entity-item(
 			:entity-meta="entityMeta"
 			v-model:id="routeSyncId"
+			v-model:dirty="isDirty"
 			@return="router.back()"
 		)
 </template>
 
 <script lang="ts">
-import { defineComponent, computed, watchEffect } from 'vue';
+import { defineComponent, computed, watchEffect, ref, onMounted, onBeforeUnmount } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import Meta from '../modules/meta';
 import { get, requireEntityMeta, useTemplate } from '../modules/vue-composition-utils';
@@ -35,15 +36,32 @@ export default defineComponent({
 	setup(props) {
 		const pageMeta = get(Meta);
 		const entityMeta = computed(() => requireEntityMeta(props.entity));
+		const isDirty = ref(false);
 		const router = useRouter();
 		const route = useRoute();
 		const { tpl } = useTemplate();
 		watchEffect(() => {
 			pageMeta.pageTitle = entityMeta.value?.title || '...';
 		});
+		const confirmWindowClose = (e: BeforeUnloadEvent): string | void => {
+			if (!isDirty.value) {
+				return;
+			}
+			e.returnValue = '';
+		};
+
+		onMounted(() => {
+			window.addEventListener('beforeunload', confirmWindowClose);
+		});
+
+		onBeforeUnmount(() => {
+			window.removeEventListener('beforeunload', confirmWindowClose);
+		});
+
 		return {
 			entityMeta,
 			router,
+			isDirty,
 			entityTitle: computed(() => entityMeta.value && tpl(entityMeta.value.title, entityMeta.value)),
 			pageTitle: computed(() =>
 				props.id
