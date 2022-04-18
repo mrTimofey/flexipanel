@@ -39,4 +39,5 @@ export default {
 	clearField: 'Clear field',
 	editImage: 'Edit image',
 	apply: 'Apply',
+	fileIsTooLarge: 'File is too large',
 };

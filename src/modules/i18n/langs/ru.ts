@@ -39,4 +39,5 @@ export default {
 	clearField: 'Очистить поле',
 	editImage: 'Изменить изображение',
 	apply: 'Применить',
+	fileIsTooLarge: 'Файл слишком большой',
 };

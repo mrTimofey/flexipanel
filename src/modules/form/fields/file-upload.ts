@@ -1,10 +1,11 @@
 import { computed, ref } from 'vue';
 import type { PropType, ExtractPropTypes } from 'vue';
-import HttpClient from '../../http';
+import HttpClient, { HttpRequestError } from '../../http';
 import NotificationManager from '../../notification';
 import { useDragAndDrop } from '../../drag-and-drop';
 import { get, useTemplate, useTranslator } from '../../vue-composition-utils';
 import { getCommonProps } from './common';
+import Translator from '../../i18n';
 
 export enum UploadStatus {
 	Idle = 1,
@@ -55,6 +56,7 @@ export function getFileFieldProps(options: { defaultAccept?: string } = {}) {
 export function useFileInput<T = unknown>(config: Readonly<{ endpoint: string; onUpload: (response: T) => void }>) {
 	const notifier = get(NotificationManager);
 	const http = get(HttpClient);
+	const trans = get(Translator);
 	const uploadStatus = ref(UploadStatus.Idle);
 	const uploadProgress = ref(0);
 
@@ -69,10 +71,8 @@ export function useFileInput<T = unknown>(config: Readonly<{ endpoint: string; o
 			});
 			config.onUpload(res.body);
 		} catch (err) {
-			notifier.push({
-				type: 'error',
-				body: `${err}`,
-			});
+			const body = err instanceof HttpRequestError && err.res?.status === 413 ? trans.get('fileIsTooLarge') : `${err}`;
+			notifier.push({ type: 'error', body });
 		} finally {
 			uploadStatus.value = UploadStatus.Idle;
 			uploadProgress.value = 0;
