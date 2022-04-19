@@ -73,7 +73,12 @@ import { useTranslator } from '../../vue-composition-utils';
 
 import 'cropperjs/dist/cropper.css';
 
-export type CropOptions = CropperClass.Options;
+export type CropOptions = CropperClass.Options & {
+	minCroppedWidth?: number;
+	maxCroppedWidth?: number;
+	minCroppedHeight?: number;
+	maxCroppedHeight?: number;
+};
 
 export const defaultCropperOptions: CropOptions = {
 	viewMode: 2,
@@ -91,6 +96,7 @@ export default defineComponent({
 			type: String,
 			default: '',
 		},
+		// TODO move cropping to separate composable or component
 		crop: {
 			type: [Boolean, Object] as PropType<boolean | CropOptions>,
 			default: false,
@@ -116,6 +122,24 @@ export default defineComponent({
 				cropper = null;
 			}
 		};
+		const limitCropFrame = (event: CropperClass.CropEvent) => {
+			if (typeof props.crop === 'boolean' || !cropper) {
+				return;
+			}
+			const { minCroppedWidth = 0, maxCroppedWidth = Infinity, minCroppedHeight = 0, maxCroppedHeight = Infinity } = props.crop;
+			if (!minCroppedWidth && maxCroppedWidth === Infinity && !minCroppedHeight && maxCroppedHeight === Infinity) {
+				return;
+			}
+			const width = event.detail.width;
+			const height = event.detail.height;
+
+			if (width < minCroppedWidth || height < minCroppedHeight || width > maxCroppedWidth || height > maxCroppedHeight) {
+				cropper.setData({
+					width: Math.max(minCroppedWidth, Math.min(maxCroppedWidth, width)),
+					height: Math.max(minCroppedHeight, Math.min(maxCroppedHeight, height)),
+				});
+			}
+		};
 		const resetCropper = async () => {
 			if (cropper) {
 				cropper.destroy();
@@ -125,7 +149,10 @@ export default defineComponent({
 				return;
 			}
 			const Cropper = await import('cropperjs').then((m) => m.default);
-			cropper = new Cropper(cropperEl.value, typeof props.crop === 'boolean' ? defaultCropperOptions : props.crop);
+			const options = typeof props.crop === 'boolean' ? { ...defaultCropperOptions } : props.crop;
+			// limit the cropping frame to fit min/max dimensions in pixels if there are any
+			options.crop = limitCropFrame;
+			cropper = new Cropper(cropperEl.value, options);
 		};
 		const injectNextCropImage = () => {
 			const reader = new FileReader();
