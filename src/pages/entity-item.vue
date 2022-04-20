@@ -15,11 +15,13 @@ page-layout.page-entity-item
 
 <script lang="ts">
 import { defineComponent, computed, watchEffect, ref, onMounted, onBeforeUnmount } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { onBeforeRouteLeave, useRoute, useRouter } from 'vue-router';
 import Meta from '../modules/meta';
 import { get, requireEntityMeta, useTemplate } from '../modules/vue-composition-utils';
 import EntityItem from '../modules/entity/entity-item.vue';
 import PageLayout from '../components/page-layout.vue';
+import ModalDialog from '../modules/modal/dialogs';
+import Translator from '../modules/i18n';
 
 export default defineComponent({
 	components: { EntityItem, PageLayout },
@@ -35,6 +37,8 @@ export default defineComponent({
 	},
 	setup(props) {
 		const pageMeta = get(Meta);
+		const dialog = get(ModalDialog);
+		const trans = get(Translator);
 		const entityMeta = computed(() => requireEntityMeta(props.entity));
 		const isDirty = ref(false);
 		const router = useRouter();
@@ -49,6 +53,13 @@ export default defineComponent({
 			}
 			e.returnValue = '';
 		};
+
+		onBeforeRouteLeave(() => {
+			if (!isDirty.value) {
+				return Promise.resolve(true);
+			}
+			return dialog.confirm(trans.get('confirmUnsaved'));
+		});
 
 		onMounted(() => {
 			window.addEventListener('beforeunload', confirmWindowClose);

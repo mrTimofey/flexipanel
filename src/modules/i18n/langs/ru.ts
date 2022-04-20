@@ -40,4 +40,5 @@ export default {
 	editImage: 'Изменить изображение',
 	apply: 'Применить',
 	fileIsTooLarge: 'Файл слишком большой',
+	confirmUnsaved: 'Вы уверены? Все несохранённые данные будут потеряны.',
 };

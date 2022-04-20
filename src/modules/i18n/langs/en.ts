@@ -40,4 +40,5 @@ export default {
 	editImage: 'Edit image',
 	apply: 'Apply',
 	fileIsTooLarge: 'File is too large',
+	confirmUnsaved: 'Are you sure? Any unsaved data will be lost.',
 };
