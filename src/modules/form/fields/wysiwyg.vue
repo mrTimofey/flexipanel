@@ -1,8 +1,7 @@
 <template lang="pug">
 .form-field-wysiwyg
 	slot(name="label")
-	.border.rounded
-		div(ref="editorEl" v-html="modelValue")
+	div(ref="editorEl" v-once v-html="modelValue")
 	.invalid-feedback(v-if="errors && errors.length")
 		div(v-for="err in errors") {{ err }}
 </template>
