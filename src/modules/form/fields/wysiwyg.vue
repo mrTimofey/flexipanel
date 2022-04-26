@@ -11,7 +11,6 @@ import type { PropType } from 'vue';
 import { onBeforeUnmount, defineComponent, ref, watch } from 'vue';
 import type { QuillOptionsStatic } from 'quill';
 import Quill from 'quill';
-import 'quill/dist/quill.core.css';
 import 'quill/dist/quill.snow.css';
 import { getCommonProps } from './common';
 
