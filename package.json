@@ -1,6 +1,6 @@
 {
   "name": "flexipanel",
-  "version": "0.0.0-dev67",
+  "version": "0.0.0-dev68",
   "author": "Timofey Tiunov <timoxa17@gmail.com>",
   "license": "MIT",
   "homepage": "https://github.com/mrTimofey/flexipanel",
@@ -19,6 +19,7 @@
     "dot": "^2.0.0-beta.1",
     "mini-ioc": "^1.0.0",
     "mini-ioc-vue": "^0.3.0",
+    "quill": "^1.3.7",
     "vue": "^3.2.21",
     "vue-router": "^4.0.11",
     "vuedraggable": "^4.1.0"
@@ -36,6 +37,7 @@
     "@editorjs/table": "^2.0.1",
     "@editorjs/underline": "^1.0.0",
     "@types/node": "^16.7.10",
+    "@types/quill": "^2.0.9",
     "@typescript-eslint/eslint-plugin": "^5.3.1",
     "@typescript-eslint/parser": "^5.3.1",
     "@vitejs/plugin-vue": "^2.0.1",
