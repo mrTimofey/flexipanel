@@ -3,7 +3,7 @@ import type { IRegisteredEntity } from '..';
 import ReactiveStore from '../../reactive-store';
 import type IAdapter from '../adapter';
 import adapters from '../adapters';
-import EntityAbilityGuard from '../adapters/ability-guard';
+import EntityAbilityGuard from '../ability-guard';
 
 export type ListItem = Record<string, unknown>;
 

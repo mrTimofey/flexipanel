@@ -1,4 +1,4 @@
-import type { IRegisteredEntity } from '..';
+import type { IRegisteredEntity } from '.';
 
 export default class EntityAbilityGuard {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
