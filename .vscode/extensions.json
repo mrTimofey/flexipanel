@@ -7,7 +7,7 @@
     "alexbabichev.formatter-pug",
     "streetsidesoftware.code-spell-checker",
     "streetsidesoftware.code-spell-checker-russian",
-    "johnsoncodehk.volar",
-    "johnsoncodehk.vscode-typescript-vue-plugin"
+    "vue.volar",
+    "vue.vscode-typescript-vue-plugin"
   ]
 }

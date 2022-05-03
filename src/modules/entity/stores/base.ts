@@ -3,6 +3,7 @@ import type { IRegisteredEntity } from '..';
 import ReactiveStore from '../../reactive-store';
 import type IAdapter from '../adapter';
 import adapters from '../adapters';
+import EntityAbilityGuard from '../adapters/ability-guard';
 
 export type ListItem = Record<string, unknown>;
 
@@ -24,7 +25,7 @@ export interface IApiOptions {
 export default abstract class EntityBaseStore<T extends object> extends ReactiveStore<T> {
 	protected entity: IRegisteredEntity | null = null;
 
-	constructor(protected ioc = inject(Container)) {
+	constructor(protected ioc = inject(Container), protected abilityGuard = inject(EntityAbilityGuard)) {
 		super();
 	}
 
@@ -44,9 +45,9 @@ export default abstract class EntityBaseStore<T extends object> extends Reactive
 
 	get abilities(): Record<string, boolean> {
 		return {
-			create: !!this.entity?.form.fields.length && !this.entity.createDisabled,
-			update: !!this.entity?.form.fields.length && !this.entity.updateDisabled,
-			delete: !!this.entity && !this.entity.deleteDisabled,
+			create: !!this.entity?.form.fields.length && !this.entity.createDisabled && this.abilityGuard.can('create', this.entity),
+			update: !!this.entity?.form.fields.length && !this.entity.updateDisabled && this.abilityGuard.can('update', this.entity),
+			delete: !!this.entity && !this.entity.deleteDisabled && this.abilityGuard.can('delete', this.entity),
 		};
 	}
 }

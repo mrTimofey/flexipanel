@@ -69,9 +69,9 @@ export interface IEntityMeta {
 	createButtonText?: string;
 	createPageTitle?: string;
 	editPageTitle?: string;
-	deleteDisabled?: true;
-	createDisabled?: true;
-	updateDisabled?: true;
+	deleteDisabled?: boolean;
+	createDisabled?: boolean;
+	updateDisabled?: boolean;
 }
 
 export const entityMetaDefaults: Partial<IEntityMeta> = {
@@ -79,6 +79,9 @@ export const entityMetaDefaults: Partial<IEntityMeta> = {
 	apiType: 'jsonApi',
 	createPageTitle: '{{=h.trans("newItem")}}',
 	editPageTitle: '{{=h.trans("item")}} #{{=it.id}}',
+	deleteDisabled: false,
+	createDisabled: false,
+	updateDisabled: false,
 };
 
 export const viewDefaults: Partial<IView> = {

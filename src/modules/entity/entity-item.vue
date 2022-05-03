@@ -25,6 +25,7 @@
 								:form="formId"
 							) {{ trans('saveAndReturn') }}
 							button.btn.btn-outline-primary(
+								v-if="store.abilities.update"
 								type="button"
 								@click.prevent="save()"
 							) {{ trans('save') }}
