@@ -56,7 +56,7 @@ export default defineComponent({
 					if (!editorEl.value) {
 						return;
 					}
-					emit('update:modelValue', editorEl.value.innerHTML);
+					emit('update:modelValue', quill.root.innerHTML);
 				}, 200);
 			});
 		});
