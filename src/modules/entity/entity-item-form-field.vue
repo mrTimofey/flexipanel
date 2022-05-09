@@ -14,7 +14,8 @@ component(
 	@update-field="store.updateFormFieldValue($event.key, $event.value, !!$event.immediate)"
 )
 	template(#label)
-		span(v-html="field.label")
+		slot(name="label")
+			span(v-html="field.label")
 </template>
 
 <script lang="ts">

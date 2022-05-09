@@ -28,7 +28,8 @@
 						:context="context"
 						@update:model-value="onFilterInput(filter.key, $event)"
 					)
-						template(#label) {{ filter.label }}
+						template(#label)
+							span(v-html="filter.label")
 		.fs-5.semibold.text-center.text-muted.px-3.py-4(v-if="store.total === 0") {{ store.loading ? (loadingText || `${trans('loading')}...`) : (emptyText || trans('noItems')) }}
 		.flex-shrink-1(v-else)
 			component(

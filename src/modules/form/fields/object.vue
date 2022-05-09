@@ -3,7 +3,7 @@
 	.form-field-object-label
 		slot(name="label")
 	.form-field-object-fields
-		.form-field-object-item(v-for="(field, k) in availableFields" :style="field.def.style")
+		.form-field-object-item(v-for="(field, k) in availableFields" :style="field.def.style" :class="field.def.class")
 			component(
 				:is="field.component"
 				:field-key="`${fieldKey}.${k}`"
@@ -16,6 +16,8 @@
 				v-bind="{ disabled, ...field.def.props, ...(formObjectId ? field.def.updateProps : field.def.createProps) }"
 				@update:model-value="updateItem(k, $event)"
 			)
+				template(#label)
+					span(v-html="field.def.label")
 	.text-danger(v-if="errors && errors.length")
 		div(v-for="err in errors")
 			small {{ err }}
@@ -31,9 +33,11 @@ import { getCommonProps } from './common';
 export interface IField {
 	type?: string;
 	props?: Record<string, unknown>;
+	label?: string;
 	updateProps?: Record<string, unknown>;
 	createProps?: Record<string, unknown>;
 	style?: string;
+	class?: string;
 	condition?: (value: Record<string, unknown>) => boolean;
 }
 
@@ -109,6 +113,7 @@ export default defineComponent({
 		justify-content stretch
 		margin-left -0.25rem
 		padding 0.125rem 0
+		flex-wrap wrap
 	.form-field-object-item
 		flex 1 1 0
 		padding-left 0.25rem

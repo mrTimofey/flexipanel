@@ -1,8 +1,9 @@
 <template lang="pug">
 .form-field-wysiwyg
 	slot(name="label")
-	div(ref="editorEl" v-once v-html="modelValue")
-	.invalid-feedback(v-if="errors && errors.length")
+	.bg-white
+		div(ref="editorEl" v-once v-html="modelValue")
+	.invalid-feedback(v-if="errors && errors.length" style="display:block")
 		div(v-for="err in errors") {{ err }}
 </template>
 
@@ -49,7 +50,7 @@ export default defineComponent({
 			if (!editorEl.value) {
 				return;
 			}
-			const quill = new Quill(editorEl.value, props.config);
+			const quill = new Quill(editorEl.value, { placeholder: props.placeholder, ...props.config });
 			quill.on('text-change', () => {
 				clearTimeout(updateTimeout);
 				updateTimeout = setTimeout(() => {
