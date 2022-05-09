@@ -11,8 +11,6 @@ export interface IField {
 	key?: string;
 	// hidden field will be sent to API but is never shown on forms
 	hidden?: boolean;
-	// related item object should be used instead of related object id as a value
-	inlineRelated?: boolean;
 	// field type (string, boolean, array...)
 	type?: string;
 	// default value for new items
@@ -51,6 +49,8 @@ export interface IForm {
 	fields: IField[];
 	// fields layout config
 	layout?: PossiblyAsyncComponent;
+	// list of related items path to replace related item id's with the related objects
+	inlineRelated?: string[];
 }
 
 export interface IEntityMeta {
@@ -97,13 +97,13 @@ export const fieldDefaults: Partial<IField> = {
 	createProps: {},
 	updateProps: {},
 	default: undefined,
-	inlineRelated: false,
 	hidden: false,
 };
 
 export const formDefaults: Partial<IForm> = {
 	layout: defineAsyncComponent(() => import('./forms/simple.vue')),
 	fields: [],
+	inlineRelated: [],
 };
 
 export interface IViewType {

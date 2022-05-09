@@ -52,20 +52,34 @@ export default class EntityItemStore extends EntityBaseStore<IState> {
 		return item;
 	}
 
-	protected inlineRelatedItems(item: Record<string, unknown>): void {
-		if (!this.entity?.form.fields) {
+	protected inlineRelatedItems(item: Record<string, unknown>, fields?: string[]): void {
+		if (!this.entity?.form.inlineRelated?.length) {
 			return;
 		}
-		this.keyedFormFields
-			.filter(({ inlineRelated }) => inlineRelated)
-			.forEach((field) => {
-				const value = item[field.key];
-				if (Array.isArray(value)) {
-					item[field.key] = value.map((id) => this.relatedItems[field.key][id]);
-				} else if (value != null) {
-					item[field.key] = this.relatedItems[field.key][`${value}`];
+		const relatedFields = fields || this.entity.form.inlineRelated;
+		// go through each inlining field
+		for (const fieldName of relatedFields) {
+			// the field can be declared with a nested subfields do split it
+			const parts = fieldName.split('.');
+			let obj: unknown = item;
+			let relatedKey = '';
+			// go through tje field itself and its nested subfields
+			for (const part of parts) {
+				relatedKey += part;
+				// fill object or array of objects with related items
+				for (const objItem of Array.isArray(obj) ? obj : [obj]) {
+					const value = objItem?.[part];
+					if (Array.isArray(value)) {
+						// eslint-disable-next-line no-loop-func
+						objItem[part] = value.map((id) => this.relatedItems[relatedKey][id]);
+					} else if (value != null) {
+						objItem[part] = this.relatedItems[relatedKey][`${value}`];
+					}
 				}
-			});
+				obj = item?.[part];
+				relatedKey += '.';
+			}
+		}
 	}
 
 	public async reloadOriginalItem(): Promise<void> {
