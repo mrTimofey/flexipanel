@@ -9,6 +9,7 @@
 				style="pointer-events:none"
 				:disabled="disabled"
 				:checked="option.value === modelValue"
+				:class="{ 'is-invalid': !!errors }"
 			)
 			!=' '
 			span.form-check-label {{ option.label }}
@@ -19,7 +20,7 @@
 				:class="{ active: option.value === modelValue }"
 				@click.prevent="selectOption(option)"
 			) {{ option.label }}
-	.invalid-feedback(v-if="errors && errors.length")
+	.invalid-feedback(v-if="errors && errors.length" style="display:block")
 		div(v-for="err in errors") {{ err }}
 </template>
 
