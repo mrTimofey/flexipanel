@@ -2,6 +2,7 @@ export interface IListParams {
 	offset: number;
 	limit?: number;
 	filters?: Record<string, unknown>;
+	include?: string[];
 }
 
 export interface IListData {
@@ -13,6 +14,7 @@ export interface IListData {
 
 export interface IItemParams {
 	id: string;
+	include?: string[];
 }
 
 export interface IItemData {

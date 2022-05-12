@@ -20,6 +20,7 @@ export interface IApiOptions {
 	page?: number;
 	perPage?: number;
 	filters?: Record<string, unknown>;
+	include?: string[];
 }
 
 export default class EntityListStore extends EntityBaseStore<IState> {
@@ -56,7 +57,7 @@ export default class EntityListStore extends EntityBaseStore<IState> {
 		}
 	}
 
-	public async reload({ page = 1, perPage, filters }: IApiOptions = {}): Promise<void> {
+	public async reload({ page = 1, perPage, filters, include }: IApiOptions = {}): Promise<void> {
 		if (!this.entity) {
 			return;
 		}
@@ -71,6 +72,7 @@ export default class EntityListStore extends EntityBaseStore<IState> {
 				offset: perPage ? perPage * (page - 1) : 0,
 				limit: perPage,
 				filters: { ...filters, ...this.staticFilters },
+				include,
 			});
 			this.state.list = res.items;
 			this.state.offset = res.offset || -1;

@@ -36,6 +36,8 @@ export interface IView {
 	filters?: IField[];
 	// always use these filters for the list request
 	staticFilters?: Record<string, unknown>;
+	// add include query to fetch related entities
+	include?: string[];
 	// view component properties (based on type)
 	props?: Record<string, unknown>;
 	// items per page
@@ -49,6 +51,8 @@ export interface IForm {
 	fields: IField[];
 	// fields layout config
 	layout?: PossiblyAsyncComponent;
+	// add include query to fetch related entities
+	include?: string[];
 	// list of related items path to replace related item id's with the related objects
 	inlineRelated?: string[];
 }
@@ -88,6 +92,8 @@ export const viewDefaults: Partial<IView> = {
 	type: 'table',
 	perPage: 25,
 	perPageOptions: [5, 10, 25, 50, 100],
+	include: [],
+	staticFilters: {},
 };
 
 export const fieldDefaults: Partial<IField> = {
@@ -103,6 +109,7 @@ export const fieldDefaults: Partial<IField> = {
 export const formDefaults: Partial<IForm> = {
 	layout: defineAsyncComponent(() => import('./forms/simple.vue')),
 	fields: [],
+	include: [],
 	inlineRelated: [],
 };
 
@@ -129,7 +136,7 @@ function fillFields(fields: IField[]) {
 		const newField = { ...fieldDefaults, ...field };
 		if (newField.key && newField.label == null) {
 			newField.label = newField.key.split(/[-_\s]+/).join(' ');
-			newField.label = newField.label.substr(0, 1).toUpperCase() + newField.label.substr(1);
+			newField.label = newField.label.substring(0, 1).toUpperCase() + newField.label.substring(1);
 		}
 		return newField;
 	});

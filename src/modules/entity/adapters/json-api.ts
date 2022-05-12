@@ -173,6 +173,9 @@ export default class JsonApiAdapter implements IAdapter {
 				urlParams.push([`filter[${key}]`, `${value}`]);
 			});
 		}
+		if (params.include?.length) {
+			urlParams.push(['include', params.include.join(',')]);
+		}
 		const urlParamsString = `?${urlParams.map(([k, v]) => `${k}=${encodeURIComponent(v)}`).join('&')}`;
 		const { body } = await this.http.get<IJsonApiListResponse>(`${endpoint}${urlParamsString.length > 1 ? urlParamsString : ''}`, {
 			// eslint-disable-next-line @typescript-eslint/naming-convention
@@ -181,8 +184,9 @@ export default class JsonApiAdapter implements IAdapter {
 		return adaptListResponse(body);
 	}
 
-	async getItem(endpoint: string, { id }: IItemParams): Promise<IItemData> {
-		const { body } = await this.http.get<IJsonApiItemResponse>(`${endpoint}/${id}`, {
+	async getItem(endpoint: string, { id, include }: IItemParams): Promise<IItemData> {
+		const includeQuery = include?.length ? `?include=${include.join(',')}` : '';
+		const { body } = await this.http.get<IJsonApiItemResponse>(`${endpoint}/${id}${includeQuery}`, {
 			// eslint-disable-next-line @typescript-eslint/naming-convention
 			'Content-Type': 'application/vnd.api+json',
 		});

@@ -172,8 +172,8 @@ export default defineComponent({
 				return null;
 			}
 			const { views } = props.entityMeta;
-			const view = props.view ? views[props.view] : views[Object.keys(views)[0]];
-			return (view as Required<IView>) || null;
+			const view: Required<IView> = (props.view ? views[props.view] : views[Object.keys(views)[0]]) || null;
+			return view;
 		});
 		const viewType = computed(() => entityView.value && entityManager.getViewType(entityView.value.type));
 		// TODO skeleton and not found state
@@ -194,6 +194,7 @@ export default defineComponent({
 				page: props.page > 1 ? props.page : 1,
 				perPage: props.perPage || entityView.value.perPage || 0,
 				filters: props.filters,
+				include: entityView.value?.include,
 			});
 			initialLoading.value = false;
 		};
@@ -202,6 +203,7 @@ export default defineComponent({
 				page: store.page,
 				perPage: store.perPage,
 				filters: props.filters,
+				include: entityView.value?.include,
 			});
 		const itemRoute = (item: ListItem): string => {
 			if (!props.entityMeta) {

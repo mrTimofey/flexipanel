@@ -13,6 +13,10 @@ export interface IState {
 	formErrors: Record<string, string[]>;
 }
 
+export interface IGetItemParams {
+	include?: string[];
+}
+
 export default class EntityItemStore extends EntityBaseStore<IState> {
 	protected entity: IRegisteredEntity | null = null;
 	private itemIdInternal = '';
@@ -82,7 +86,7 @@ export default class EntityItemStore extends EntityBaseStore<IState> {
 		}
 	}
 
-	public async reloadOriginalItem(): Promise<void> {
+	public async reloadOriginalItem({ include }: IGetItemParams = {}): Promise<void> {
 		this.state.originalItem = {};
 		if (!this.entity || !this.itemId) {
 			return;
@@ -90,7 +94,7 @@ export default class EntityItemStore extends EntityBaseStore<IState> {
 		this.state.loading = true;
 		try {
 			const adapter = await this.getAdapter();
-			const { item, relatedItems } = await adapter.getItem(this.entity.apiEndpoint, { id: this.itemId });
+			const { item, relatedItems } = await adapter.getItem(this.entity.apiEndpoint, { id: this.itemId, include });
 			this.state.relatedItems = relatedItems;
 			this.inlineRelatedItems(item);
 			this.state.originalItem = item;
@@ -99,7 +103,7 @@ export default class EntityItemStore extends EntityBaseStore<IState> {
 		}
 	}
 
-	public async loadEntityItem(entity: IRegisteredEntity | null, id = ''): Promise<void> {
+	public async loadEntityItem(entity: IRegisteredEntity | null, id = '', params: IGetItemParams = {}): Promise<void> {
 		if (this.entity === entity && this.itemId === id) {
 			return;
 		}
@@ -110,7 +114,7 @@ export default class EntityItemStore extends EntityBaseStore<IState> {
 			return;
 		}
 		if (id) {
-			await this.reloadOriginalItem();
+			await this.reloadOriginalItem(params);
 			this.state.formItem = { ...this.state.originalItem };
 		} else {
 			this.state.originalItem = this.createItem();
