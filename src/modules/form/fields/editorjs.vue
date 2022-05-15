@@ -1,7 +1,8 @@
 <template lang="pug">
 .form-field-editorjs
 	slot(name="label")
-	div(ref="editorElement" :class="{ 'is-invalid': !!errors }")
+	.form-field-editorjs__editor
+		div(ref="editorElement" :class="{ 'is-invalid': !!errors }")
 	.invalid-feedback(v-if="errors && errors.length")
 		div(v-for="err in errors") {{ err }}
 </template>
