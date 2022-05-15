@@ -1,6 +1,6 @@
 {
   "name": "flexipanel",
-  "version": "0.0.0-dev75",
+  "version": "0.0.0-dev77",
   "author": "Timofey Tiunov <timoxa17@gmail.com>",
   "license": "MIT",
   "homepage": "https://github.com/mrTimofey/flexipanel",
@@ -55,7 +55,7 @@
     "vite": "^2.6.13",
     "vite-plugin-dts": "^1.0.5",
     "vite-plugin-html": "^3.0.3",
-    "vue-eslint-parser": "^8.0.1",
+    "vue-eslint-parser": "^9.0.1",
     "vue-tsc": "^0.34.6"
   },
   "engines": {
