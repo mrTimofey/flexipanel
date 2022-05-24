@@ -35,13 +35,13 @@ export default class VueAdminApp {
 		this.container.bind(AuthProvider, PublicAuthProvider);
 		// make container itself resolvable
 		this.container.registerResolver(Container, () => this.container);
-		this.container.registerResolver(TemplateEngine, (TemplateEngineClass) => {
-			const engine = new TemplateEngineClass();
+		this.container.registerResolver(TemplateEngine, () => {
+			const engine = new TemplateEngine();
 			this.registerTemplateHelpers(engine);
 			return engine;
 		});
-		this.container.registerResolver(FormFields, (FormFieldsClass) => {
-			const formFields = new FormFieldsClass();
+		this.container.registerResolver(FormFields, () => {
+			const formFields = new FormFields();
 			this.registerFieldResolvers(formFields);
 			return formFields;
 		});
