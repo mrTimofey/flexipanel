@@ -7,9 +7,7 @@ page-layout.page-entity-view(v-if="entityMeta")
 	entity-view(
 		:entity-meta="entityMeta"
 		:view="view"
-		v-model:page="page"
-		v-model:per-page="perPage"
-		v-model:filters="filters"
+		v-model:query="query"
 		@item-click="$event.abilities.update && goToEditPage($event.id)"
 		@edit-click="goToEditPage($event.id)"
 	)
@@ -22,6 +20,7 @@ page-layout.page-entity-view(v-if="entityMeta")
 import { defineComponent, computed, watchEffect } from 'vue';
 import { useRouter } from 'vue-router';
 import { get, useRouteQueryParam, useTranslator } from '../modules/vue-composition-utils';
+import type { IApiQuery } from '../modules/entity/entity-view.vue';
 import EntityView from '../modules/entity/entity-view.vue';
 import TemplateEngine from '../modules/template';
 import EntityManager from '../modules/entity';
@@ -52,9 +51,7 @@ export default defineComponent({
 		return {
 			...useTranslator(),
 			entityMeta,
-			page: useRouteQueryParam('page', 1),
-			perPage: useRouteQueryParam('perPage', 0),
-			filters: useRouteQueryParam('filters', {} as Record<string, unknown>),
+			query: useRouteQueryParam('query', {} as IApiQuery),
 			pageTitle: computed(() => entityMeta.value && tmpl.exec(entityMeta.value.title, entityMeta.value)),
 			goToEditPage(id: string) {
 				router.push({

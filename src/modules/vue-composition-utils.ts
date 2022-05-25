@@ -1,5 +1,5 @@
 import type { WritableComputedRef } from 'vue';
-import { inject, computed } from 'vue';
+import { inject, computed, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { injectKey } from 'mini-ioc-vue';
 import type { AnyClass } from 'mini-ioc';
@@ -62,6 +62,20 @@ export function useRouteQueryParam<T>(key: string, defaultValue: T): WritableCom
 				query[key] = `${value}`;
 			}
 			router.replace({ query });
+		},
+	});
+}
+
+export function useOptionalSyncProp<T>(propGetter: () => T | null | undefined, onChange: (v: T) => void, defaultValue: T) {
+	const propRef = ref(defaultValue);
+	return computed({
+		get(): T {
+			const propValue = propGetter() as T | null | undefined;
+			return propValue == null ? (propRef.value as T) : propValue;
+		},
+		set(v: T) {
+			(propRef.value as T) = v;
+			onChange(v);
 		},
 	});
 }

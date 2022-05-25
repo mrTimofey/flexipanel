@@ -126,10 +126,8 @@ export default defineComponent({
 			}),
 			rightWindow: computed(() => (props.modelValue <= props.lastPage - 4 ? [props.lastPage] : false)),
 			change(page: number) {
-				if (!props.loading) {
-					emit('change', { page, href: makeHref(page) });
-					emit('update:modelValue', page);
-				}
+				emit('change', { page, href: makeHref(page) });
+				emit('update:modelValue', page);
 			},
 			trans: (key: string) => trans.get(key),
 			firstItemNum: computed(() => props.limit * (props.modelValue - 1) + 1),

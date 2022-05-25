@@ -61,12 +61,10 @@
 							selectable
 							:entity-meta="relatedEntityMeta"
 							:view="view"
+							:static-filters="filters"
 							:per-page="perPage"
 							:per-page-options="[]"
 							:context="context"
-							v-model:page="page"
-							v-model:filters="filters"
-							v-model:sort="sort"
 							@item-click="toggleItem($event)"
 						)
 							template(#selection="data")
@@ -157,9 +155,7 @@ export default defineComponent({
 	emits: ['update:modelValue'],
 	setup(props, { emit }) {
 		const { tpl } = useTemplate();
-		const page = ref<number>(1);
 		const filters = ref<Record<string, unknown>>({});
-		const sort = ref<Record<string, unknown>>({});
 		const selecting = ref(false);
 		const creating = ref(false);
 		const entityManager = get(EntityManager);
@@ -250,9 +246,7 @@ export default defineComponent({
 		return {
 			...useTranslator(),
 			relatedEntityMeta,
-			page,
 			filters,
-			sort,
 			selecting,
 			creating,
 			modelValueArray,

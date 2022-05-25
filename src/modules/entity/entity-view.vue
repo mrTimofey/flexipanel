@@ -21,12 +21,12 @@
 					component.flex-grow-1.px-1(
 						v-if="filter.type && filter.key"
 						:key="filter.key"
-						:is="fieldComponent(filter.type)"
+						:is="getFieldComponent(filter.type)"
 						v-bind="filter.props"
-						:model-value="filters[filter.key]"
+						:model-value="queryParams.filters?.[filter.key]"
 						:autofocus="isActivated && i === 0"
 						:context="context"
-						@update:model-value="onFilterInput(filter.key, $event)"
+						@update:model-value="updateFilterItem(filter.key, $event)"
 					)
 						template(#label)
 							span(v-html="filter.label")
@@ -83,7 +83,7 @@ import type { IRegisteredEntity, IView } from '.';
 import EntityManager from '.';
 import type { ListItem } from './stores/list';
 import EntityListStore from './stores/list';
-import { get, create, debounce, useTranslator } from '../vue-composition-utils';
+import { get, create, debounce, useTranslator, useOptionalSyncProp } from '../vue-composition-utils';
 import PageNav from './pagination.vue';
 import FieldSelect from '../form/fields/select.vue';
 import ModalDialog from '../modal/dialogs';
@@ -92,6 +92,13 @@ import FormFields from '../form/fields';
 
 function isPositionChangeEvent(event: { action: string }): event is { action: string; oldIndex: number; newIndex: number } {
 	return event.action === 'itemPositionChange';
+}
+
+export interface IApiQuery {
+	page?: number;
+	perPage?: number;
+	filters?: Record<string, unknown>;
+	sort?: string[];
 }
 
 export default defineComponent({
@@ -117,9 +124,17 @@ export default defineComponent({
 			type: Boolean,
 			default: false,
 		},
-		page: {
-			type: Number,
-			default: 0,
+		sortable: {
+			type: Boolean,
+			default: false,
+		},
+		query: {
+			type: Object as PropType<IApiQuery | null>,
+			default: null,
+		},
+		staticFilters: {
+			type: Object as PropType<Record<string, unknown> | null>,
+			default: null,
 		},
 		perPage: {
 			type: Number,
@@ -128,18 +143,6 @@ export default defineComponent({
 		perPageOptions: {
 			type: Array as PropType<number[] | null>,
 			default: null,
-		},
-		filters: {
-			type: Object as PropType<Record<string, unknown>>,
-			default: () => ({}),
-		},
-		sort: {
-			type: Object as PropType<Record<string, unknown>>,
-			default: () => ({}),
-		},
-		sortable: {
-			type: Boolean,
-			default: false,
 		},
 		loadingText: {
 			type: String,
@@ -158,7 +161,7 @@ export default defineComponent({
 			default: null,
 		},
 	},
-	emits: ['update:page', 'update:perPage', 'update:filters', 'edit-click', 'item-click', 'item-action-click'],
+	emits: ['update:query', 'edit-click', 'item-click', 'item-action-click'],
 	setup(props, { emit, expose }) {
 		const store = props.sharedStore || create(EntityListStore);
 		const entityManager = get(EntityManager);
@@ -177,51 +180,46 @@ export default defineComponent({
 		});
 		const viewType = computed(() => entityView.value && entityManager.getViewType(entityView.value.type));
 		// TODO skeleton and not found state
-		const viewComponent = computed(() => viewType.value?.component);
+		const viewComponent = computed(() => viewType.value?.component || null);
 		const realPerPageOptions = computed(() => props.perPageOptions || entityView.value?.perPageOptions || []);
-		const idKey = computed(() => props.entityMeta?.itemUrlKey || 'id');
 		const initialLoading = ref(false);
 		const isActivated = ref(false);
-
+		const queryParams = useOptionalSyncProp<IApiQuery>(
+			() => props.query,
+			(v) => emit('update:query', v),
+			{},
+		);
+		const reload = (): Promise<void> =>
+			store.reload({
+				...queryParams.value,
+				include: entityView.value?.include,
+				perPage: queryParams.value.perPage || props.perPage || entityView.value?.perPage,
+			});
 		const reloadInitialState = async (): Promise<void> => {
 			if (store.loading || !entityView.value) {
 				return;
 			}
 			initialLoading.value = true;
 			store.setEntity(props.entityMeta);
-			store.setStaticFilters(entityView.value.staticFilters);
-			await store.reload({
-				page: props.page > 1 ? props.page : 1,
-				perPage: props.perPage || entityView.value.perPage || 0,
-				filters: props.filters,
-				include: entityView.value?.include,
-			});
+			store.setStaticFilters({ ...entityView.value.staticFilters, ...props.staticFilters });
+			await reload();
 			initialLoading.value = false;
 		};
-		const reload = (): Promise<void> =>
-			store.reload({
-				page: store.page,
-				perPage: store.perPage,
-				filters: props.filters,
-				include: entityView.value?.include,
-			});
-		const itemRoute = (item: ListItem): string => {
-			if (!props.entityMeta) {
-				return '#';
-			}
-			return router.resolve({
-				name: 'entityItem',
-				params: {
-					entity: props.entityMeta.slug,
-					id: `${item[props.entityMeta.itemUrlKey]}`,
-				},
-			}).href;
-		};
+		const itemRoute = (item: ListItem): string =>
+			props.entityMeta
+				? router.resolve({
+						name: 'entityItem',
+						params: {
+							entity: props.entityMeta.slug,
+							id: `${item[props.entityMeta.itemUrlKey]}`,
+						},
+				  }).href
+				: '#';
 		function onEditClick(item: ListItem): void {
 			if (!props.entityMeta) {
 				return;
 			}
-			emit('edit-click', { item, id: `${item[idKey.value]}` });
+			emit('edit-click', { item, id: `${item[props.entityMeta.itemUrlKey]}` });
 		}
 		async function confirmAndDestroy(item: ListItem) {
 			const confirmed = await modalDialog.confirm(`${trans('areYouSure')}?`, trans('deleteItem'));
@@ -230,11 +228,7 @@ export default defineComponent({
 			}
 			try {
 				await store.deleteItem(item);
-				store.reload({
-					page: store.page,
-					perPage: store.perPage,
-					filters: props.filters,
-				});
+				reload();
 			} catch (err) {
 				notifier.push({
 					type: 'error',
@@ -243,34 +237,13 @@ export default defineComponent({
 			}
 		}
 
-		watch([() => props.entityMeta, entityView], () => reloadInitialState());
+		watch([() => props.entityMeta, () => props.staticFilters], () => reloadInitialState());
 		watch(entityView, () => {
 			if (store.perPage !== entityView.value?.perPage && !(entityView.value?.perPageOptions || props.perPageOptions)?.includes(store.perPage)) {
 				reloadInitialState();
 			}
 		});
-		watch(
-			() => props.page,
-			(page) => {
-				if (page > 0 && store.page !== page) {
-					store.reload({ page, perPage: store.perPage, filters: props.filters });
-				}
-			},
-		);
-		watch(
-			() => props.perPage,
-			(perPage) => {
-				if (perPage > 0 && store.perPage !== perPage) {
-					store.reload({ perPage, filters: props.filters });
-				}
-			},
-		);
-		watch(
-			() => props.filters,
-			debounce((filters) => {
-				store.reload({ page: 1, perPage: store.perPage, filters });
-			}),
-		);
+		watch(queryParams, () => reload());
 		onActivated(() => {
 			isActivated.value = true;
 		});
@@ -287,47 +260,56 @@ export default defineComponent({
 			initialLoading,
 			store,
 			realPerPageOptions,
-			idKey,
 			isActivated,
+			queryParams,
 			trans,
 			onEditClick,
 			itemRoute,
 			confirmAndDestroy,
 			updatePage(page: number): void {
-				store.reload({ page, perPage: store.perPage });
-				emit('update:page', page);
+				queryParams.value = {
+					...queryParams.value,
+					page,
+				};
 			},
 			updatePerPage(perPage: number): void {
-				store.reload({ perPage });
-				emit('update:perPage', perPage);
+				queryParams.value = {
+					perPage,
+					filters: queryParams.value.filters,
+					sort: queryParams.value.sort,
+				};
 			},
-			onItemClick(item: ListItem): void {
-				if (!props.entityMeta) {
-					return;
-				}
-				emit('item-click', { item, id: `${item[idKey.value]}`, abilities: store.abilities });
-			},
-			onItemActionClick(event: { action: string; item: ListItem; [otherArgs: string]: unknown }): void {
-				if (isPositionChangeEvent(event)) {
-					store.moveItem(event.oldIndex, event.newIndex);
-				} else {
-					emit('item-action-click', { ...event, id: `${event.item[idKey.value]}`, abilities: store.abilities });
-				}
-			},
-			fieldComponent(type: string) {
-				return formFields.getComponent(type);
-			},
-			onFilterInput(key: string | undefined, value: unknown) {
+			updateFilterItem: debounce((key: string | undefined, value: unknown) => {
 				if (!key) {
 					return;
 				}
-				const filters: Record<string, unknown> = { ...props.filters };
+				const filters: Record<string, unknown> = { ...queryParams.value.filters };
 				if (value == null || value === '') {
 					delete filters[key];
 				} else {
 					filters[key] = value;
 				}
-				emit('update:filters', filters);
+				queryParams.value = {
+					filters,
+					sort: queryParams.value.sort,
+					perPage: queryParams.value.perPage,
+				};
+			}),
+			onItemClick(item: ListItem): void {
+				if (!props.entityMeta) {
+					return;
+				}
+				emit('item-click', { item, id: `${item[props.entityMeta.itemUrlKey]}`, abilities: store.abilities });
+			},
+			onItemActionClick(event: { action: string; item: ListItem; [otherArgs: string]: unknown }): void {
+				if (!props.entityMeta) {
+					return;
+				}
+				if (isPositionChangeEvent(event)) {
+					store.moveItem(event.oldIndex, event.newIndex);
+				} else {
+					emit('item-action-click', { ...event, id: `${event.item[props.entityMeta.itemUrlKey]}`, abilities: store.abilities });
+				}
 			},
 			onItemInput({ item, values }: { item: Record<string, unknown>; values: Record<string, unknown> }) {
 				store.patchItem(item, values).catch((err) => {
@@ -337,10 +319,13 @@ export default defineComponent({
 					});
 				});
 			},
+			getFieldComponent(type: string) {
+				return formFields.getComponent(type);
+			},
 			getItemSlotBindings(item: ListItem) {
 				return {
 					item,
-					id: item[idKey.value],
+					id: (props.entityMeta && item[props.entityMeta.itemUrlKey]) || '',
 					itemRoute: itemRoute(item),
 					reload,
 					onEditClick: () => onEditClick(item),

@@ -35,14 +35,11 @@
 			:entity-meta="relatedEntityMeta"
 			:view="view"
 			:no-actions="readonly"
+			:static-filters="parentFilter"
 			:per-page-options="perPageOptions"
 			:sortable="sortable"
 			:selectable="selectable"
 			:context="context"
-			v-model:page="page"
-			v-model:perPage="perPage"
-			v-model:filters="filters"
-			v-model:sort="sort"
 			@edit-click="editingItem = { id: $event.id }"
 			@item-click="editingItem = { id: $event.id }"
 			@item-action-click="onItemActionClick($event)"
@@ -146,12 +143,9 @@ export default defineComponent({
 		const route = useRoute();
 		const router = useRouter();
 		const entityViewComponent = ref<typeof EntityView | null>(null);
-		const page = ref<number>(1);
-		const perPage = ref<number | undefined>(undefined);
-		const filters = ref<Record<string, unknown>>({
+		const parentFilter = ref<Record<string, unknown>>({
 			[props.foreignKey]: props.idField ? props.formObject?.[props.idField] : props.formObjectId,
 		});
-		const sort = ref<Record<string, unknown>>({});
 		const queryKey = () => `${props.fieldKey}.${props.relatedEntity}`;
 		const editingItem = computed<IItemData | null>({
 			set(v) {
@@ -197,14 +191,11 @@ export default defineComponent({
 		return {
 			...useTranslator(),
 			relatedEntityMeta,
-			page,
-			perPage,
-			filters,
-			sort,
 			fixedItemValues,
 			defaultItemValues,
 			editingItem,
 			entityViewComponent,
+			parentFilter,
 			clearEditingItem() {
 				editingItem.value = null;
 			},

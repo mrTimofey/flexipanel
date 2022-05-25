@@ -26,6 +26,7 @@ export interface IApiOptions {
 export default class EntityListStore extends EntityBaseStore<IState> {
 	protected entity: IRegisteredEntity | null = null;
 	protected staticFilters: Record<string, unknown> | null = null;
+	protected lastQueryNumber = 0;
 
 	protected getInitialState(): IState {
 		return {
@@ -61,6 +62,9 @@ export default class EntityListStore extends EntityBaseStore<IState> {
 		if (!this.entity) {
 			return;
 		}
+		// prevent query overlapping in case reloading is triggered multiple times before the response is arrived
+		this.lastQueryNumber += 1;
+		const queryNumber = this.lastQueryNumber;
 		this.state.loading = true;
 		this.state.page = page;
 		if (perPage) {
@@ -74,6 +78,11 @@ export default class EntityListStore extends EntityBaseStore<IState> {
 				filters: { ...filters, ...this.staticFilters },
 				include,
 			});
+			// prevent query overlapping in case reloading is triggered multiple times before the response is arrived
+			// TODO cancel query?
+			if (queryNumber !== this.lastQueryNumber) {
+				return;
+			}
 			this.state.list = res.items;
 			this.state.offset = res.offset || -1;
 			this.state.perPage = res.limit || -1;
