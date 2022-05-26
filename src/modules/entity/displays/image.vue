@@ -1,10 +1,9 @@
 <template lang="pug">
-img(:src="item[prop]" alt="")
+img(:src="item[prop]" alt="" :style="{ width, height, maxHeight, maxWidth }")
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { useTemplate } from '../../vue-composition-utils';
 
 export default defineComponent({
 	props: {
@@ -16,9 +15,22 @@ export default defineComponent({
 			type: String,
 			default: '',
 		},
-	},
-	setup() {
-		return useTemplate();
+		width: {
+			type: String,
+			default: null,
+		},
+		height: {
+			type: String,
+			default: null,
+		},
+		maxWidth: {
+			type: String,
+			default: null,
+		},
+		maxHeight: {
+			type: String,
+			default: null,
+		},
 	},
 });
 </script>
