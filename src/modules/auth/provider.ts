@@ -20,12 +20,23 @@ export default abstract class AuthProvider {
 	abstract logout(): Promise<void>;
 	abstract authorizeRequest(req: IHttpRequest, token: string): void;
 	abstract isRequestRecoverable(reqData: { req: IHttpRequest; res: IHttpResponse<unknown> | null }): boolean;
-	abstract recoverAccessToken(refreshToken: string): Promise<IAuthenticationResult>;
+	protected abstract recoverAccessToken(refreshToken: string): Promise<IAuthenticationResult>;
 
 	private requestInterceptor: RequestInterceptor | null = null;
 	private recoverErrorHandler: ErrorHandler | null = null;
+	private accessTokenRecoveryRequest: Promise<IAuthenticationResult> | null = null;
 
 	constructor(protected http = inject(HttpClient)) {}
+
+	public waitRecoveredAccessToken(refreshToken: string): Promise<IAuthenticationResult> {
+		if (!this.accessTokenRecoveryRequest) {
+			this.accessTokenRecoveryRequest = this.recoverAccessToken(refreshToken).then((data) => {
+				this.accessTokenRecoveryRequest = null;
+				return data;
+			});
+		}
+		return this.accessTokenRecoveryRequest;
+	}
 
 	authorizeHttpRequests(token: string | null, refreshToken?: string, onRefresh?: (tokens: IAuthenticationResult) => void): void {
 		if (this.requestInterceptor) {
@@ -50,7 +61,7 @@ export default abstract class AuthProvider {
 			if (err.req.metadata[recoveredMetadataKey] === true || !this.isRequestRecoverable(err)) {
 				return null;
 			}
-			const newTokens = await this.recoverAccessToken(refreshToken);
+			const newTokens = await this.waitRecoveredAccessToken(refreshToken);
 			this.authorizeHttpRequests(newTokens.accessToken, newTokens.refreshToken, onRefresh);
 			if (onRefresh) {
 				onRefresh(newTokens);

@@ -88,7 +88,7 @@ export default class HttpTokenAuthProvider extends AuthProvider {
 		);
 	}
 
-	async recoverAccessToken(refreshToken: string): Promise<IAuthenticationResult> {
+	protected async recoverAccessToken(refreshToken: string): Promise<IAuthenticationResult> {
 		return this.authResponse(
 			this.http.post<Record<string, string>>(this.httpEndpoints.refresh, {
 				[this.httpBodyKeys.refreshTokenInRequestBody || this.httpBodyKeys.refreshToken]: refreshToken,

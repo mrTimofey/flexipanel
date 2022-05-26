@@ -71,6 +71,12 @@ export default class AuthStore extends ReactiveStore<IState> {
 		}
 	}
 
+	async recoverAccessToken(): Promise<void> {
+		const tokens = await this.provider.waitRecoveredAccessToken(this.state.refreshToken);
+		Object.assign(this.state, tokens);
+		this.syncWithProvider();
+	}
+
 	async logout(): Promise<void> {
 		this.resetState();
 		this.provider.logout();

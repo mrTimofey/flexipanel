@@ -17,7 +17,7 @@ export default class FetchJsonClient extends HttpClient {
 			.then(async (res) => {
 				const contentType = res.headers.get('Content-Type');
 				let body = null;
-				if (contentType && contentType.startsWith('application') && contentType.includes('json')) {
+				if (contentType && res.status !== 204 && contentType.startsWith('application') && contentType.includes('json')) {
 					body = await res.json();
 				}
 				return {
