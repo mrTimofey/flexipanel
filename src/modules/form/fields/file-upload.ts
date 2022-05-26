@@ -44,7 +44,7 @@ export function getFileFieldProps(options: { defaultAccept?: string } = {}) {
 		},
 		urlTemplate: {
 			type: String,
-			default: '/storage/uploads/{{=it}}',
+			default: '',
 		},
 	};
 }
@@ -117,7 +117,7 @@ export default function useFieldWithFileUploads(props: ExtractPropTypes<ReturnTy
 	const modelValueItems = computed(() =>
 		modelValueArray.value.map((value) => ({
 			value,
-			url: typeof value === 'string' ? tpl(props.urlTemplate, value) : '',
+			url: props.urlTemplate ? tpl(props.urlTemplate, value) : value,
 		})),
 	);
 
