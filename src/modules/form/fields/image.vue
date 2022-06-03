@@ -17,14 +17,12 @@
 	.progress.active(v-else-if="uploadStatus === UploadStatus.InProgress")
 		.progress-bar.progress-bar-striped.progress-bar-animated(:style="{ width: `${uploadProgress * 100}%` }")
 	.form-field-image-actions.my-1(v-else)
-		label.btn(
+		label.btn.form-field-upload-input(
 			v-if="multiple || !modelValueItems.length"
-			:disabled="disabled"
 			:class="errors ? 'btn-outline-danger' : 'btn-light'"
 		)
 			input(
 				type="file"
-				style="display:none"
 				@change="onFileInputChange($event)"
 				:accept="accept"
 				:disabled="disabled"
@@ -50,10 +48,10 @@
 							:class="errors ? ['border-danger', 'bg-danger'] : null"
 							style="--bs-bg-opacity:0.25"
 						)
-					.btn.btn-danger.btn-sm.btn-delete.m-2(@click="removeItem(index)" :disabled="disabled")
+					button.btn.btn-danger.btn-sm.btn-delete.m-2(@click="removeItem(index)" :disabled="disabled")
 						i.fas.fa-trash
 				.btn-group(v-else)
-					.btn.btn-danger(@click="removeItem(index)" :disabled="disabled")
+					button.btn.btn-danger(@click="removeItem(index)" :disabled="disabled")
 						i.fas.fa-trash
 					.btn(:class="errors ? 'btn-outline-danger' : 'btn-light'") {{ uploadMessage || trans('uploadMessage') }}
 	.text-danger(v-if="errors && errors.length")
@@ -253,6 +251,16 @@ export default defineComponent({
 	img
 		display block
 		width 100%
+.form-field-upload-input
+	position relative
+	input
+		position absolute
+		top 0
+		right 0
+		bottom 0
+		left 0
+		opacity 0
+		cursor pointer
 .multiple
 	.form-field-image-item a
 		cursor move

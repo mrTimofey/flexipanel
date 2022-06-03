@@ -9,11 +9,10 @@
 			:style="{ width: `${uploadProgress * 100}%` }"
 		)
 	.form-field-file-actions.btn-group(v-else)
-		.btn.btn-danger(v-if="modelValue" @click="clearValue()" :disabled="disabled")
+		button.btn.btn-danger(v-if="modelValue" @click="clearValue()" :disabled="disabled")
 			i.fas.fa-trash
 		label.btn(
 			v-else
-			:disabled="disabled"
 			:class="errors ? 'btn-outline-danger' : 'btn-light'"
 		)
 			input(
