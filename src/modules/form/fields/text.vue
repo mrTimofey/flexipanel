@@ -2,12 +2,12 @@
 .form-field-text
 	slot(name="label")
 	input.form-control.form-control-sm(
-		ref="input"
+		ref="inputEl"
 		:disabled="disabled"
 		:placeholder="placeholder"
-		:value="modelValue"
 		:class="{ 'is-invalid': !!errors || maxLength && length > maxLength }"
 		@input="onInput($event)"
+		@blur="onInput($event)"
 	)
 	div(v-if="maxLength")
 		small(:class="length > maxLength ? 'text-danger' : 'text-muted'") {{ trans('symbolCount') }}: {{ length }} / {{ maxLength }}
@@ -37,20 +37,34 @@ export default defineComponent({
 	},
 	emits: ['update:modelValue'],
 	setup(props, { emit }) {
-		const input = ref<HTMLInputElement | null>(null);
+		const inputEl = ref<HTMLInputElement | null>(null);
 		watch(
-			[input, () => props.autofocus],
+			[inputEl, () => props.autofocus],
 			() => {
-				if (input.value && props.autofocus) {
-					input.value.focus();
-					input.value.select();
+				if (!inputEl.value) {
+					return;
 				}
+				if (props.autofocus) {
+					inputEl.value.focus();
+					inputEl.value.select();
+				}
+				inputEl.value.value = props.modelValue;
+			},
+			{ immediate: true },
+		);
+		watch(
+			() => props.modelValue,
+			() => {
+				if (!inputEl.value || document.activeElement === inputEl.value) {
+					return;
+				}
+				inputEl.value.value = props.modelValue;
 			},
 			{ immediate: true },
 		);
 		return {
 			...useTranslator(),
-			input,
+			inputEl,
 			onInput(e: Event) {
 				const value = (e.target as HTMLInputElement).value.trim();
 				if (value !== props.modelValue) {
