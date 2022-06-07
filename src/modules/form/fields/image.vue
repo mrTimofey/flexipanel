@@ -188,6 +188,7 @@ export default defineComponent({
 			]),
 			onCropActionClick(apply: boolean) {
 				if (apply && cropper) {
+					const mime = pendingCropFiles.value[0].type || 'image/jpeg';
 					cropper
 						.getCroppedCanvas({
 							imageSmoothingEnabled: false,
@@ -203,7 +204,7 @@ export default defineComponent({
 							} else {
 								endCropping();
 							}
-						});
+						}, mime);
 				} else {
 					endCropping();
 				}
@@ -217,10 +218,10 @@ export default defineComponent({
 				if (target.disabled || !target.files?.length) {
 					return;
 				}
-				// don't crop gif images, just upload them as-is
 				const croppableImages: File[] = [];
 				Array.from(target.files).forEach((file) => {
-					if (file.type === 'image/gif') {
+					// don't crop gif and svg images, just upload them as-is
+					if (['image/gif', 'image/svg'].includes(file.type)) {
 						fieldWithFileUploads.uploadFile(file);
 					} else {
 						croppableImages.push(file);
