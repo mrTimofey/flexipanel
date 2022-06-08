@@ -47,7 +47,7 @@ const dateFormatters = {
 			if (typeof value === 'number' && !Number.isNaN(value)) {
 				const date = new Date(value * 1000);
 				// normalize timezone to make the date time
-				date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
+				date.setMinutes(date.getMinutes() + date.getTimezoneOffset());
 				return date.toISOString().replace('T', ' ').substring(0, 19);
 			}
 			return null;
@@ -69,7 +69,7 @@ export default defineComponent({
 			default: '',
 		},
 		formatter: {
-			type: String as PropType<keyof typeof dateFormatters | FormatterFn>,
+			type: [String, Object] as PropType<keyof typeof dateFormatters | FormatterFn>,
 			default: 'sql',
 		},
 	},
