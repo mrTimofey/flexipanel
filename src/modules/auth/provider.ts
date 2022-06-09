@@ -2,6 +2,7 @@
 import { inject } from 'mini-ioc';
 import type { ErrorHandler, IHttpRequest, IHttpResponse, RequestInterceptor } from '../http';
 import HttpClient from '../http';
+import collection from '../collection';
 
 export interface ICredentials {
 	login: string;
@@ -25,20 +26,31 @@ export default abstract class AuthProvider {
 	private requestInterceptor: RequestInterceptor | null = null;
 	private recoverErrorHandler: ErrorHandler | null = null;
 	private accessTokenRecoveryRequest: Promise<IAuthenticationResult> | null = null;
+	private tokenUpdateListeners = collection<(res: IAuthenticationResult) => unknown>();
 
 	constructor(protected http = inject(HttpClient)) {}
 
-	public waitRecoveredAccessToken(refreshToken: string): Promise<IAuthenticationResult> {
+	waitRecoveredAccessToken(refreshToken: string): Promise<IAuthenticationResult> {
 		if (!this.accessTokenRecoveryRequest) {
 			this.accessTokenRecoveryRequest = this.recoverAccessToken(refreshToken).then((data) => {
 				this.accessTokenRecoveryRequest = null;
+				this.authorizeHttpRequests(data.accessToken, data.refreshToken);
+				this.tokenUpdateListeners.items.forEach((fn) => fn(data));
 				return data;
 			});
 		}
 		return this.accessTokenRecoveryRequest;
 	}
 
-	authorizeHttpRequests(token: string | null, refreshToken?: string, onRefresh?: (tokens: IAuthenticationResult) => void): void {
+	addTokensUpdateListener(fn: (res: IAuthenticationResult) => unknown) {
+		this.tokenUpdateListeners.add(fn);
+	}
+
+	removeTokensUpdateListener(fn: (res: IAuthenticationResult) => unknown) {
+		this.tokenUpdateListeners.remove(fn);
+	}
+
+	authorizeHttpRequests(token: string | null, refreshToken?: string): void {
 		if (this.requestInterceptor) {
 			this.http.removeRequestInterceptor(this.requestInterceptor);
 			this.requestInterceptor = null;
@@ -61,11 +73,7 @@ export default abstract class AuthProvider {
 			if (err.req.metadata[recoveredMetadataKey] === true || !this.isRequestRecoverable(err)) {
 				return null;
 			}
-			const newTokens = await this.waitRecoveredAccessToken(refreshToken);
-			this.authorizeHttpRequests(newTokens.accessToken, newTokens.refreshToken, onRefresh);
-			if (onRefresh) {
-				onRefresh(newTokens);
-			}
+			await this.waitRecoveredAccessToken(refreshToken);
 			return retry({ ...err.req, metadata: { ...err.req.metadata, [recoveredMetadataKey]: true } });
 		};
 		this.http.addErrorHandler(this.recoverErrorHandler);

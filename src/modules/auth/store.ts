@@ -1,7 +1,7 @@
 import { inject } from 'mini-ioc';
 import ReactiveStore from '../reactive-store';
 import AuthProvider, { WrongCredentialsError } from './provider';
-import type { ICredentials } from './provider';
+import type { ICredentials, IAuthenticationResult } from './provider';
 import Translator from '../i18n';
 import KeyValueStorage from '../key-value-storage';
 
@@ -17,6 +17,7 @@ interface IState {
 export default class AuthStore extends ReactiveStore<IState> {
 	constructor(protected provider = inject(AuthProvider), protected trans = inject(Translator), protected persistentStorage = inject(KeyValueStorage)) {
 		super();
+		this.onTokensUpdate = this.onTokensUpdate.bind(this);
 	}
 
 	getInitialState(): IState {
@@ -28,6 +29,11 @@ export default class AuthStore extends ReactiveStore<IState> {
 			accessToken: '',
 			refreshToken: '',
 		};
+	}
+
+	onTokensUpdate(tokens: IAuthenticationResult) {
+		Object.assign(this.state, tokens);
+		this.saveToStorage();
 	}
 
 	get isAuthorized(): boolean {
@@ -47,10 +53,9 @@ export default class AuthStore extends ReactiveStore<IState> {
 	}
 
 	private syncWithProvider() {
-		this.provider.authorizeHttpRequests(this.state.accessToken, this.state.refreshToken, (tokens) => {
-			Object.assign(this.state, tokens);
-			this.saveToStorage();
-		});
+		this.provider.removeTokensUpdateListener(this.onTokensUpdate);
+		this.provider.addTokensUpdateListener(this.onTokensUpdate);
+		this.provider.authorizeHttpRequests(this.state.accessToken, this.state.refreshToken);
 		this.saveToStorage();
 	}
 

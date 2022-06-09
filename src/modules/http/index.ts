@@ -1,4 +1,6 @@
 /* eslint-disable max-classes-per-file */
+import collection from '../collection';
+
 export interface IHttpRequest<T = unknown> {
 	url: string;
 	method: string;
@@ -47,23 +49,6 @@ export type RequestInterceptor = (req: IHttpRequest) => void;
  * If retry is called without request argument, same request object will be used.
  */
 export type ErrorHandler = (req: HttpRequestError<unknown>, retry: (req?: IHttpRequest) => Promise<IHttpResponse<unknown>>) => Promise<IHttpResponse<unknown> | null>;
-
-function collection<T>() {
-	const items = [] as T[];
-	return {
-		items,
-		add(item: T) {
-			items.push(item);
-		},
-		remove(item: T) {
-			const index = items.indexOf(item);
-			if (index === -1) {
-				return;
-			}
-			items.splice(index, 1);
-		},
-	};
-}
 
 function isErrorStatus(status: number) {
 	return status === 0 || (status >= 400 && status < 600);

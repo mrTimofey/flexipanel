@@ -79,12 +79,9 @@ export default class HttpTokenAuthProvider extends AuthProvider {
 
 	isRequestRecoverable({ req, res }: { req: IHttpRequest; res: IHttpResponse<unknown> | null }): boolean {
 		return !!(
-			// recover when response is successfully received and has 401 status
-			(
-				res?.status === 401 &&
-				// dont recover requests to auth endpoints
-				!Object.values(this.httpEndpoints).includes(req.url)
-			)
+			res?.status === 401 &&
+			// dont recover requests to auth endpoints
+			!Object.values(this.httpEndpoints).includes(req.url)
 		);
 	}
 
