@@ -56,15 +56,13 @@ export default class AuthStore extends ReactiveStore<IState> {
 		this.provider.removeTokensUpdateListener(this.onTokensUpdate);
 		this.provider.addTokensUpdateListener(this.onTokensUpdate);
 		this.provider.authorizeHttpRequests(this.state.accessToken, this.state.refreshToken);
-		this.saveToStorage();
 	}
 
 	async authenticate(credentials: ICredentials): Promise<void> {
 		this.state.authenticating = true;
 		this.state.authenticationError = '';
 		try {
-			Object.assign(this.state, await this.provider.authenticate(credentials));
-			this.syncWithProvider();
+			this.onTokensUpdate(await this.provider.authenticate(credentials));
 		} catch (err) {
 			if (err instanceof WrongCredentialsError) {
 				this.state.authenticationError = err.message || this.trans.get('wrongCredentials');
@@ -76,13 +74,11 @@ export default class AuthStore extends ReactiveStore<IState> {
 		}
 	}
 
-	async recoverAccessToken(): Promise<void> {
-		const tokens = await this.provider.waitRecoveredAccessToken(this.state.refreshToken);
-		Object.assign(this.state, tokens);
-		this.syncWithProvider();
+	recoverAccessToken(): Promise<unknown> {
+		return this.provider.waitRecoveredAccessToken(this.state.refreshToken);
 	}
 
-	async logout(): Promise<void> {
+	logout(): void {
 		this.resetState();
 		this.provider.logout();
 		this.saveToStorage();
