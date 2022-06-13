@@ -221,7 +221,7 @@ export default defineComponent({
 				const croppableImages: File[] = [];
 				Array.from(target.files).forEach((file) => {
 					// don't crop gif and svg images, just upload them as-is
-					if (['image/gif', 'image/svg'].includes(file.type)) {
+					if (['image/gif', 'image/svg', 'image/svg+xml'].includes(file.type)) {
 						fieldWithFileUploads.uploadFile(file);
 					} else {
 						croppableImages.push(file);
