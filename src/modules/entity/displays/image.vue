@@ -24,7 +24,7 @@ export default defineComponent({
 	setup(props) {
 		const { tpl } = useTemplate();
 		return {
-			src: computed(() => (props.urlTemplate ? tpl(props.urlTemplate, props.item[props.prop]) : props.item[props.prop])),
+			src: computed(() => props.item[props.prop] && (props.urlTemplate ? tpl(props.urlTemplate, props.item[props.prop]) : props.item[props.prop])),
 		};
 	},
 });
