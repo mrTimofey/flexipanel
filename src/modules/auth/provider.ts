@@ -74,7 +74,10 @@ export default abstract class AuthProvider {
 				return null;
 			}
 			await this.waitRecoveredAccessToken(refreshToken);
-			return retry({ ...err.req, metadata: { ...err.req.metadata, [recoveredMetadataKey]: true } });
+			return new Promise((resolve) => {
+				// try to solve missing token issue
+				setTimeout(resolve);
+			}).then(() => retry({ ...err.req, metadata: { ...err.req.metadata, [recoveredMetadataKey]: true } }));
 		};
 		this.http.addErrorHandler(this.recoverErrorHandler);
 	}
