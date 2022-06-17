@@ -15,6 +15,7 @@ export interface IState {
 
 export interface IGetItemParams {
 	include?: string[];
+	query?: Record<string, string>;
 }
 
 export default class EntityItemStore extends EntityBaseStore<IState> {
@@ -86,7 +87,7 @@ export default class EntityItemStore extends EntityBaseStore<IState> {
 		}
 	}
 
-	public async reloadOriginalItem({ include }: IGetItemParams = {}): Promise<void> {
+	public async reloadOriginalItem({ include, query }: IGetItemParams = {}): Promise<void> {
 		this.state.originalItem = {};
 		if (!this.entity || !this.itemId) {
 			return;
@@ -94,7 +95,7 @@ export default class EntityItemStore extends EntityBaseStore<IState> {
 		this.state.loading = true;
 		try {
 			const adapter = await this.getAdapter();
-			const { item, relatedItems } = await adapter.getItem(this.entity.apiEndpoint, { id: this.itemId, include });
+			const { item, relatedItems } = await adapter.getItem(this.entity.apiEndpoint, { id: this.itemId, include, query });
 			this.state.relatedItems = relatedItems;
 			this.inlineRelatedItems(item);
 			this.state.originalItem = item;

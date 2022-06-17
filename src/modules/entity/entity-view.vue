@@ -193,6 +193,7 @@ export default defineComponent({
 			store.reload({
 				...queryParams.value,
 				include: entityView.value?.include,
+				query: entityView.value?.query,
 				perPage: queryParams.value.perPage || props.perPage || entityView.value?.perPage,
 			});
 		const reloadInitialState = async (): Promise<void> => {

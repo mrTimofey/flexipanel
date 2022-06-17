@@ -21,6 +21,7 @@ export interface IApiOptions {
 	perPage?: number;
 	filters?: Record<string, unknown>;
 	include?: string[];
+	query?: Record<string, string>;
 }
 
 export default class EntityListStore extends EntityBaseStore<IState> {
@@ -58,7 +59,7 @@ export default class EntityListStore extends EntityBaseStore<IState> {
 		}
 	}
 
-	public async reload({ page = 1, perPage, filters, include }: IApiOptions = {}): Promise<void> {
+	public async reload({ page = 1, perPage, filters, include, query }: IApiOptions = {}): Promise<void> {
 		if (!this.entity) {
 			return;
 		}
@@ -77,6 +78,7 @@ export default class EntityListStore extends EntityBaseStore<IState> {
 				limit: perPage,
 				filters: { ...filters, ...this.staticFilters },
 				include,
+				query,
 			});
 			// prevent query overlapping in case reloading is triggered multiple times before the response is arrived
 			// TODO cancel query?

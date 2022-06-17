@@ -3,6 +3,7 @@ export interface IListParams {
 	limit?: number;
 	filters?: Record<string, unknown>;
 	include?: string[];
+	query?: Record<string, string>;
 }
 
 export interface IListData {
@@ -15,6 +16,7 @@ export interface IListData {
 export interface IItemParams {
 	id: string;
 	include?: string[];
+	query?: Record<string, string>;
 }
 
 export interface IItemData {

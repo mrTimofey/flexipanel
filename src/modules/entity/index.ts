@@ -38,6 +38,8 @@ export interface IView {
 	staticFilters?: Record<string, unknown>;
 	// add include query to fetch related entities
 	include?: string[];
+	// custom query parameters
+	query?: Record<string, string>;
 	// view component properties (based on type)
 	props?: Record<string, unknown>;
 	// items per page
@@ -53,6 +55,8 @@ export interface IForm {
 	layout?: PossiblyAsyncComponent;
 	// add include query to fetch related entities
 	include?: string[];
+	// custom query parameters
+	query?: Record<string, string>;
 	// list of related items path to replace related item id's with the related objects
 	inlineRelated?: string[];
 }
@@ -93,6 +97,7 @@ export const viewDefaults: Partial<IView> = {
 	perPage: 25,
 	perPageOptions: [5, 10, 25, 50, 100],
 	include: [],
+	query: {},
 	staticFilters: {},
 };
 
@@ -110,6 +115,7 @@ export const formDefaults: Partial<IForm> = {
 	layout: defineAsyncComponent(() => import('./forms/simple.vue')),
 	fields: [],
 	include: [],
+	query: {},
 	inlineRelated: [],
 };
 

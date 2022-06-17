@@ -168,7 +168,10 @@ export default defineComponent({
 
 		watchEffect(async () => {
 			initializing.value = true;
-			await store.loadEntityItem(props.entityMeta, props.id, { include: props.entityMeta?.form.include });
+			await store.loadEntityItem(props.entityMeta, props.id, {
+				include: props.entityMeta?.form.include,
+				query: props.entityMeta?.form.query,
+			});
 			Object.entries(props.fixedValues).forEach(([key, value]) => {
 				store.formItem[key] = value;
 			});

@@ -176,6 +176,11 @@ export default class JsonApiAdapter implements IAdapter {
 		if (params.include?.length) {
 			urlParams.push(['include', params.include.join(',')]);
 		}
+		if (params.query) {
+			Object.entries(params.query).forEach(([k, v]) => {
+				urlParams.push([k, `${v}`]);
+			});
+		}
 		const urlParamsString = `?${urlParams.map(([k, v]) => `${k}=${encodeURIComponent(v)}`).join('&')}`;
 		const { body } = await this.http.get<IJsonApiListResponse>(`${endpoint}${urlParamsString.length > 1 ? urlParamsString : ''}`, {
 			// eslint-disable-next-line @typescript-eslint/naming-convention
@@ -184,9 +189,18 @@ export default class JsonApiAdapter implements IAdapter {
 		return adaptListResponse(body);
 	}
 
-	async getItem(endpoint: string, { id, include }: IItemParams): Promise<IItemData> {
-		const includeQuery = include?.length ? `?include=${include.join(',')}` : '';
-		const { body } = await this.http.get<IJsonApiItemResponse>(`${endpoint}/${id}${includeQuery}`, {
+	async getItem(endpoint: string, params: IItemParams): Promise<IItemData> {
+		const urlParams: [string, string][] = [];
+		if (params.include?.length) {
+			urlParams.push(['include', params.include.join(',')]);
+		}
+		if (params.query) {
+			Object.entries(params.query).forEach(([k, v]) => {
+				urlParams.push([k, `${v}`]);
+			});
+		}
+		const urlParamsString = urlParams.length ? `?${urlParams.map(([k, v]) => `${k}=${encodeURIComponent(v)}`).join('&')}` : '';
+		const { body } = await this.http.get<IJsonApiItemResponse>(`${endpoint}/${params.id}${urlParamsString}`, {
 			// eslint-disable-next-line @typescript-eslint/naming-convention
 			'Content-Type': 'application/vnd.api+json',
 		});
