@@ -31,10 +31,6 @@ export default defineComponent({
 			type: Number,
 			default: Infinity,
 		},
-		default: {
-			type: Number,
-			default: null,
-		},
 	},
 	emits: ['update:modelValue'],
 	setup(props, { emit }) {
@@ -47,19 +43,17 @@ export default defineComponent({
 					target.value = v;
 				}
 				if (v !== '-') {
-					const newValue = v === '' ? props.default : Number(v);
+					const newValue = v === '' ? null : Number(v);
 					if (props.modelValue !== newValue) {
 						emit('update:modelValue', newValue);
 					}
 				}
 			},
 			onBlur() {
-				if (Number.isNaN(props.modelValue)) {
+				if (Number.isNaN(props.modelValue) || props.modelValue === null) {
 					return;
 				}
-				if (props.modelValue !== 0 && !props.modelValue && props.modelValue !== props.default) {
-					emit('update:modelValue', props.default);
-				} else if (props.modelValue < props.min) {
+				if (props.modelValue < props.min) {
 					emit('update:modelValue', props.min);
 				} else if (props.modelValue > props.max) {
 					emit('update:modelValue', props.max);

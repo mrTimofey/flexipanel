@@ -53,7 +53,7 @@ export default defineComponent({
 				}
 			},
 			onBlur() {
-				if (props.modelValue === null) {
+				if (Number.isNaN(props.modelValue) || props.modelValue === null) {
 					return;
 				}
 				if (props.modelValue < props.min) {
