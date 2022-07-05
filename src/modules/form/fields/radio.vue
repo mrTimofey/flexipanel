@@ -1,5 +1,5 @@
 <template lang="pug">
-.form-field-select
+.form-field-radio
 	slot(name="label")
 	template(v-if="theme === 'input-list'")
 		label.form-check(v-for="option in normalizedOptions" @click.prevent="selectOption(option)")
