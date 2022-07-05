@@ -89,7 +89,7 @@ export default defineComponent({
 					if (!route.name) {
 						return;
 					}
-					router.replace({ name: route.name, params: { ...route.params, id } });
+					router.replace({ name: route.name as string, params: { ...route.params, id } });
 				},
 			}),
 		};
