@@ -73,4 +73,5 @@ export default defineComponent({
 <style lang="stylus" scoped>
 .form-check
 	cursor pointer
+	width fit-content
 </style>
