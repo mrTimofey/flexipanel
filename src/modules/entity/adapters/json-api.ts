@@ -216,7 +216,9 @@ export default class JsonApiAdapter implements IAdapter {
 
 	async saveItem(endpoint: string, item: Record<string, unknown>, id?: string): Promise<IItemData> {
 		const attributes = { ...item };
-		delete attributes.id;
+		if (id) {
+			delete attributes.id;
+		}
 		try {
 			const { body } = await this.http.fetch<IJsonApiItemResponse>(
 				id ? `${endpoint}/${id}` : endpoint,
