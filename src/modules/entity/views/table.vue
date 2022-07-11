@@ -131,7 +131,7 @@ export default defineComponent({
 				// go up from the event target to the table cell and detect an anchor on the way
 				let el: HTMLElement | null = event.target as HTMLElement;
 				while (el && el !== event.currentTarget) {
-					if (el instanceof HTMLAnchorElement) {
+					if (el instanceof HTMLAnchorElement || el instanceof HTMLButtonElement || el instanceof HTMLInputElement) {
 						return;
 					}
 					el = el.parentElement;
