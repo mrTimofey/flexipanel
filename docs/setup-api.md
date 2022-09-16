@@ -74,38 +74,38 @@ class MySpecialHttpClient extends HttpClient {
    */
   protected sendFile<T>(req: IUploadRequest): Promise<IHttpResponse<T>> {
     return new Promise((resolve, reject) => {
-			const body = new FormData();
-			body.append('file', blob);
-			const xhr = new XMLHttpRequest();
-			xhr.withCredentials = true;
-			xhr.addEventListener('load', () => {
-				const contentType = xhr.getResponseHeader('Content-Type');
-				const isJson = contentType && contentType.startsWith('application') && contentType.includes('json');
-				resolve({
-					body: isJson ? JSON.parse(xhr.response) : null,
-					headers: {
-						get(key: string) {
-							return xhr.getResponseHeader(key);
-						},
-						has(key: string) {
-							return !!xhr.getResponseHeader(key);
-						},
-					},
-					status: xhr.status,
-					statusText: xhr.statusText,
-				});
-			});
-			xhr.addEventListener('error', (err) => reject(err));
-			if (onProgress) {
-				xhr.upload.addEventListener('progress', (e) => onProgress(e));
-				xhr.upload.addEventListener('load', (e) => onProgress(e));
-			}
-			xhr.open(method, url);
-			Object.entries(headers).forEach(([key, value]) => {
-				xhr.setRequestHeader(key, value);
-			});
-			xhr.send(body);
-		});
+      const body = new FormData();
+      body.append('file', blob);
+      const xhr = new XMLHttpRequest();
+      xhr.withCredentials = true;
+      xhr.addEventListener('load', () => {
+        const contentType = xhr.getResponseHeader('Content-Type');
+        const isJson = contentType && contentType.startsWith('application') && contentType.includes('json');
+        resolve({
+          body: isJson ? JSON.parse(xhr.response) : null,
+          headers: {
+            get(key: string) {
+              return xhr.getResponseHeader(key);
+            },
+            has(key: string) {
+              return !!xhr.getResponseHeader(key);
+            },
+          },
+          status: xhr.status,
+          statusText: xhr.statusText,
+        });
+      });
+      xhr.addEventListener('error', (err) => reject(err));
+      if (onProgress) {
+        xhr.upload.addEventListener('progress', (e) => onProgress(e));
+        xhr.upload.addEventListener('load', (e) => onProgress(e));
+      }
+      xhr.open(method, url);
+      Object.entries(headers).forEach(([key, value]) => {
+        xhr.setRequestHeader(key, value);
+      });
+      xhr.send(body);
+    });
   }
 }
 
@@ -298,7 +298,7 @@ class MySpecialAdapter implements IAdapter {
     });
   }
 
-	getItem(endpoint: string, params: IItemParams): Promise<IItemData> {
+  getItem(endpoint: string, params: IItemParams): Promise<IItemData> {
     // params contain identifier and other data to query a single item
     // there you can make a request for entity listing
     const res = this.http.get(`${endpoint}/${params.id}`); // just an example
@@ -318,13 +318,13 @@ class MySpecialAdapter implements IAdapter {
     });
   }
 
-	deleteItem(endpoint: string, id: string): Promise<void> {
+  deleteItem(endpoint: string, id: string): Promise<void> {
     // make a request to delete item
     this.http.delete(`${endpoint}/${id}`); // just an example
     return Promise.resolve();
   }
 
-	saveItem(endpoint: string, item: Record<string, unknown>, id?: string): Promise<IItemData> {
+  saveItem(endpoint: string, item: Record<string, unknown>, id?: string): Promise<IItemData> {
     // make a request to create (if id is omitted) or update (if id is present) item
     const res = id == null ? this.http.post(endpoint, item) : this.http.patch(`${endpoint}/${id}`, item); // just an example
     // check validation errors
