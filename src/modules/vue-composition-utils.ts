@@ -27,10 +27,10 @@ export function create<T>(what: AnyClass<T>): T {
 export function useRouteQueryParam<T>(key: string, defaultValue: T): WritableComputedRef<T> {
 	const route = useRoute();
 	const router = useRouter();
-	const type = typeof defaultValue;
 	return computed({
 		get(): T {
 			const value = route.query[key];
+			const type = typeof defaultValue;
 			if (value == null) {
 				return defaultValue;
 			}
@@ -50,8 +50,9 @@ export function useRouteQueryParam<T>(key: string, defaultValue: T): WritableCom
 		},
 		set(value: T) {
 			const query = { ...route.query };
+			const type = typeof value;
 			if (type === 'object') {
-				if (Object.keys(value).length === 0) {
+				if (!value || Object.keys(value).length === 0) {
 					delete query[key];
 				} else {
 					query[key] = JSON.stringify(value);

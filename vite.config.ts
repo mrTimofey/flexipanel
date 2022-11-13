@@ -48,26 +48,28 @@ export default defineConfig(({ command }) => ({
 			'/api': process.env.API_BACKEND || 'http://localhost:8000',
 		},
 	},
-	build: command === 'build' && {
-		lib: {
-			entry: resolve(__dirname, 'src/main.ts'),
-			formats: ['es'],
-		},
-		rollupOptions: {
-			external: Object.keys(dependencies),
-			preserveModules: true,
-			output: {
-				preserveModulesRoot: 'src',
-				entryFileNames(chunk) {
-					if (chunk.facadeModuleId.endsWith('.vue')) {
-						return `${chunk.name}.vue.js`;
-					}
-					if (chunk.facadeModuleId.includes('.vue?vue')) {
-						return `${chunk.name.split('.vue_vue')[0]}.vue.${chunk.facadeModuleId.split('.vue?vue')[1].split('&type=')[1].split('&')[0]}.js`;
-					}
-					return `${chunk.name}.js`;
+	...(command === 'build' && {
+		build: {
+			lib: {
+				entry: resolve(__dirname, 'src/main.ts'),
+				formats: ['es'],
+			},
+			rollupOptions: {
+				external: Object.keys(dependencies),
+				preserveModules: true,
+				output: {
+					preserveModulesRoot: 'src',
+					entryFileNames(chunk) {
+						if (chunk.facadeModuleId?.endsWith('.vue')) {
+							return `${chunk.name}.vue.js`;
+						}
+						if (chunk.facadeModuleId?.includes('.vue?vue')) {
+							return `${chunk.name.split('.vue_vue')[0]}.vue.${chunk.facadeModuleId.split('.vue?vue')[1].split('&type=')[1].split('&')[0]}.js`;
+						}
+						return `${chunk.name}.js`;
+					},
 				},
 			},
 		},
-	},
+	}),
 }));
