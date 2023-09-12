@@ -16,7 +16,9 @@ import EntityManager from './modules/entity';
 import FormFields from './modules/form/fields';
 
 // removed after build, see this file for details
-export { default as __dontUseThisThankYou__ } from './__import-all';
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import './__import-all';
 
 export interface IVueAdminConfig {
 	lang: string;

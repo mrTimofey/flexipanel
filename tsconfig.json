@@ -16,7 +16,8 @@
     "skipLibCheck": true,
     "types": [
       "vite/client"
-    ]
+    ],
+    "outDir": "dist"
   },
   "vueCompilerOptions": {
     "plugins": [

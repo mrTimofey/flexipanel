@@ -7,7 +7,7 @@
   "repository": "https://github.com/mrTimofey/flexipanel.git",
   "scripts": {
     "dev": "vite dev",
-    "build": "vite build",
+    "build": "vite build && vue-tsc --declaration --emitDeclarationOnly",
     "serve": "vite preview",
     "lint": "eslint ./ && vue-tsc --noEmit",
     "test": "echo 'Tests are for the weak'",
@@ -43,7 +43,6 @@
     "stylus": "^0.60.0",
     "typescript": "^5.2.2",
     "vite": "^2.6.13",
-    "vite-plugin-dts": "1.0",
     "vite-plugin-html": "^3.0.3",
     "vue-eslint-parser": "^9.3.1",
     "vue-tsc": "^1.8.11"
