@@ -1,58 +1,45 @@
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import { createHtmlPlugin } from 'vite-plugin-html';
-import { resolve } from 'path';
 import { dependencies } from './package.json';
 
 // https://vitejs.dev/config/
-export default defineConfig(({ command }) => ({
+export default defineConfig({
 	plugins: [
 		vue(),
 		createHtmlPlugin(),
-		...(command === 'build'
-			? [
-					{
-						name: 'flexipanel:remove-import-all',
-						generateBundle(options, bundle) {
-							delete bundle['__import-all.js'];
-							const main = bundle['main.js'];
-							if (main.type !== 'chunk') {
-								return;
-							}
-							main.code = main.code.replace('export { default as __dontUseThisThankYou__ } from "./__import-all.js";', '');
-						},
-					},
-			  ]
-			: []),
-	],
-	server: {
-		proxy: {
-			// eslint-disable-next-line @typescript-eslint/naming-convention
-			'/api': process.env.API_BACKEND || 'http://localhost:8000',
-		},
-	},
-	...(command === 'build' && {
-		build: {
-			lib: {
-				entry: resolve(__dirname, 'src/main.ts'),
-				formats: ['es'],
+		// remove an unused hack file, see src/__import-all.js for details
+		{
+			name: 'flexipanel:remove-import-all',
+			generateBundle(options, bundle) {
+				delete bundle['__import-all.js'];
 			},
-			rollupOptions: {
-				external: Object.keys(dependencies),
+		},
+	],
+	build: {
+		lib: {
+			entry: 'src/main.ts',
+			formats: ['es'],
+		},
+		rollupOptions: {
+			external: Object.keys(dependencies),
+			output: {
+				// remove src prefix in output file paths
+				preserveModulesRoot: 'src',
 				preserveModules: true,
-				output: {
-					preserveModulesRoot: 'src',
-					entryFileNames(chunk) {
-						if (chunk.facadeModuleId?.endsWith('.vue')) {
-							return `${chunk.name}.vue.js`;
-						}
-						if (chunk.facadeModuleId?.includes('.vue?vue')) {
-							return `${chunk.name.split('.vue_vue')[0]}.vue.${chunk.facadeModuleId.split('.vue?vue')[1].split('&type=')[1].split('&')[0]}.js`;
-						}
-						return `${chunk.name}.js`;
-					},
+				// Rename emitted Vue component sources so they named `[name].vue.js`.
+				// It is a convenient way to allow applications importing them like '.../name.vue' when using bundlers.
+				// Also `.d.ts` files are generated as `[name].vue.d.ts` so we do not need to tweak them - everything just works.
+				entryFileNames(chunk) {
+					if (chunk.facadeModuleId?.endsWith('.vue')) {
+						return `${chunk.name}.vue.js`;
+					}
+					if (chunk.facadeModuleId?.includes('.vue?vue')) {
+						return `${chunk.name.split('.vue_vue')[0]}.vue.${chunk.facadeModuleId.split('.vue?vue')[1].split('&type=')[1].split('&')[0]}.js`;
+					}
+					return `${chunk.name}.js`;
 				},
 			},
 		},
-	}),
-}));
+	},
+});
