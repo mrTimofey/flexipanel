@@ -10,7 +10,7 @@
     "build": "vite build && vue-tsc --declaration --emitDeclarationOnly",
     "serve": "vite preview",
     "lint": "eslint ./ && vue-tsc --noEmit",
-    "test": "echo 'Tests are for the weak'",
+    "test": "vitest",
     "prepublishOnly": "npm run lint && npm run build"
   },
   "dependencies": {
@@ -44,6 +44,7 @@
     "typescript": "^5.2.2",
     "vite": "^4.4.9",
     "vite-plugin-html": "^3.0.3",
+    "vitest": "^0.34.4",
     "vue-eslint-parser": "^9.3.1",
     "vue-tsc": "^1.8.11"
   },
