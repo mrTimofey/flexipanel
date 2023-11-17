@@ -5,17 +5,7 @@ import { dependencies } from './package.json';
 
 // https://vitejs.dev/config/
 export default {
-	plugins: [
-		vue(),
-		createHtmlPlugin(),
-		// remove an unused hack file, see src/__import-all.js for details
-		{
-			name: 'flexipanel:remove-import-all',
-			generateBundle(options, bundle) {
-				delete bundle['__import-all.js'];
-			},
-		},
-	],
+	plugins: [vue(), createHtmlPlugin()],
 	build: {
 		target: 'esnext',
 		lib: {

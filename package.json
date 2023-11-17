@@ -7,7 +7,7 @@
   "repository": "https://github.com/mrTimofey/flexipanel.git",
   "scripts": {
     "dev": "vite dev",
-    "build": "vite build && vue-tsc --declaration --emitDeclarationOnly",
+    "build": "vite build && vue-tsc --project tsconfig.build.json",
     "serve": "vite preview",
     "lint": "eslint ./ && vue-tsc --noEmit",
     "test": "vitest",

@@ -15,10 +15,8 @@ import Translator from './modules/i18n';
 import EntityManager from './modules/entity';
 import FormFields from './modules/form/fields';
 
-// removed after build, see this file for details
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-import './__import-all';
+// ensure that every module is bundled
+import.meta.glob(['./modules/**.ts', '!**.test.ts', '!**.spec.ts']);
 
 export interface IVueAdminConfig {
 	lang: string;
