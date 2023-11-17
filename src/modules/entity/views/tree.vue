@@ -44,7 +44,8 @@
 				)
 					template(
 						v-for="(_, slot) of slots"
-						#[slot]="scope"
+						#[slot]=`// @ts-ignore
+							scope`
 					)
 						slot(:name="slot" v-bind="scope")
 </template>
