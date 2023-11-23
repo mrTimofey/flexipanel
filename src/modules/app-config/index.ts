@@ -38,21 +38,6 @@ export default class AppConfig extends ReactiveStore<IState> {
 		};
 	}
 
-	protected get rootStyles(): Record<string, string> {
-		return {
-			// eslint-disable-next-line @typescript-eslint/naming-convention
-			'--bs-body-font-family': this.state.fontFamily,
-		};
-	}
-
-	applyToDom(): this {
-		window.document.documentElement.removeAttribute('style');
-		Object.keys(this.rootStyles).forEach((key) => {
-			window.document.documentElement.style.setProperty(key, this.rootStyles[key]);
-		});
-		return this;
-	}
-
 	setConfig(config: Partial<IState> & Partial<{ lang: string; fallbackLang: string }>): this {
 		// TODO refactor
 		if (config.lang) {
@@ -86,5 +71,12 @@ export default class AppConfig extends ReactiveStore<IState> {
 
 	get fallbackLang(): string {
 		return this.trans.fallbackLang;
+	}
+
+	get rootStyle(): Record<string, string> {
+		return {
+			// eslint-disable-next-line @typescript-eslint/naming-convention
+			'--bs-body-font-family': this.state.fontFamily,
+		};
 	}
 }
