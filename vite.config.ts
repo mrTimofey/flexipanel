@@ -1,11 +1,10 @@
 import type { UserConfigExport } from 'vite';
 import vue from '@vitejs/plugin-vue';
-import { createHtmlPlugin } from 'vite-plugin-html';
 import { dependencies } from './package.json';
 
 // https://vitejs.dev/config/
 export default {
-	plugins: [vue(), createHtmlPlugin()],
+	plugins: [vue()],
 	build: {
 		target: 'esnext',
 		lib: {

@@ -58,18 +58,7 @@ Now we are ready to build the application.
 Install dependencies:
 
 ```bash
-npm i flexipanel typescript vite vite-plugin-html
-```
-
-Add `vite.config.ts` file to configure a build:
-
-```typescript
-import { defineConfig } from 'vite';
-import { createHtmlPlugin } from 'vite-plugin-html';
-
-export default defineConfig(({ command }) => ({
-	plugins: [createHtmlPlugin()],
-}));
+npm i flexipanel typescript vite
 ```
 
 Add some useful scripts to the `package.json`:
