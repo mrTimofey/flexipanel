@@ -1,6 +1,6 @@
 import { createApp } from 'vue';
 import type { RouteLocationRaw, Router, RouteRecordRaw } from 'vue-router';
-import { createRouter, createWebHistory } from 'vue-router';
+import { createRouter, createWebHistory, createWebHashHistory, createMemoryHistory } from 'vue-router';
 import Container from 'mini-ioc';
 import { injectKey } from 'mini-ioc-vue';
 import routes from './routes';
@@ -22,12 +22,27 @@ export interface IVueAdminConfig {
 	lang: string;
 }
 
+export const enum HistoryMode {
+	/**
+	 * The application fully controls URL to persist its state.
+	 */
+	Spa = 'spa',
+	/**
+	 * The application uses URL hash to persist its state.
+	 */
+	Hash = 'hash',
+	/**
+	 * The application doesn't persist its state.
+	 */
+	Memory = 'memory',
+}
+
 export default class VueAdminApp {
 	protected container = new Container();
-	protected router: Router = createRouter({
-		history: createWebHistory(import.meta.env.APP_ROUTES_BASE),
-		routes,
-	});
+	protected routes = [...routes];
+	protected router: Router | null = null;
+	protected historyMode = HistoryMode.Spa;
+	protected basePath?: string = undefined;
 
 	constructor() {
 		// set default implementations
@@ -48,12 +63,48 @@ export default class VueAdminApp {
 	}
 
 	protected registerTemplateHelpers(engine: TemplateEngine) {
-		engine.registerHelper('trans', (key: string) => this.container.get(Translator).get(key));
-		engine.registerHelper('route', (route: RouteLocationRaw) => this.router.resolve(route).href);
+		engine.registerHelper('trans', (key: string): string => this.container.get(Translator).get(key));
+		engine.registerHelper('route', (route: RouteLocationRaw): string => this.router?.resolve(route).href ?? route.toString());
 	}
 
 	protected registerFieldResolvers(formFields: FormFields) {
 		formFields.addComponentResolver(this.container.get(EntityManager).formFieldsResolver);
+	}
+
+	protected createVueRouterHistory() {
+		switch (this.historyMode) {
+			case HistoryMode.Memory:
+				return createMemoryHistory(this.basePath);
+			case HistoryMode.Hash:
+				return createWebHashHistory(this.basePath);
+			case HistoryMode.Spa:
+			default:
+				return createWebHistory(this.basePath);
+		}
+	}
+
+	protected createVueRouter() {
+		return createRouter({
+			history: this.createVueRouterHistory(),
+			routes: this.routes,
+		});
+	}
+
+	/**
+	 * Sets navigation state management type. SPA mode is default.
+	 * @see HistoryMode
+	 * @param mode mode
+	 */
+	setHistoryMode(mode: HistoryMode) {
+		this.historyMode = mode;
+	}
+
+	/**
+	 * Sets base path. Base path is used as a prefix for navigation links.
+	 * @param path base path
+	 */
+	setBasePath(path: string) {
+		this.basePath = path;
 	}
 
 	/**
@@ -61,7 +112,7 @@ export default class VueAdminApp {
 	 * @param route route definition
 	 */
 	addRoute(route: RouteRecordRaw): this {
-		this.router.addRoute(route);
+		this.routes.push(route);
 		return this;
 	}
 
@@ -73,10 +124,11 @@ export default class VueAdminApp {
 	}
 
 	/**
-	 * Mount administration panel to a DOM element.
+	 * Mount administration panel app to a DOM element.
 	 * @param target CSS selector or DOM element
 	 */
 	mount(target: string | Element, props?: AppProps): this {
+		this.router = this.createVueRouter();
 		createApp(App, props).use(this.router).provide(injectKey, this.container).mount(target);
 		return this;
 	}
