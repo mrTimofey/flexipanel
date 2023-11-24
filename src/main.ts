@@ -1,5 +1,5 @@
 import { createApp } from 'vue';
-import type { RouteLocationRaw, Router, RouteRecordRaw } from 'vue-router';
+import type { RouteLocationRaw, Router, RouteRecordRaw, RouterHistory } from 'vue-router';
 import { createRouter, createWebHistory, createWebHashHistory, createMemoryHistory } from 'vue-router';
 import Container from 'mini-ioc';
 import { injectKey } from 'mini-ioc-vue';
@@ -62,16 +62,16 @@ export default class VueAdminApp {
 		});
 	}
 
-	protected registerTemplateHelpers(engine: TemplateEngine) {
+	protected registerTemplateHelpers(engine: TemplateEngine): void {
 		engine.registerHelper('trans', (key: string): string => this.container.get(Translator).get(key));
 		engine.registerHelper('route', (route: RouteLocationRaw): string => this.router?.resolve(route).href ?? route.toString());
 	}
 
-	protected registerFieldResolvers(formFields: FormFields) {
+	protected registerFieldResolvers(formFields: FormFields): void {
 		formFields.addComponentResolver(this.container.get(EntityManager).formFieldsResolver);
 	}
 
-	protected createVueRouterHistory() {
+	protected createVueRouterHistory(): RouterHistory {
 		switch (this.historyMode) {
 			case HistoryMode.Memory:
 				return createMemoryHistory(this.basePath);
@@ -83,7 +83,7 @@ export default class VueAdminApp {
 		}
 	}
 
-	protected createVueRouter() {
+	protected createVueRouter(): Router {
 		return createRouter({
 			history: this.createVueRouterHistory(),
 			routes: this.routes,
@@ -95,16 +95,18 @@ export default class VueAdminApp {
 	 * @see HistoryMode
 	 * @param mode mode
 	 */
-	setHistoryMode(mode: HistoryMode) {
+	setHistoryMode(mode: HistoryMode): this {
 		this.historyMode = mode;
+		return this;
 	}
 
 	/**
 	 * Sets base path. Base path is used as a prefix for navigation links.
 	 * @param path base path
 	 */
-	setBasePath(path: string) {
+	setBasePath(path: string): this {
 		this.basePath = path;
+		return this;
 	}
 
 	/**
@@ -127,9 +129,8 @@ export default class VueAdminApp {
 	 * Mount administration panel app to a DOM element.
 	 * @param target CSS selector or DOM element
 	 */
-	mount(target: string | Element, props?: AppProps): this {
+	mount(target: string | Element, props?: AppProps): void {
 		this.router = this.createVueRouter();
 		createApp(App, props).use(this.router).provide(injectKey, this.container).mount(target);
-		return this;
 	}
 }
