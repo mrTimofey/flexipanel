@@ -18,7 +18,6 @@ export interface INavItem {
 }
 
 export interface IState {
-	fontFamily: string;
 	title: string;
 	homeLink: string;
 	mainNav: INavItem[];
@@ -31,7 +30,6 @@ export default class AppConfig extends ReactiveStore<IState> {
 
 	getInitialState(): IState {
 		return {
-			fontFamily: 'Rubik',
 			title: 'AdminPanel',
 			homeLink: '/',
 			mainNav: [],
@@ -71,12 +69,5 @@ export default class AppConfig extends ReactiveStore<IState> {
 
 	get fallbackLang(): string {
 		return this.trans.fallbackLang;
-	}
-
-	get rootStyle(): Record<string, string> {
-		return {
-			// eslint-disable-next-line @typescript-eslint/naming-convention
-			'--bs-body-font-family': this.state.fontFamily,
-		};
 	}
 }

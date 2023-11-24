@@ -1,25 +1,24 @@
 <template lang="pug">
-div(:style="config.rootStyle")
-	.bg-light.d-flex(v-if="auth.isAuthorized")
-		aside.bg-white.shadow-sm
-			.text-center.fs-5.fw-semibold.p-3.border-bottom
-				router-link.text-decoration-none.link-dark(:to="config.appHomeLink") {{ config.appTitle }}
-			.py-2.ps-3.pe-2.border-bottom
-				.d-flex.align-items-center
-					.fw-bold.flex-grow-1 {{ auth.userName || 'Admin' }}
-					button.btn.btn-sm.btn-primary(@click.prevent="auth.logout()" :title="trans('logout')")
-						i.fas.fa-right-from-bracket
-			main-nav(:items="config.mainNav")
-		main.p-3.flex-grow-1
-			router-view
-	.auth-container.bg-dark.bg-gradient(v-else)
-		.auth-form.bg-light.shadow-3.rounded
-			.p-3.fs-5.fw-semibold.text-center.border-bottom {{ config.appTitle }}
-			.p-4
-				auth-form
-	notification-root
-	dialog-root
-	component(v-for="comp in rootComponents" :is="comp")
+.bg-light.d-flex(v-if="auth.isAuthorized")
+	aside.bg-white.shadow-sm
+		.text-center.fs-5.fw-semibold.p-3.border-bottom
+			router-link.text-decoration-none.link-dark(:to="config.appHomeLink") {{ config.appTitle }}
+		.py-2.ps-3.pe-2.border-bottom
+			.d-flex.align-items-center
+				.fw-bold.flex-grow-1 {{ auth.userName || 'Admin' }}
+				button.btn.btn-sm.btn-primary(@click.prevent="auth.logout()" :title="trans('logout')")
+					i.fas.fa-right-from-bracket
+		main-nav(:items="config.mainNav")
+	main.p-3.flex-grow-1
+		router-view
+.auth-container.bg-dark.bg-gradient(v-else)
+	.auth-form.bg-light.shadow-3.rounded
+		.p-3.fs-5.fw-semibold.text-center.border-bottom {{ config.appTitle }}
+		.p-4
+			auth-form
+notification-root
+dialog-root
+component(v-for="comp in rootComponents" :is="comp")
 </template>
 
 <script lang="ts">
